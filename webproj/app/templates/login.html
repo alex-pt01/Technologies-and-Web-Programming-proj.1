@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% block content %}
+	<section id="form"><!--form-->
+
+				<div class="col-sm-4 col-sm-offset-1" style="margin-left: 35%; margin-right: auto;">
+					<div class="login-form"><!--login form-->
+						<h2>Login to your account</h2>
+					    <form method="POST" action="">
+						    {% csrf_token %}
+							<input name="user" type="text" placeholder="Name" />
+							<input name="pass" type="password" placeholder="Password" />
+                            <span style="float:left;"> Don't have an account?</span>
+							<span>
+                                <a style="float:right;" href="{% url 'signup' %}" > Signup </a>
+							</span>
+
+                            <br/>
+                            <button style="float:right;" type="submit" class="btn btn-default">Login</button>
+
+						</form>
+					</div><!--/login form-->
+				</div>
+
+		</div>
+	</section><!--/form-->
+
+
+
+{% endblock %}
+

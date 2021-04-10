@@ -1,0 +1,83 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<!----------------------------------------------------------------------------------->
+
+    <script>
+        setTimeout(function() {
+            $("#fadeOut").fadeOut().empty();
+        }, 5000);
+    </script>
+
+    <!--erros que ocorrem no signup-->
+     {% if form.errors is not None %}
+          <div style="float:right; margin-right: 50px" id="fadeOut" class="alert alert-danger col-sm-4" role="alert">
+            {{ form.errors }}
+          </div>
+    {% endif %}
+
+<!----------------------------------------------------------------------------------->
+
+
+	<section id="form"><!--form-->
+		<div class="container">
+			<div class="row">
+				<div class="col-sm-4 col-sm-offset-1" style="margin-left: 35%; margin-right: auto;">
+					<div class="signup-form"><!--sign up form-->
+						<h2>New User Signup!</h2>
+					    <form method="POST" action="">
+						    {% csrf_token %}
+                            <label>Username</label>
+                            {{ form.username }}
+                            <label>Email</label>
+                            {{ form.email }}
+
+                            <label>Enter Password</label>
+                            {{ form.password1 }}
+
+                            <label>Re-enter Password</label>
+                            {{ form.password2 }}
+
+							<button style="float:right;" type="submit" class="btn btn-default">Signup</button>
+						</form>
+					</div><!--/sign up form-->
+				</div>
+
+			</div>
+		</div>
+	</section><!--/form-->
+
+
+
+
+
+
+{% endblock %}
+
+ <!-- Copyright -->
+  <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+    © 2020 Copyright:
+    <a class="text-white" href="https://mdbootstrap.com/">MDBootstrap.com</a>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
