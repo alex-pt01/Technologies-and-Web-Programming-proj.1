@@ -3,23 +3,7 @@
 {% block content %}
 
 
-<script>
-    window.onload = function(){
-      document.getElementById("myDIV").style.display='none';
-    };
 
-    setTimeout(function() {
-        $("#fadeOut").fadeOut().empty();
-    }, 4000);
-
-</script>
-
-<!--MESSAGES-->
-{%  for message in messages %}
-   <div style="float:right" id="fadeOut" class="alert alert-success" role="alert">
-        {{ message }}
-    </div>
-{%  endfor %}
 
 
 
@@ -759,5 +743,25 @@
 			</div>
 		</div>
 	</section>
+
+
+
+    	<footer id="footer"><!--Footer-->
+
+		<div class="footer-bottom">
+			<div class="container">
+				<div class="row">
+					<p class="pull-left">Copyright © 2013 E-Shopper. All rights reserved.</p>
+					<p class="pull-right">Designed by <span><a target="_blank" href="http://www.themeum.com">Themeum</a></span></p>
+				</div>
+			</div>
+		</div>
+
+	</footer><!--/Footer-->
+
+
+
+
+
 {% endblock %}
 
