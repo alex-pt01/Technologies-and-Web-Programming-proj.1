@@ -5,3 +5,7 @@ from app.models import *
 
 admin.site.register(Promotion)
 admin.site.register(Product)
+admin.site.register(ShoppingCart)
+admin.site.register(ShoppingCartItem)
+admin.site.register(PaymentMethod)
+admin.site.register(Payment)

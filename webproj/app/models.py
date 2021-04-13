@@ -30,3 +30,27 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class PaymentMethod(models.Model):
+    TYPES = (('Credit Card', 'Credit Card'), ('ATM', 'ATM'), ('Bank Transfer', 'Bank Transfer'), ('Paypal', 'Paypal'))
+    type = models.CharField(choices=TYPES, max_length=150)
+    card_no = models.CharField(max_length=12)
+
+
+class ShoppingCart(models.Model):
+    user_id = models.CharField
+
+
+class Payment(models.Model):
+    address = models.CharField(max_length=250)
+    total = models.FloatField(null=False)
+    date = models.DateField()
+    method = models.ForeignKey(PaymentMethod, on_delete=models.CASCADE)
+    shopping_cart = models.ForeignKey(ShoppingCart, on_delete=models.CASCADE)
+
+
+class ShoppingCartItem(models.Model):
+    quantity = models.IntegerField(default=1)
+    cart_id = models.CharField(null=False, max_length=150)
+    item_id = models.ForeignKey(Product, on_delete=models.CASCADE)
