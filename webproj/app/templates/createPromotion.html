@@ -37,11 +37,16 @@
 					    </div><!--/login form-->
 
 
-
-
+                <br><br>
+                {% if error %}
+                    <div class="alert alert-danger">
+                         All fields must be filled!
+                    </div>
+                {% endif %}
 
 
 				</div>
+
 
 		</div>
 	</section><!--/form-->

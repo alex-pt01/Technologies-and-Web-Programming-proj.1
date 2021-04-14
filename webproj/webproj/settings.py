@@ -129,4 +129,4 @@ LOGOUT_REDIRECT_URL = '/index'
 
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'app/media')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'app/media/')

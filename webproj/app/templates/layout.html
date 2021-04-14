@@ -86,20 +86,22 @@
 							</button>
 						</div>
 						<div class="mainmenu  col-sm-12  pull-left" >
-							<ul style="float:right" class="nav navbar-nav collapse navbar-collapse">
+							<ul style="float:left" class="nav navbar-nav collapse navbar-collapse">
 								<li><a href="{% url "home" %}" >Home</a></li>
 
 
-                                <li><a href="{% url "shop" %}"  class="active">Products</a></li>
+                                <li><a href="{% url "searchProducts" %}"  class="active">Products</a></li>
                                 <li><a href="{% url "productDetails" %}" >Product Details</a></li>
                                 <li><a href="{% url "checkout" %}" >Checkout</a></li>
                                 <li><a  href="{% url "cart" %}">Cart</a></li>
+
 
                                 </li>
 
                                                                 <!--ADMIN -->
                                 {% if user.is_authenticated and user.is_superuser %}
-                                    <li><a href="{% url "productsManagement" %}" ><i class="fa fa-shopping-cart"></i> Manage Products</a></li>
+                                    <li><a href="{% url "productsManagement" %}" ><i class="fa fa-shopping-cart"></i> Products Management</a></li>
+                                    <li><a href="{% url "promotionsManagement" %}" ><i class="fa fa-shopping-cart"></i> Promotions Management</a></li>
 
                                 {%  endif %}
 							</ul>

@@ -7,9 +7,9 @@
 
         <div class="col-sm-10">
         <div style="float:right" class="search_box pull-right">
-        <form action="." method="GET">
+            <form method="POST" action="">
                 {% csrf_token %}
-                <input name="query"  style="height:30px" type="search" placeholder="Search"/>
+                <input name="searchShop"  style="height:30px" type="text" placeholder="Search"/>
                 <button style="height:30px"  type="submit" class="search_box pull-right">Search</button>
             </form>
         </div>
@@ -111,31 +111,34 @@
 							</div>
 						</div><!--/price-range-->
 						<div class="shipping text-center"><!--shipping-->
-							<img src="images/home/shipping.jpg" alt="" />
+							<img src="" alt="" />
 						</div><!--/shipping-->
 
 					</div>
 				</div>
-				
-				<div class="col-sm-9 padding-right">
+
+
+
+        {% if productsSearch_ %}
+    				<div class="col-sm-9 padding-right">
 					<div class="features_items"><!--features_items-->
 						<h2 class="title text-center">Features Items</h2>
 
 
-                        {%  for product in productsList %}
+                        {%  for product_ in productsSearch_ %}
                             <div class="col-sm-4">
                                 <div class="product-image-wrapper">
                                     <div class="single-products">
                                         <div class="productinfo text-center">
-                                            <img src="{{ product.image }}" alt="" />
-                                            <h2>{{ product.price }} </h2>
-                                            <p>{{ product.name }}</p>
+                                            <img src="{{ product_.image }}" alt="" />
+                                            <h2>{{ product_.price }} </h2>
+                                            <p>{{ product_.name }}</p>
                                             <a href="#" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
                                         </div>
                                         <div class="product-overlay">
                                             <div class="overlay-content">
-                                                <h2>{{ product.price }}</h2>
-                                                <p>{{ product.name }}</p>
+                                                <h2>{{ product_.price }}</h2>
+                                                <p>{{ product_.name }}</p>
                                                 <a href="#" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
                                             </div>
                                         </div>
@@ -150,10 +153,18 @@
 			</div>
 		</div>
 
+        {% endif %}
 
 
 
 
+
+
+
+					</div><!--features_items-->
+				</div>
+			</div>
+		</div>
 	</section>
 
 {% endblock %}

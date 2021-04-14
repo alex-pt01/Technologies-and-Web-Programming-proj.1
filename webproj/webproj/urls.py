@@ -31,13 +31,27 @@ urlpatterns = [
     #########
     path('productsManagement/', views.productsManagement, name='productsManagement'),
     path('createProduct/', views.createProduct, name='createProduct'),
-    path('createPromotion/', views.createPromotion, name='createPromotion'),
     path('updateProduct/<str:pk>/', views.updateProduct, name='updateProduct'),
     path('deleteProduct/<str:id>', views.deleteProduct, name='deleteProduct'),
+    ########
+    path('promotionsManagement/', views.promotionsManagement, name='promotionsManagement'),
+    path('createPromotion/', views.createPromotion, name='createPromotion'),
+    path('updatePromotion/<str:pk>/', views.updatePromotion, name='updatePromotion'),
+    path('deletePromotion/<str:id>', views.deletePromotion, name='deletePromotion'),
+    ########
+    path('searchProducts/', views.searchProducts, name='searchProducts'),
+    path('searchBar_Products/', views.searchBar_Products, name='searchBar_Products'),
+
+
+
+
+
+
+
+
 
     #TODO
     path('', views.home, name='home'),
-    path('shop/', views.shop, name='shop'),
     path('productDetails/', views.productDetails, name='productDetails'),
     path('checkout/', views.checkout, name='checkout'),
     path('cart/', views.cart, name='cart')

@@ -4,15 +4,16 @@
     <style>
         .styled-table {
             border-collapse: collapse;
-            margin: 25px 0;
+            width:76%;
+            margin-left:12%;
+            margin-right:12%;
             font-size: 0.9em;
             font-family: sans-serif;
-            min-width: 500px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+            min-width: 400px;
         }
         .styled-table thead tr {
             background-color: #009879;
-            color: #ffffff;
+            color: #009879;
             text-align: left;
         }
 
@@ -21,20 +22,16 @@
                 padding: 30px 15px;
                 }
 
-            .styled-table tbody tr {
-                border-bottom: 1px solid #dddddd;
-            }
 
             .styled-table tbody tr:nth-of-type(even) {
                 background-color: #f3f3f3;
             }
 
             .styled-table tbody tr:last-of-type {
-                border-bottom: 2px solid #009879;
+                border-bottom: 2px  #009879;
             }
 
             .styled-table tbody tr.active-row {
-                font-weight: bold;
                 color: #009879;
             }
 
@@ -42,17 +39,12 @@
     </style>
 
 
-
     	<section id="form"><!--form-->
 
-				<div class="col-sm-4 col-sm-offset-1" style="margin-left: 35%; margin-right: auto;">
 
-					<div class="login-form"><!--login form-->
-
-
-
-                <a class="btn btn-sm btn-success" style="float:right;" href="{% url 'createProduct' %}" > Create Product </a>
-
+                    <a class="btn btn-sm btn-success col-sm-1 " style="  margin-right:12%;
+                    float:right"  href="{% url 'createProduct' %}" > Create Product </a>
+                <br><br>
                 <table class="styled-table">
                 <tr>
                     <th>Name</th>
@@ -89,12 +81,10 @@
                 </table>
 
 
-					</div><!--/login form-->
-				</div>
+
 
 		</div>
 	</section><!--/form-->
-
 
 
 

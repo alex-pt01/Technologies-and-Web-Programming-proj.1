@@ -57,14 +57,22 @@ def logout(request):
     return redirect('home')
 
 
+def productsManagement(request):
+    products = Product.objects.all()
+
+    form = {'products': products}
+
+    return render(request, 'productsManagement.html', form)
+
+
 def createProduct(request):
     assert isinstance(request, HttpRequest)
 
-    if request.method == 'POST':
+    if request.method == 'POST' and 'img01' in request.FILES:
         name = request.POST['name']
         price = request.POST['price']
         description_ = request.POST['description']
-        imagem = request.FILES.get('imagem')
+        imagem = request.FILES['img01']
         quantity = request.POST['quantity']
         stock = request.POST['stock']
         brand = request.POST['brand']
@@ -130,11 +138,12 @@ def deleteProduct(request, id):
     return redirect('productsManagement')
 
 
+def promotionsManagement(request):
+    promotions = Promotion.objects.all()
 
+    form = {'promotions': promotions}
 
-
-
-
+    return render(request, 'promotionsManagement.html', form)
 
 
 def createPromotion(request):
@@ -149,20 +158,102 @@ def createPromotion(request):
 
             promotion = Promotion(name=name_, discount=discount_, description=description_, deadline=deadline_)
             promotion.save()
-            return render(request, 'createProduct.html')
+            return render(request, 'promotionsManagement.html')
         else:
             return render(request, 'createPromotion.html', {'error': True})
     else:
         return render(request, 'createPromotion.html', {'error': False})
 
 
-def productsManagement(request):
-    products = Product.objects.all()
+def updatePromotion(request, pk):
+    promotion = Promotion.objects.get(id=pk)
+    if request.method == 'POST':
+        promotion.name = request.POST['name']
+        promotion.discount = request.POST['discount']
+        promotion.description = request.POST['description']
+        promotion.deadline = request.POST['deadline']
+        promotion.save()
+        return render(request, 'promotionsManagement.html')
+    return render(request, 'updatePromotion.html', {'promotion': promotion})
 
-    form = {'products': products}
 
-    return render(request, 'productsManagement.html', form)
+def deletePromotion(request, id):
+    promotion = Promotion.objects.get(id=id)
+    promotion.delete()
+    return redirect('promotionsManagement')
 
+
+
+
+
+
+
+
+def searchProducts(request):
+    productsBrands = Product.objects.order_by('brand').values_list('brand', flat=True).distinct()
+    brands = {}
+    for pB in productsBrands:
+        brands[pB] = Product.objects.filter(brand=pB).count()
+
+    # categorias e brands [(, )..]
+    listCategoriesAndBrands = Product.objects.order_by('category').values_list('category', 'brand').distinct()
+    productsFilter = {}
+    for c in listCategoriesAndBrands:
+        if c[0] not in productsFilter.keys():
+            productsFilter[c[0]] = [c[1]]
+        else:
+            productsFilter[c[0]].append(c[1])
+
+    # productFilter={}
+    # for c in productsCategories:
+    #    print(Product.objects.all().filter(category=c).values('brand', 'pk').distinct())
+    #    productFilter[c] = Product.objects.all().filter(category=c).values('brand').distinct()
+
+    # print(type(productCategories))
+
+    # obter categorias e brands
+
+    query = ''
+    productsList = []
+    if request.method == 'POST':
+        if 'brands' in request.POST and len(request.POST.getlist('brands', [])) > 1:
+            brandsLst = request.POST.getlist('brands', [])
+            for brand in brandsLst:
+                if brand != '':
+                    products = Product.objects.filter(
+                        brand=brand)  # TODO apenas está a ver por BRAND e n por CATEGOYR (no shop.html só envio brand)
+                    if len(products) > 1:
+                        for p in products:
+                            productsList.append(p)
+                    else:
+                        productsList.append(products)
+        else:
+            productsList = Product.objects.all()
+
+    tparams = {'productsFilter': productsFilter,
+               'totalBrands': Product.objects.values('brand').distinct().count(),
+               'totalCategories': Product.objects.values('category').distinct().count(),
+               'brands': brands,
+               'productsList': productsList
+               }
+
+    return render(request, 'shop.html', tparams)
+
+
+# TODO Problema ao invocar a view
+def searchBar_Products(request):
+    if 'query' in request.GET:
+        query = request.GET['query']
+        if query:
+            products = Product.objects.filter(name__icontains=query)
+            return render(request, 'searchBarShop.html.html', {'productsSearch_': products})
+        else:
+            return render(request, 'searchBarShop.html', {'error': True})
+    else:
+        return render(request, 'searchBarShop.html', {'error': False})
+
+
+# TODO
 
 def home(request):
     assert isinstance(request, HttpRequest)
@@ -170,15 +261,6 @@ def home(request):
     return render(request, 'index.html', tparams)
 
     return render(request, 'signup.html', tparams)
-
-
-def shop(request):
-    assert isinstance(request, HttpRequest)
-    tparams = {
-
-    }
-
-    return render(request, 'shop.html', tparams)
 
 
 def productDetails(request):

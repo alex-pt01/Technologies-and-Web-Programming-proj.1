@@ -16,7 +16,7 @@ class Product(models.Model):
     name = models.CharField(max_length=80)
     price = models.FloatField()
     description = models.CharField(max_length=300)
-    image = models.ImageField(upload_to='static/portfolio')
+    image = models.ImageField(upload_to='static/images')
     quantity = models.IntegerField()
     stock = models.BooleanField()
     brand = models.CharField(max_length=80)
