@@ -12,6 +12,8 @@ from app.forms import newUserForm
 from app.models import Product, Promotion
 
 
+currentCart = []
+
 def login(request):
     if request.user.is_authenticated:
         return redirect('home')
@@ -24,6 +26,7 @@ def login(request):
 
             if user is not None:
                 loginUser(request, user)
+
                 return redirect('home')
             else:
                 messages.info(request, 'Username OR password is incorrect')
@@ -274,8 +277,10 @@ def productDetails(request):
 
 def checkout(request):
     assert isinstance(request, HttpRequest)
+    iphoneX = Product.objects.get(name="iPhone X")
+    currentCart = iphoneX
     tparams = {
-
+        'cart':currentCart
     }
 
     return render(request, 'checkout.html', tparams)
@@ -283,8 +288,10 @@ def checkout(request):
 
 def cart(request):
     assert isinstance(request, HttpRequest)
+    iphoneX = Product.objects.get(name="iPhone X")
+    currentCart = [iphoneX]
     tparams = {
-
+        'cart': currentCart
     }
 
     return render(request, 'cart.html', tparams)

@@ -40,6 +40,7 @@ class PaymentMethod(models.Model):
 
 class ShoppingCart(models.Model):
     user_id = models.CharField
+    date = models.DateField
 
 
 class Payment(models.Model):
