@@ -21,40 +21,36 @@
     <script  src="{% static 'js/html5shiv.js' %}" ></script>
     <script  src="{% static 'js/respond.min.js' %}" ></script>
     <![endif]-->
-    <link rel="shortcut icon" href="{% static "images/ico/favicon.ico" %}">
-    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="{% static "images/ico/apple-touch-icon-144-precomposed.png" %}" >
-    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="{% static "images/ico/apple-touch-icon-114-precomposed.png" %}" >
-    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="{% static "images/ico/apple-touch-icon-72-precomposed.png" %}" >
-    <link rel="apple-touch-icon-precomposed" href="{% static "images/ico/apple-touch-icon-57-precomposed.png" %}" >
+
 </head><!--/head-->
 
-<body style="   margin: 0px;
-   min-height: 100%;
-   width: 100%;">
+<body >
 
 	<header style="height:0px"><!--header-->
-		<div class="header-middle"><!--header-middle-->
+
+		<div style="background-color: #2a6496" class="header-middle"><!--header-middle-->
 			<div class="container">
 				<div class="row">
 					<div class="col-md-4 clearfix">
 						<div class="logo pull-left">
-							<a href="index.html"><img src="{% static "images/home/logo.png" %}" alt="" /></a>
+                            <a href="{% url "home" %}"> <span style="color: darkorange; font-size: 40px"   >TechOn</span></a>
 						</div>
 					</div>
+
 					<div class="col-md-12 clearfix">
 						<div class="shop-menu clearfix pull-right">
 							<ul style="float:right" class="nav navbar-nav">
-								<li><a href=""><i class="fa fa-user"></i> Account</a></li>
+								<li><a style="background-color: #2a6496; color: white" href=""><i class="fa fa-user"></i> Account</a></li>
 
-								<li><a href="" ><i class="fa fa-shopping-cart"></i> Cart</a></li>
+								<li><a style="background-color: #2a6496; color: white" href="" ><i class="fa fa-shopping-cart"></i> Cart</a></li>
 
 
 
                                 {% if user.is_authenticated %}
-								    <li><a href="" > Welcome, {{ user.get_username }}</a></li>
-                                    <li ><a style="color:red"  href="{% url "logout" %}"><i class="icon-signout"></i> Logout</a></li>
+								    <li><a style="background-color: #2a6496; color: white"  href="" > Welcome, {{ user.get_username }}</a></li>
+                                    <li ><a style="background-color: #2a6496; color:white"  href="{% url "logout" %}"><i class="icon-signout"></i>Logout </a></li>
                                 {% else %}
-								    <li><a style="color:green" href="{% url 'login' %}" ><i class="fa fa-sign-in" aria-hidden="true"></i>Login</a></li>
+								    <li><a style="background-color: #2a6496; color:white" href="{% url 'login' %}" ><i class="fa fa-sign-in" aria-hidden="true"></i>Login</a></li>
                                 {%  endif %}
 
 
@@ -71,27 +67,16 @@
 
 
 
-
-
-		<div class="header-bottom"><!--header-bottom-->
-			<div class="container">
+<!--header-bottom-->
+		<div class="header-bottom">
+			<div class="container " >
 				<div class="row">
 					<div class="col-sm-12">
-						<div class="navbar-header">
-							<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-								<span class="sr-only">Toggle navigation</span>
-								<span class="icon-bar"></span>
-								<span class="icon-bar"></span>
-								<span class="icon-bar"></span>
-							</button>
-						</div>
+
 						<div class="mainmenu  col-sm-12  pull-left" >
 							<ul style="float:left" class="nav navbar-nav collapse navbar-collapse">
 								<li><a href="{% url "home" %}" >Home</a></li>
-
-
-                                <li><a href="{% url "searchProducts" %}"  class="active">Products</a></li>
-                                <li><a href="{% url "productDetails" %}" >Product Details</a></li>
+                                <li><a href="{% url "searchProducts" %}" >Products</a></li>
                                 <li><a href="{% url "checkout" %}" >Checkout</a></li>
                                 <li><a  href="{% url "cart" %}">Cart</a></li>
 
@@ -100,6 +85,7 @@
 
                                                                 <!--ADMIN -->
                                 {% if user.is_authenticated and user.is_superuser %}
+
                                     <li><a href="{% url "productsManagement" %}" ><i class="fa fa-shopping-cart"></i> Products Management</a></li>
                                     <li><a href="{% url "promotionsManagement" %}" ><i class="fa fa-shopping-cart"></i> Promotions Management</a></li>
 
@@ -117,6 +103,8 @@
 
 
             {% block content %}
+
+
             {% endblock %}
 
 

@@ -2,29 +2,19 @@
 
 {% block content %}
     <br><br>
-    <!--SEARCH-->
 
-
+        <!--SEARCH BAR-->
         <div class="col-sm-10">
         <div style="float:right" class="search_box pull-right">
-        <form action="." method="GET">
+        <form action="." method="POST">
                 {% csrf_token %}
-                <input name="query"  style="height:30px" type="search" placeholder="Search"/>
+                <input name="searchBar"  style="height:30px" type="search" placeholder="Search"/>
                 <button style="height:30px"  type="submit" class="search_box pull-right">Search</button>
-            </form>
+        </form>
         </div>
         </div>
 
 
-
-
-
-
-	<section id="advertisement">
-		<div class="container">
-			<img src="" alt="" />
-		</div>
-	</section>
 
 
 
@@ -39,89 +29,86 @@
 						<div class="panel-group category-products" id="accordian">
 
 
+
+                  <!--CATEGORY AND PRODUCT BRANDS-->
                     <form method="POST" action="" >
-
                         {% for category, prodBrands in productsFilter.items %}
-
 							<div class="panel panel-default">
 								<div class="panel-heading">
 									<h4 class="panel-title">
 										<a data-toggle="collapse" data-parent="#accordian" href="#{{ category }}">
 											<span class="badge pull-right"><i class="fa fa-plus"></i></span>
                                             {{ category }}
-
 										</a>
 									</h4>
 								</div>
-
-
 								<div id="{{ category }}" class="panel-collapse collapse">
 									<div class="panel-body">
 										<ul>
                                             {%  for prodBrand in prodBrands %}
                                                 {% csrf_token %}
-											<li>  {{ prodBrand }} <input type="checkbox" name="brands" value="{{ prodBrand }}"> </li>
-
-
+											<li>  <input style="margin-right: 10px" type="checkbox" name="brandsCategories" value="{{ prodBrand }}">{{ prodBrand }}  </li>
 										    {% endfor %}
 										</ul>
 									</div>
 								</div>
 							</div>
                          {% endfor %}
-
-
-                        <button name="brands" style="float:right" type="submit" class="badge pull-right">Search</button>
+                        <button name="brandsCategories" style="float:right" type="submit" class="badge pull-right">Search</button>
                     </form>
+                    </div>
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-						</div><!--/category-productsr-->
-					
-						<div class="brands_products"><!--brands_products-->
-							<h2>Brands ({{ totalBrands }})</h2>
-							<div class="brands-name">
-								<ul class="nav nav-pills nav-stacked">
+                    <!--BRANDS AND TOTAL BRANDS-->
+                    <div class="panel-group category-products">
+                        <h2>Brands ({{ totalBrands }})</h2>
+                        <form action="." method="POST">
+                            <div class="brands-name">
+                                <ul class="nav nav-pills nav-stacked">
                                     {% for brand, brandTotal in brands.items %}
-									<li><a href=""> <span class="pull-right">({{ brandTotal }})</span>{{ brand }}</a></li>
+                                    {% csrf_token %}
+                                         <li><a href="" > <input type="checkbox" name="brandsProducts" value="{{ brand }}">  <span class="pull-right">({{ brandTotal }})</span>{{ brand }}</a></li>
                                     {%  endfor %}
+                                     <button name="brandsProducts" style="float:right" type="submit" class="badge pull-right">Search</button>
+                                </ul>
+                            </div>
+                        </form>
+                    </div>
 
 
-								</ul>
-							</div>
-						</div><!--/brands_products-->
 
 
-						<div class="price-range"><!--price-range-->
-							<h2>Price Range</h2>
-							<div class="well">
-								 <input type="text" class="span2" value="" data-slider-min="0" data-slider-max="600" data-slider-step="5" data-slider-value="[250,450]" id="sl2" ><br />
-								 <b>$ 0</b> <b class="pull-right">$ 600</b>
-							</div>
-						</div><!--/price-range-->
-						<div class="shipping text-center"><!--shipping-->
-							<img src="images/home/shipping.jpg" alt="" />
-						</div><!--/shipping-->
+
+
+
+                        <!--Price Range-->
+                       <div class="panel-group category-products">
+                            <h2>Price Range</h2>
+                                <form method="POST" action="." >
+                                    {% csrf_token %}
+                                    <input  style=" margin-left: 20px; "name="minPrice" type="number" min="0" max="9990.99" step="0.50" placeholder="Min" /> ---
+                                    <input name="maxPrice" type="number" min="50" max="10000" step="0.50" placeholder="Max"  />
+                                    <br>
+                                    <button name="priceRange" style="position:absolute; margin-left: 200px; margin-top: 6px" type="submit" class="badge pull-right">Search</button>
+                                </form>
+
+						</div>
 
 					</div>
 				</div>
-				
+
+
+
+
+
+
+
+                <!--SHOW PRODUCTS-->
 				<div class="col-sm-9 padding-right">
-					<div class="features_items"><!--features_items-->
+					<div class="features_items">
 						<h2 class="title text-center">Features Items</h2>
-
-
                         {%  for product in productsList %}
                             <div class="col-sm-4">
                                 <div class="product-image-wrapper">
@@ -130,25 +117,42 @@
                                             <img src="{{ product.image }}" alt="" />
                                             <h2>{{ product.price }} </h2>
                                             <p>{{ product.name }}</p>
+
+                                            {% if product.promotion is not None %}
+                                                 <div  style=" text-align: center; position: absolute; left:220px; top:10px; "> <strong style="color:red"> -{{ product.promotion.name }}</strong></div>
+                                             {% endif %}
+
+
+
+
                                             <a href="#" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
                                         </div>
-                                        <div class="product-overlay">
+
+                                        <div class="product-overlay" style="background-color: #2a6496">
                                             <div class="overlay-content">
-                                                <h2>{{ product.price }}</h2>
+                                                <h2 style="text-decoration: line-through">{{ product.price }}</h2>
                                                 <p>{{ product.name }}</p>
                                                 <a href="#" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
                                             </div>
                                         </div>
-                                    </div>
 
+                                    </div>
                                 </div>
                             </div>
                         {% endfor %}
-
-					</div><!--features_items-->
+					</div>
 				</div>
+
+
+
+
+
 			</div>
 		</div>
+
+
+
+
 
 
 

@@ -11,8 +11,8 @@ from django.shortcuts import render, redirect
 from app.forms import newUserForm
 from app.models import Product, Promotion
 
-
 currentCart = []
+
 
 def login(request):
     if request.user.is_authenticated:
@@ -186,12 +186,6 @@ def deletePromotion(request, id):
     return redirect('promotionsManagement')
 
 
-
-
-
-
-
-
 def searchProducts(request):
     productsBrands = Product.objects.order_by('brand').values_list('brand', flat=True).distinct()
     brands = {}
@@ -200,6 +194,7 @@ def searchProducts(request):
 
     # categorias e brands [(, )..]
     listCategoriesAndBrands = Product.objects.order_by('category').values_list('category', 'brand').distinct()
+
     productsFilter = {}
     for c in listCategoriesAndBrands:
         if c[0] not in productsFilter.keys():
@@ -218,9 +213,28 @@ def searchProducts(request):
 
     query = ''
     productsList = []
+    result = Product.objects.all()
     if request.method == 'POST':
-        if 'brands' in request.POST and len(request.POST.getlist('brands', [])) > 1:
-            brandsLst = request.POST.getlist('brands', [])
+
+        if 'searchBar' in request.POST:
+            query = request.POST['searchBar']
+            result = Product.objects.filter(name__icontains=query)
+
+        if 'brandsCategories' in request.POST and len(request.POST.getlist('brandsCategories', [])) > 1:
+            brandsLstCat = request.POST.getlist('brandsCategories', [])
+            for brandCat in brandsLstCat:
+                if brandCat != '':
+                    productS = Product.objects.filter(
+                        brand=brandCat)  # TODO apenas está a ver por BRAND e n por CATEGOYR (no shop.html só envio brand)
+                    if len(productS) > 1:
+                        for p in productS:
+                            productsList.append(p)
+                    else:
+                        productsList.append(productS)
+            result = productsList
+
+        if 'brandsProducts' in request.POST:
+            brandsLst = request.POST.getlist('brandsProducts', [])
             for brand in brandsLst:
                 if brand != '':
                     products = Product.objects.filter(
@@ -230,49 +244,44 @@ def searchProducts(request):
                             productsList.append(p)
                     else:
                         productsList.append(products)
-        else:
-            productsList = Product.objects.all()
+            result = productsList
+
+        if 'priceRange' in request.POST:
+            minPrice = request.POST['minPrice']
+            maxPrice = request.POST['maxPrice']
+            result = Product.objects.filter(price__range=[minPrice, maxPrice])
+
+
+
 
     tparams = {'productsFilter': productsFilter,
                'totalBrands': Product.objects.values('brand').distinct().count(),
                'totalCategories': Product.objects.values('category').distinct().count(),
                'brands': brands,
-               'productsList': productsList
+               'productsList': result
                }
 
     return render(request, 'shop.html', tparams)
 
 
-# TODO Problema ao invocar a view
-def searchBar_Products(request):
-    if 'query' in request.GET:
-        query = request.GET['query']
-        if query:
-            products = Product.objects.filter(name__icontains=query)
-            return render(request, 'searchBarShop.html.html', {'productsSearch_': products})
-        else:
-            return render(request, 'searchBarShop.html', {'error': True})
-    else:
-        return render(request, 'searchBarShop.html', {'error': False})
-
-
-# TODO
 
 def home(request):
     assert isinstance(request, HttpRequest)
-    tparams = {}
+    result = Product.objects.all()[0:3]
+    tparams = {'productsList': result}
     return render(request, 'index.html', tparams)
 
-    return render(request, 'signup.html', tparams)
+# TODO
 
 
-def productDetails(request):
-    assert isinstance(request, HttpRequest)
-    tparams = {
 
-    }
 
-    return render(request, 'product-details.html', tparams)
+
+
+
+
+
+
 
 
 def checkout(request):
@@ -280,7 +289,7 @@ def checkout(request):
     iphoneX = Product.objects.get(name="iPhone X")
     currentCart = iphoneX
     tparams = {
-        'cart':currentCart
+        'cart': currentCart
     }
 
     return render(request, 'checkout.html', tparams)

@@ -40,19 +40,11 @@ urlpatterns = [
     path('deletePromotion/<str:id>', views.deletePromotion, name='deletePromotion'),
     ########
     path('searchProducts/', views.searchProducts, name='searchProducts'),
-    path('searchBar_Products/', views.searchBar_Products, name='searchBar_Products'),
-
-
-
-
-
-
-
+    #W#####
+    path('', views.home, name='home'),
 
 
     #TODO
-    path('', views.home, name='home'),
-    path('productDetails/', views.productDetails, name='productDetails'),
     path('checkout/', views.checkout, name='checkout'),
     path('cart/', views.cart, name='cart')
 
