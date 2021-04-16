@@ -32,6 +32,19 @@ class Product(models.Model):
         return self.name
 
 
+class Comments(models.Model):
+    userName = models.CharField(max_length=80)
+    userEmail = models.EmailField()
+    description = models.CharField(max_length=400)
+    rating = models.IntegerField()
+
+    def __str__(self):
+        return self.userEmail
+
+
+
+
+
 class PaymentMethod(models.Model):
     TYPES = (('Credit Card', 'Credit Card'), ('ATM', 'ATM'), ('Bank Transfer', 'Bank Transfer'), ('Paypal', 'Paypal'))
     type = models.CharField(choices=TYPES, max_length=150)

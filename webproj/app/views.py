@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect
 
 # Create your views here.
 from app.forms import newUserForm
-from app.models import Product, Promotion
+from app.models import Product, Promotion, Comments
 
 currentCart = []
 
@@ -215,6 +215,15 @@ def searchProducts(request):
     productsList = []
     result = Product.objects.all()
     if request.method == 'POST':
+        # home search images click
+        if 'Smartphones' in request.POST:
+            result = Product.objects.filter(category="Smartphones")
+        if 'Televisions' in request.POST:
+            result = Product.objects.filter(category="Televisions")
+        if 'Drones' in request.POST:
+            result = Product.objects.filter(category="Drones")
+        if 'Computers' in request.POST:
+            result = Product.objects.filter(category="Computers")
 
         if 'searchBar' in request.POST:
             query = request.POST['searchBar']
@@ -238,7 +247,7 @@ def searchProducts(request):
             for brand in brandsLst:
                 if brand != '':
                     products = Product.objects.filter(
-                        brand=brand)  # TODO apenas está a ver por BRAND e n por CATEGOYR (no shop.html só envio brand)
+                        brand=brand)
                     if len(products) > 1:
                         for p in products:
                             productsList.append(p)
@@ -251,9 +260,6 @@ def searchProducts(request):
             maxPrice = request.POST['maxPrice']
             result = Product.objects.filter(price__range=[minPrice, maxPrice])
 
-
-
-
     tparams = {'productsFilter': productsFilter,
                'totalBrands': Product.objects.values('brand').distinct().count(),
                'totalCategories': Product.objects.values('category').distinct().count(),
@@ -264,25 +270,32 @@ def searchProducts(request):
     return render(request, 'shop.html', tparams)
 
 
-
 def home(request):
     assert isinstance(request, HttpRequest)
     result = Product.objects.all()[0:3]
     tparams = {'productsList': result}
-    return render(request, 'index.html', tparams)
+
+    if request.method == 'POST' and request.user.is_authenticated:
+        userName = request.POST['username']
+        userEmail = request.POST['userEmail']
+        description = request.POST['description']
+        rating = request.POST['rating']
+        if userName and userEmail and description:
+
+            comment = Comments(userName=userName, userEmail=userEmail, description=description, rating=rating)
+            comment.save()
+            tparams = {'productsList': result,
+                       'commentSuccess': True}
+            return render(request, 'index.html', tparams)
+        else:
+            return render(request, 'index.html', {'productsList': result, 'error': True})
+    else:
+        tparams = {'productsList': result,
+                   'userNotLogged': True}
+        return render(request, 'index.html', tparams)
+
 
 # TODO
-
-
-
-
-
-
-
-
-
-
-
 
 def checkout(request):
     assert isinstance(request, HttpRequest)

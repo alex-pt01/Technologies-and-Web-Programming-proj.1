@@ -86,8 +86,8 @@
                                                                 <!--ADMIN -->
                                 {% if user.is_authenticated and user.is_superuser %}
 
-                                    <li><a href="{% url "productsManagement" %}" ><i class="fa fa-shopping-cart"></i> Products Management</a></li>
-                                    <li><a href="{% url "promotionsManagement" %}" ><i class="fa fa-shopping-cart"></i> Promotions Management</a></li>
+                                    <li><a href="{% url "productsManagement" %}" ><i class="fa fa-cog"></i> <strong> Products Management </strong></a></li>
+                                    <li><a href="{% url "promotionsManagement" %}" ><i class="fa fa-cog"></i><strong> Promotions Management</strong></a></li>
 
                                 {%  endif %}
 							</ul>
