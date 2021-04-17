@@ -4,14 +4,14 @@ from pyclbr import Class
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as loginUser, logout as logoutUser
 from django.contrib.auth.forms import UserCreationForm
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponseRedirect
 from django.shortcuts import render, redirect
 
 # Create your views here.
 from app.forms import newUserForm
 from app.models import Product, Promotion, Comments
 
-currentCart = []
+carts = {}
 
 
 def login(request):
@@ -306,14 +306,66 @@ def checkout(request):
     }
 
     return render(request, 'checkout.html', tparams)
+def addToCart(request,id):
+    if request.user.is_authenticated:
+        if request.user.id in carts:
+            products = [p for p in carts[request.user.id] if str(p[0])!=id]
+            curProduct = [p for p in carts[request.user.id] if p not in products]
+            if curProduct:
+                prod = curProduct[0]
+                prod = [id,prod[1]+1]
+                products.append(prod)
+                carts[request.user.id] = products
+            else:
+                carts[request.user.id].append([id, 1])
+        else:
+            carts[request.user.id] = [[id,1]]
+        print(carts)
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return redirect('login')
 
+def removeFromCart(request,id):
+    if request.user.is_authenticated:
+        if request.user.id in carts:
+            products = [p for p in carts[request.user.id] if str(p[0])!=id]
+            carts[request.user.id] = products
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return redirect('login')
+
+def increaseQuantity(request,id):
+    if request.user.is_authenticated:
+        products = [p for p in carts[request.user.id] if str(p[0]) != id]
+        prod = [p for p in carts[request.user.id] if p not in products][0]
+        prod = [id, prod[1] + 1]
+        products.append(prod)
+        carts[request.user.id] = products
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return redirect('login')
+
+def decreaseQuantity(request,id):
+    if request.user.is_authenticated:
+        products = [p for p in carts[request.user.id] if str(p[0]) != id]
+        prod = [p for p in carts[request.user.id] if p not in products][0]
+        prod = [id, prod[1] - 1]
+        products.append(prod)
+        carts[request.user.id] = products
+
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return redirect('login')
 
 def cart(request):
-    assert isinstance(request, HttpRequest)
-    iphoneX = Product.objects.get(name="iPhone X")
-    currentCart = [iphoneX]
-    tparams = {
-        'cart': currentCart
-    }
+    if request.user.is_authenticated:
+        userCart = []
+        if request.user.id in carts:
+            userCart = carts[request.user.id]
+        currentCart = []
+        for item in userCart:
+            product = Product.objects.get(id=item[0])
+            currentCart.append((product, item[1]))
+        tparams = {
+            'cart': currentCart
+        }
+        return render(request, 'cart.html', tparams)
+    return redirect('login')
 
-    return render(request, 'cart.html', tparams)
+

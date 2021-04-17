@@ -42,6 +42,11 @@ urlpatterns = [
     path('searchProducts/', views.searchProducts, name='searchProducts'),
     #W#####
     path('', views.home, name='home'),
+    ###########
+    path('addToCart/<str:id>', views.addToCart, name='addToCart'),
+    path('removeFromCart/<str:id>', views.removeFromCart, name='removeFromCart'),
+    path('increaseQuantity/<str:id>', views.increaseQuantity, name='increaseQuantity'),
+    path('decreaseQuantity/<str:id>', views.decreaseQuantity, name='decreaseQuantity'),
 
 
     #TODO

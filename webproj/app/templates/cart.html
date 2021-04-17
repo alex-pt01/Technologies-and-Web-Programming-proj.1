@@ -139,7 +139,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						{% for product in cart %}
+						{% for product, quantity in cart %}
 
 						<tr>
                             <!--
@@ -156,16 +156,16 @@
 							</td>
 							<td class="cart_quantity">
 								<div class="cart_quantity_button">
-									<a class="cart_quantity_up" href=""> + </a>
-									<input class="cart_quantity_input" type="text" name="quantity" value="1" autocomplete="off" size="2">
-									<a class="cart_quantity_down" href=""> - </a>
+									<a class="cart_quantity_up" href="/increaseQuantity/{{ product.id }}"> + </a>
+									<input class="cart_quantity_input" type="text" name="quantity" value="{{ quantity }}" autocomplete="off" size="2"/>
+									<a class="cart_quantity_down" href="/decreaseQuantity/{{ product.id }}"> - </a>
 								</div>
 							</td>
 							<td class="cart_total">
 								<p class="cart_total_price">{{ product.price }}€</p>
 							</td>
 							<td class="cart_delete">
-								<a class="cart_quantity_delete" href=""><i class="fa fa-times"></i></a>
+                                <a class="cart_quantity_delete" href="/removeFromCart/{{ product.id }}" type="submit" ><i class="fa fa-times"></i></a>
 							</td>
 						</tr>
                         {%  endfor %}
