@@ -74,7 +74,7 @@
                         <th>{{ product.brand }}</th>
                         <th>{{ product.category }}</th>
                         <th>{{ product.promotion.name }}</th>
-                        <th>{{ product.image }}</th>
+                        <th>     <img style="height: 100px" src="../{{product.image}}" alt="" /></th>
                         <th><a class="btn btn-sm btn-info" href="{% url 'updateProduct' product.id %}">Update</a></th>
                         <th><a class="btn btn-sm btn-danger" href="{% url 'deleteProduct' product.id %}">Delete</a></th>
 

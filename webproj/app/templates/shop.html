@@ -114,12 +114,12 @@
                                 <div class="product-image-wrapper">
                                     <div class="single-products">
                                         <div class="productinfo text-center">
-                                            <img src="{{ product.image }}" alt="" />
+                                            <img src="../{{product.image}}" alt="" />
                                             <h2>{{ product.price }} </h2>
                                             <p>{{ product.name }}</p>
 
                                             {% if product.promotion is not None %}
-                                                 <div  style=" text-align: center; position: absolute; left:220px; top:10px; "> <strong style="color:red"> -{{ product.promotion.name }}</strong></div>
+                                                 <div  style=" text-align: center; position: absolute; left:205px; top:10px; font-size: 20px "> <strong style="color:red"> -{{ product.promotion.name }}</strong></div>
                                              {% endif %}
 
 

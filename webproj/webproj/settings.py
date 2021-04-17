@@ -127,6 +127,6 @@ STATIC_ROOT = os.path.join(VENV_PATH, 'static_root')
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/index'
 
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'app/static')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'app/media')
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'app/media/')
