@@ -9,7 +9,8 @@ from django.shortcuts import render, redirect
 
 # Create your views here.
 from app.forms import newUserForm
-from app.models import Product, Promotion, Comments
+from app.models import Product, Promotion, Comment
+from django.contrib.auth.models import User
 
 carts = {}
 
@@ -58,6 +59,16 @@ def signup(request):
 def logout(request):
     logoutUser(request)
     return redirect('home')
+
+
+def usersManagement(request):
+    users = User.objects.values()
+    return render(request, 'usersManagement.html', {'users': users})
+
+def deleteUser(request, id):
+    user = User.objects.get(id=id)
+    user.delete()
+    return redirect('usersManagement')
 
 
 def productsManagement(request):
@@ -282,7 +293,7 @@ def home(request):
         rating = request.POST['rating']
         if userName and userEmail and description:
 
-            comment = Comments(userName=userName, userEmail=userEmail, description=description, rating=rating)
+            comment = Comment(userName=userName, userEmail=userEmail, description=description, rating=rating)
             comment.save()
             tparams = {'productsList': result,
                        'commentSuccess': True}
@@ -306,33 +317,37 @@ def checkout(request):
     }
 
     return render(request, 'checkout.html', tparams)
-def addToCart(request,id):
+
+
+def addToCart(request, id):
     if request.user.is_authenticated:
         if request.user.id in carts:
-            products = [p for p in carts[request.user.id] if str(p[0])!=id]
+            products = [p for p in carts[request.user.id] if str(p[0]) != id]
             curProduct = [p for p in carts[request.user.id] if p not in products]
             if curProduct:
                 prod = curProduct[0]
-                prod = [id,prod[1]+1]
+                prod = [id, prod[1] + 1]
                 products.append(prod)
                 carts[request.user.id] = products
             else:
                 carts[request.user.id].append([id, 1])
         else:
-            carts[request.user.id] = [[id,1]]
+            carts[request.user.id] = [[id, 1]]
         print(carts)
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     return redirect('login')
 
-def removeFromCart(request,id):
+
+def removeFromCart(request, id):
     if request.user.is_authenticated:
         if request.user.id in carts:
-            products = [p for p in carts[request.user.id] if str(p[0])!=id]
+            products = [p for p in carts[request.user.id] if str(p[0]) != id]
             carts[request.user.id] = products
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     return redirect('login')
 
-def increaseQuantity(request,id):
+
+def increaseQuantity(request, id):
     if request.user.is_authenticated:
         products = [p for p in carts[request.user.id] if str(p[0]) != id]
         prod = [p for p in carts[request.user.id] if p not in products][0]
@@ -342,7 +357,8 @@ def increaseQuantity(request,id):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     return redirect('login')
 
-def decreaseQuantity(request,id):
+
+def decreaseQuantity(request, id):
     if request.user.is_authenticated:
         products = [p for p in carts[request.user.id] if str(p[0]) != id]
         prod = [p for p in carts[request.user.id] if p not in products][0]
@@ -352,6 +368,7 @@ def decreaseQuantity(request,id):
 
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     return redirect('login')
+
 
 def cart(request):
     if request.user.is_authenticated:
@@ -367,5 +384,3 @@ def cart(request):
         }
         return render(request, 'cart.html', tparams)
     return redirect('login')
-
-

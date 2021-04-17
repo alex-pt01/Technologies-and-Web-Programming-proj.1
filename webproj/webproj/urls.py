@@ -40,9 +40,12 @@ urlpatterns = [
     path('deletePromotion/<str:id>', views.deletePromotion, name='deletePromotion'),
     ########
     path('searchProducts/', views.searchProducts, name='searchProducts'),
-    #W#####
+    ########
+    path('usersManagement/', views.usersManagement, name='usersManagement'),
+    path('deleteUser/<str:id>', views.deleteUser, name='deleteUser'),
+
     path('', views.home, name='home'),
-    ###########
+    #########
     path('addToCart/<str:id>', views.addToCart, name='addToCart'),
     path('removeFromCart/<str:id>', views.removeFromCart, name='removeFromCart'),
     path('increaseQuantity/<str:id>', views.increaseQuantity, name='increaseQuantity'),

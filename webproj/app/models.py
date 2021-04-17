@@ -32,7 +32,7 @@ class Product(models.Model):
         return self.name
 
 
-class Comments(models.Model):
+class Comment(models.Model):
     userName = models.CharField(max_length=80)
     userEmail = models.EmailField()
     description = models.CharField(max_length=400)
