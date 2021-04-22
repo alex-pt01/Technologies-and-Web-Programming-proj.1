@@ -309,12 +309,28 @@ def home(request):
 # TODO
 
 def checkout(request):
-    assert isinstance(request, HttpRequest)
-    iphoneX = Product.objects.get(name="iPhone X")
-    currentCart = iphoneX
-    tparams = {
-        'cart': currentCart
-    }
+    if request.user.is_authenticated:
+        userCart = []
+        if request.user.id in carts:
+            userCart = carts[request.user.id]
+        currentCart = []
+        total = 0
+        totalDiscount = 0
+        for item in userCart:
+            product = Product.objects.get(id=item[0])
+            currentCart.append((product, item[1]))
+            total += product.price * item[1]
+            if product.promotion:
+                totalDiscount += product.price * product.promotion.discount * item[1]
+
+        tparams = {
+            'subtotal': total,
+            'discount': totalDiscount,
+            'total': total - totalDiscount
+        }
+
+        return render(request, 'checkout.html', tparams)
+    return redirect('login')
 
     return render(request, 'checkout.html', tparams)
 
@@ -376,11 +392,20 @@ def cart(request):
         if request.user.id in carts:
             userCart = carts[request.user.id]
         currentCart = []
+        total = 0
+        totalDiscount = 0
         for item in userCart:
             product = Product.objects.get(id=item[0])
             currentCart.append((product, item[1]))
+            total+=product.price*item[1]
+            if product.promotion:
+                totalDiscount += product.price*product.promotion.discount*item[1]
         tparams = {
-            'cart': currentCart
+            'cart': currentCart,
+            'subtotal': total,
+            'discount': totalDiscount,
+            'total': total-totalDiscount
         }
+
         return render(request, 'cart.html', tparams)
     return redirect('login')
