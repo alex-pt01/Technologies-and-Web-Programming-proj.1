@@ -40,11 +40,9 @@
 					<div class="col-md-12 clearfix">
 						<div class="shop-menu clearfix pull-right">
 							<ul style="float:right" class="nav navbar-nav">
-								<li><a style="background-color: #2a6496; color: white" href=""><i class="fa fa-user"></i> Account</a></li>
+								<li><a style="background-color: #2a6496; color: white" href="{% url 'account' %}"><i class="fa fa-user"></i> Account</a></li>
 
 								<li><a style="background-color: #2a6496; color: white" href="" ><i class="fa fa-shopping-cart"></i> Cart</a></li>
-
-
 
                                 {% if user.is_authenticated %}
 								    <li><a style="background-color: #2a6496; color: white"  href="" > Welcome, {{ user.get_username }}</a></li>
@@ -52,20 +50,12 @@
                                 {% else %}
 								    <li><a style="background-color: #2a6496; color:white" href="{% url 'login' %}" ><i class="fa fa-sign-in" aria-hidden="true"></i>Login</a></li>
                                 {%  endif %}
-
-
-
 							</ul>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div><!--/header-middle-->
-
-
-
-
-
 
 <!--header-bottom-->
 		<div class="header-bottom">
@@ -85,10 +75,14 @@
 
                                                                 <!--ADMIN -->
                                 {% if user.is_authenticated and user.is_superuser %}
-
-                                    <li><a href="{% url "productsManagement" %}" ><i class="fa fa-cog"></i> <strong> Products Management </strong></a></li>
-                                    <li><a href="{% url "promotionsManagement" %}" ><i class="fa fa-cog"></i><strong> Promotions Management</strong></a></li>
-                                    <li><a href="{% url "usersManagement" %}" ><i class="fa fa-cog"></i><strong> Users Management</strong></a></li>
+                                    <li class="dropdown"><a href="#"><strong style="color: darkorange">Management<i class="fa fa-angle-down"></i></strong></a>
+                                    <ul role="menu" class="sub-menu">
+                                        <li><a href="{% url "productsManagement" %}" ><i class="fa fa-cog"></i>  Products </a></li>
+                                        <li><a href="{% url "promotionsManagement" %}" ><i class="fa fa-cog"></i> Promotions </a></li>
+                                        <li><a href="{% url "usersManagement" %}" ><i class="fa fa-cog"></i> Users </a></li>
+                                        <li><a href="{% url "commentsManagement" %}" ><i class="fa fa-cog"></i> Comments </a></li>
+                                    </ul>
+                                </li>
 
                                 {%  endif %}
 							</ul>
@@ -108,7 +102,6 @@
 
             {% endblock %}
 
-
     <!-- Plugin JavaScript -->
     <script src="{% static 'js/jquery.js' %}" ></script>
 	<script src="{% static 'js/price-range.js' %}"></script>
@@ -117,6 +110,13 @@
 	<script src="{% static 'js/bootstrap.min.js' %}" ></script>
     <script src="{% static 'js/jquery.prettyPhoto.js' %}" ></script>
     <script src="{% static 'js/main.js' %}" ></script>
+            <script>
+
+        $(function() {
+        setTimeout(function() { $("#hideDiv").fadeOut(1500); }, 1000)
+
+        })
+    </script>
 
 {% block scripts %}{% endblock %}
 

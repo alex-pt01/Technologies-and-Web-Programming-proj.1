@@ -27,6 +27,7 @@ def login(request):
 
             if user is not None:
                 loginUser(request, user)
+                messages.success(request, 'Welcome!!! ' )
 
                 return redirect('home')
             else:
@@ -46,12 +47,11 @@ def signup(request):
             form = newUserForm(request.POST)
             if form.is_valid():
                 form.save()
-                # clean field
                 user = form.cleaned_data.get('username')
                 # messages (dict)
                 messages.success(request, 'Account was created for ' + user)
 
-                return redirect('home')
+                return redirect('login')
 
         return render(request, 'signup.html', {'form': form})
 
@@ -144,6 +144,18 @@ def updateProduct(request, pk):
         product.save()
         return render(request, 'shop.html')
     return render(request, 'updateProduct.html', {'product': product})
+
+def deleteComment(request, id):
+    comment = Comment.objects.get(id=id)
+    comment.delete()
+    return redirect('commentsManagement')
+
+def commentsManagement(request):
+    comments = Comment.objects.all()
+
+    form = {'comments': comments}
+
+    return render(request, 'commentsManagement.html', form)
 
 
 def deleteProduct(request, id):
@@ -283,27 +295,46 @@ def searchProducts(request):
 
 def home(request):
     assert isinstance(request, HttpRequest)
-    result = Product.objects.all()[0:3]
-    tparams = {'productsList': result}
+    recommendedProducts = Product.objects.all()[0:3]
+    #get distinct accounts
+    comments = Comment.objects.order_by('userEmail').distinct()
 
-    if request.method == 'POST' and request.user.is_authenticated:
-        userName = request.POST['username']
-        userEmail = request.POST['userEmail']
-        description = request.POST['description']
-        rating = request.POST['rating']
-        if userName and userEmail and description:
+    if request.method == 'POST':
 
-            comment = Comment(userName=userName, userEmail=userEmail, description=description, rating=rating)
-            comment.save()
-            tparams = {'productsList': result,
-                       'commentSuccess': True}
-            return render(request, 'index.html', tparams)
+
+        if request.user.is_authenticated :
+            userEmail = request.user.email
+            userName = request.user.username
+            description = request.POST['description']
+            rating = request.POST['rating']
+
+
+
+            if  userName and userEmail and description:
+                comment = Comment(userName=userName, userEmail=userEmail, description=description, rating=rating, commentDate= datetime.now())
+                comment.save()
+                tparams = {
+                           'commentSuccess': True,
+                            'comments':comments, 'recommendedProducts':recommendedProducts
+                           }
+                return render(request, 'index.html', tparams)
+            else:
+                return render(request, 'index.html', {'name_notFilled': True, 'comments':comments, 'recommendedProducts':recommendedProducts})
         else:
-            return render(request, 'index.html', {'productsList': result, 'error': True})
+
+            tparams = {'productsList': recommendedProducts,
+                       'comments': comments, 'notLogged': True, 'recommendedProducts':recommendedProducts}
+            return render(request, 'index.html', tparams)
+
     else:
-        tparams = {'productsList': result,
-                   'userNotLogged': True}
+        tparams = {'productsList': recommendedProducts,
+                                    'comments':comments}
+
         return render(request, 'index.html', tparams)
+
+
+def account(request):
+    return render(request, 'account.html')
 
 
 # TODO

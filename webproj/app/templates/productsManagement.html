@@ -34,18 +34,13 @@
             .styled-table tbody tr.active-row {
                 color: #009879;
             }
-
-
     </style>
     <!--PRODUCTS MANAGEMENT-->
         <div style="  margin:auto;
           width:90%;
           padding:10px;">
-
     	<section id="form"><!--form-->
-
-
-                    <a class="btn btn-sm btn-success col-sm-1 " style="  margin-right:5%;
+            <a class="btn btn-sm btn-success col-sm-1 " style="  margin-right:5%;
                     float:right"  href="{% url 'createProduct' %}" > Create Product </a>
                 <br><br>
                 <table class="styled-table">
@@ -61,8 +56,6 @@
                     <th>Image</th>
                     <th>Update</th>
                     <th>Remove</th>
-
-
                 </tr>
                 {% for product in products %}
                     <tr>
@@ -77,20 +70,10 @@
                         <th>     <img style="height: 100px" src="../{{product.image}}" alt="" /></th>
                         <th><a class="btn btn-sm btn-info" href="{% url 'updateProduct' product.id %}">Update</a></th>
                         <th><a class="btn btn-sm btn-danger" href="{% url 'deleteProduct' product.id %}">Delete</a></th>
-
                     </tr>
                 {%  endfor %}
-
                 </table>
-
-
-
-
-
-	</section><!--/form-->
-
+	</section>
 </div>
-
-
 {% endblock %}
 

@@ -3,11 +3,8 @@
 
 
 
-<!--MESSAGES-->
-
-
+<
 	<section id="form"><!--form-->
-
 				<div class="col-sm-4 col-sm-offset-1" style="margin-left: 35%; margin-right: auto;">
 					<div class="login-form"><!--login form-->
 						<h2>Create Promotion</h2>
@@ -21,38 +18,23 @@
 
                             <textarea  name="description" rows="4" cols="50" maxlength="300" placeholder="Description">
                             </textarea>
-
                               <br><br>
                             <label>Deadline </label>
-
                             <input type="date" name="date" class="form-control" id="date" value="{{placement.date|date:"Y-m-d" }}">
-
-
-
                             <label>Today: </label>
                             {{ date }}
                             <button style="float:right;" type="submit" class="btn btn-default">Create Promotion</button>
-
 						</form>
 					    </div><!--/login form-->
-
-
                 <br><br>
                 {% if error %}
                     <div class="alert alert-danger">
                          All <fields></fields> must be filled!
                     </div>
                 {% endif %}
-
-
 				</div>
-
-
 		</div>
-	</section><!--/form-->
-
-
-
+	</section>
 {% endblock %}
 
 

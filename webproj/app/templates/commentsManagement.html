@@ -1,9 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
 
-    <script>
-
-    </script>
     <style>
         .styled-table {
             border-collapse: collapse;
@@ -37,32 +34,35 @@
             .styled-table tbody tr.active-row {
                 color: #009879;
             }
+
     </style>
-    <!--PRODUCTS MANAGEMENT-->
+    <!--Comments MANAGEMENT-->
         <div style="  margin:auto;
-          width:40%;
-          padding:10px;">
-
+                   width:70%;
+          padding:63px;">
     	<section id="form"><!--form-->
-
                 <br><br>
                 <table class="styled-table">
                 <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Delete</th>
+                    <th>Username</th>
+                    <th>UserEmail</th>
+                    <th>Description</th>
+                    <th>Rating</th>
+                    <th>Comment date</th>
+                    <th>Delete Comment</th>
                 </tr>
-                {% for user in users %}
+                {% for comment in comments %}
                     <tr>
-                        <th>{{ user.username }}</th>
-                        <th>{{ user.email }}</th>
-                        <th><a class="btn btn-sm btn-danger" href="{% url 'deleteUser' user.id %}">Delete</a></th>
-
+                        <th>{{ comment.userName }}</th>
+                        <th>{{ comment.userEmail }}</th>
+                        <th>{{ comment.description }}</th>
+                        <th>{{ comment.rating }}<i class="fa fa-star" aria-hidden="true" ></i></th>
+                        <th>{{ comment.commentDate }}</th>
+                        <th><a class="btn btn-sm btn-danger" href="{% url 'deleteComment' comment.id %}">Delete</a></th>
                     </tr>
                 {%  endfor %}
-
                 </table>
-	</section><!--/form-->
+	</section>
 </div>
 {% endblock %}
 
