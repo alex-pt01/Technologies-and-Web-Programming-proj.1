@@ -8,8 +8,8 @@ from django.http import HttpRequest, HttpResponseRedirect
 from django.shortcuts import render, redirect
 
 # Create your views here.
-from app.forms import newUserForm
-from app.models import Product, Promotion, Comment
+from app.forms import newUserForm, paymentForm
+from app.models import Product, Promotion, Comment, PaymentMethod, Payment, ShoppingCart, ShoppingCartItem
 from django.contrib.auth.models import User
 
 carts = {}
@@ -306,33 +306,64 @@ def home(request):
         return render(request, 'index.html', tparams)
 
 
-# TODO
-
 def checkout(request):
     if request.user.is_authenticated:
-        userCart = []
-        if request.user.id in carts:
-            userCart = carts[request.user.id]
-        currentCart = []
-        total = 0
-        totalDiscount = 0
-        for item in userCart:
-            product = Product.objects.get(id=item[0])
-            currentCart.append((product, item[1]))
-            total += product.price * item[1]
-            if product.promotion:
-                totalDiscount += product.price * product.promotion.discount * item[1]
-
-        tparams = {
-            'subtotal': total,
-            'discount': totalDiscount,
-            'total': total - totalDiscount
-        }
+        tparams = getShoppingCart(request)
+        if request.method == 'POST':
+            form = paymentForm(request.POST)
+            if form.is_valid():
+                data = form.cleaned_data
+                type = data['type']
+                card_no = data['card_no']
+                card_code = data['card_code']
+                expirationMonth = data['expirationMonth']
+                expirationYear = data['expirationYear']
+                address = data['address']
+                pm = PaymentMethod(type=type, card_no=card_no)
+                pm.save()
+                sp = ShoppingCart()
+                sp.save()
+                payment = Payment()
+                payment.address = address
+                payment.total = tparams['total']
+                payment.method = pm
+                payment.shopping_cart = sp
+                payment.save()
+                for item, quantity in tparams['cart']:
+                    spi = ShoppingCartItem()
+                    spi.item_id = item
+                    spi.quantity = quantity
+                    spi.cart_id = sp.id
+                    spi.save()
+                return HttpResponseRedirect('/thanks/')
+        else:
+            form = paymentForm()
+        tparams['form'] = form
 
         return render(request, 'checkout.html', tparams)
     return redirect('login')
 
-    return render(request, 'checkout.html', tparams)
+
+def getShoppingCart(request):
+    userCart = []
+    if request.user.id in carts:
+        userCart = carts[request.user.id]
+    currentCart = []
+    total = 0
+    totalDiscount = 0
+    for item in userCart:
+        product = Product.objects.get(id=item[0])
+        currentCart.append((product, item[1]))
+        total += product.price * item[1]
+        if product.promotion:
+            totalDiscount += product.price * product.promotion.discount * item[1]
+    tparams = {
+        'cart': currentCart,
+        'subtotal': total,
+        'discount': totalDiscount,
+        'total': total - totalDiscount
+    }
+    return tparams
 
 
 def addToCart(request, id):
@@ -388,24 +419,6 @@ def decreaseQuantity(request, id):
 
 def cart(request):
     if request.user.is_authenticated:
-        userCart = []
-        if request.user.id in carts:
-            userCart = carts[request.user.id]
-        currentCart = []
-        total = 0
-        totalDiscount = 0
-        for item in userCart:
-            product = Product.objects.get(id=item[0])
-            currentCart.append((product, item[1]))
-            total+=product.price*item[1]
-            if product.promotion:
-                totalDiscount += product.price*product.promotion.discount*item[1]
-        tparams = {
-            'cart': currentCart,
-            'subtotal': total,
-            'discount': totalDiscount,
-            'total': total-totalDiscount
-        }
-
+        tparams = getShoppingCart(request)
         return render(request, 'cart.html', tparams)
     return redirect('login')

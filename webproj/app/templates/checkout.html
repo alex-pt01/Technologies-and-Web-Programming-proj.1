@@ -45,24 +45,54 @@
 					</thead>
 					<tbody>
 						<tr>
-							<td colspan="4">&nbsp;</td>
+							<td colspan="4">
+
+                                {% for product, quantity in cart %}
+
+						        <tr>
+                                <!--
+                                <td class="cart_product">
+                                    <a href=""><img src="images/cart/one.png" alt=""></a>
+                                </td>
+                                -->
+                                <td class="cart_description">
+                                    <h4><a href="">{{ product.name }}</a></h4>
+                                    <p>Web ID: {{ product.id }}</p>
+                                </td>
+                                <td class="cart_price" style="max-width:300px">
+                                    <p>{{ product.description }}</p>
+                                </td>
+                                <td class="cart_quantity">
+                                    <div class="cart_quantity_button">
+                                        <a class="cart_quantity_up" href="/increaseQuantity/{{ product.id }}"> + </a>
+                                        <input class="cart_quantity_input" type="text" name="quantity" value="{{ quantity }}" autocomplete="off" size="2"/>
+                                        <a class="cart_quantity_down" href="/decreaseQuantity/{{ product.id }}"> - </a>
+                                    </div>
+                                </td>
+                                <td class="cart_total">
+                                    <p class="cart_total_price">{{ product.price }}€</p>
+                                </td>
+                                <td class="cart_delete">
+                                    <a class="cart_quantity_delete" href="/removeFromCart/{{ product.id }}" type="submit" ><i class="fa fa-times"></i></a>
+                                </td>
+                            </tr>
+                        {%  endfor %}
+                            </td>
+
 							<td colspan="2">
 								<table class="table table-condensed total-result">
 									<tr>
 										<td>Cart Sub Total</td>
-										<td>$59</td>
+										<td>{{ subtotal }}</td>
 									</tr>
 									<tr>
-										<td>Exo Tax</td>
-										<td>$2</td>
+										<td>Discount</td>
+										<td>{{ discount }}</td>
 									</tr>
-									<tr class="shipping-cost">
-										<td>Shipping Cost</td>
-										<td>Free</td>										
-									</tr>
+
 									<tr>
 										<td>Total</td>
-										<td><span>$61</span></td>
+										<td><span>{{ total }}</span></td>
 									</tr>
 								</table>
 							</td>
@@ -71,15 +101,12 @@
 				</table>
 			</div>
 			<div class="payment-options">
-					<span>
-						<label><input type="checkbox"> Direct Bank Transfer</label>
-					</span>
-					<span>
-						<label><input type="checkbox"> Check Payment</label>
-					</span>
-					<span>
-						<label><input type="checkbox"> Paypal</label>
-					</span>
+                    <form action="." method="post">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <input type="submit" value="Submit">
+                    </form>
+
 				</div>
 		</div>
 	</section> <!--/#cart_items-->

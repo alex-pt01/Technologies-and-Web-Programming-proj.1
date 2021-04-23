@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db import models
 
 
@@ -46,7 +48,7 @@ class Comment(models.Model):
 
 
 class PaymentMethod(models.Model):
-    TYPES = (('Credit Card', 'Credit Card'), ('ATM', 'ATM'), ('Bank Transfer', 'Bank Transfer'), ('Paypal', 'Paypal'))
+    TYPES = (('Credit Card', 'Credit Card'), ('Debit Card', 'Debit Card'))
     type = models.CharField(choices=TYPES, max_length=150)
     card_no = models.CharField(max_length=12)
 
@@ -59,7 +61,7 @@ class ShoppingCart(models.Model):
 class Payment(models.Model):
     address = models.CharField(max_length=250)
     total = models.FloatField(null=False)
-    date = models.DateField()
+    date = models.DateField(default=datetime.now)
     method = models.ForeignKey(PaymentMethod, on_delete=models.CASCADE)
     shopping_cart = models.ForeignKey(ShoppingCart, on_delete=models.CASCADE)
 
