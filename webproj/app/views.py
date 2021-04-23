@@ -335,7 +335,19 @@ def home(request):
 
 
 def account(request):
-    return render(request, 'account.html')
+    shoppingCarts = ShoppingCart.objects.filter(user_id= request.user.id)
+    if shoppingCarts:
+        assoc = []
+        for scs in shoppingCarts:
+            scis = ShoppingCartItem.objects.filter(cart_id=scs.id)
+            payment = Payment.objects.filter(shopping_cart=scs)
+            assoc.append((scis,payment))
+        tparams = {'carts':assoc}
+
+    else:
+        tparams = {'cart':[]}
+        shoppingCarts = []
+    return render(request, 'account.html', tparams)
 
 
 def checkout(request):
@@ -353,7 +365,7 @@ def checkout(request):
                 address = data['address']
                 pm = PaymentMethod(type=type, card_no=card_no)
                 pm.save()
-                sp = ShoppingCart()
+                sp = ShoppingCart(user_id=request.user.id)
                 sp.save()
                 payment = Payment()
                 payment.address = address
@@ -363,11 +375,12 @@ def checkout(request):
                 payment.save()
                 for item, quantity in tparams['cart']:
                     spi = ShoppingCartItem()
-                    spi.item_id = item
+                    spi.product = item
                     spi.quantity = quantity
                     spi.cart_id = sp.id
                     spi.save()
-                return HttpResponseRedirect('/thanks/')
+                carts[request.user.id] = []
+                return redirect('account')
         else:
             form = paymentForm()
         tparams['form'] = form

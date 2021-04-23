@@ -55,8 +55,8 @@ class PaymentMethod(models.Model):
 
 
 class ShoppingCart(models.Model):
-    user_id = models.CharField
-    date = models.DateField
+    user_id = models.CharField(default = 0, null=False, max_length=150)
+
 
 
 class Payment(models.Model):
@@ -70,4 +70,4 @@ class Payment(models.Model):
 class ShoppingCartItem(models.Model):
     quantity = models.IntegerField(default=1)
     cart_id = models.CharField(null=False, max_length=150)
-    item_id = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)

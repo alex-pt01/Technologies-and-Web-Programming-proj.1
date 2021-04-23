@@ -42,7 +42,7 @@
 							<ul style="float:right" class="nav navbar-nav">
 								<li><a style="background-color: #2a6496; color: white" href="{% url 'account' %}"><i class="fa fa-user"></i> Account</a></li>
 
-								<li><a style="background-color: #2a6496; color: white" href="" ><i class="fa fa-shopping-cart"></i> Cart</a></li>
+								<li><a style="background-color: #2a6496; color: white" href="{% url "cart" %}" ><i class="fa fa-shopping-cart"></i> Cart</a></li>
 
                                 {% if user.is_authenticated %}
 								    <li><a style="background-color: #2a6496; color: white"  href="" > Welcome, {{ user.get_username }}</a></li>
@@ -67,7 +67,6 @@
 							<ul style="float:left" class="nav navbar-nav collapse navbar-collapse">
 								<li><a href="{% url "home" %}" >Home</a></li>
                                 <li><a href="{% url "searchProducts" %}" >Products</a></li>
-                                <li><a href="{% url "checkout" %}" >Checkout</a></li>
                                 <li><a  href="{% url "cart" %}">Cart</a></li>
 
 

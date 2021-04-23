@@ -20,7 +20,63 @@
 
 					</div><!--/login form-->
 				</div>
-		</div>
+
+
+
+
 	</section><!--/form-->
+    {% for scis, payment in carts %}
+        <section id="cart_items">
+		<div class="container">
+            <div class="table-responsive cart_info">
+				<table class="table table-condensed">
+					<thead>
+						<tr class="cart_menu">
+							<td class="image">Item</td>
+							<td class="description">Description</td>
+
+							<td class="quantity">Quantity</td>
+							<td class="price">Price</td>
+							<td></td>
+						</tr>
+					</thead>
+					<tbody>
+
+                            {% for sci in scis %}
+                                <tr>
+                            <!--
+							<td class="cart_product">
+								<a href=""><img src="images/cart/one.png" alt=""></a>
+							</td>
+							-->
+							<td class="cart_description">
+								<h4><a href="">{{ sci.product.name }}</a></h4>
+								<p>Web ID: {{ sci.product.id }}</p>
+							</td>
+							<td class="cart_price" style="max-width:300px">
+								<p>{{ sci.product.description }}</p>
+							</td>
+							<td class="cart_quantity">
+								<div class="cart_quantity_button">
+									<input class="cart_quantity_input" type="text" name="quantity" value="{{ sci.quantity }}" autocomplete="off" size="2"/>
+								</div>
+							</td>
+							<td class="cart_total">
+								<p class="cart_total_price">{{ sci.product.price }}€</p>
+							</td>
+
+						</tr>
+
+                            {% endfor %}
+
+
+
+
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</section> <!--/#cart_items-->
+    {%  endfor %}
 {% endblock %}
 
