@@ -41,6 +41,12 @@ urlpatterns = [
     ########
     path('searchProducts/', views.searchProducts, name='searchProducts'),
     ########
+    path('account/', views.account, name='account'),
+    ########
+    path('commentsManagement/', views.commentsManagement, name='commentsManagement'),
+    path('deleteComment/<str:id>', views.deleteComment, name='deleteComment'),
+
+    #######
     path('usersManagement/', views.usersManagement, name='usersManagement'),
     path('deleteUser/<str:id>', views.deleteUser, name='deleteUser'),
 

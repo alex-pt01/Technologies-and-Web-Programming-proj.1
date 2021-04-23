@@ -12,17 +12,14 @@
                             <input name="quantity" type="number" placeholder="Quantity" />
                             <input name="brand" type="text" placeholder="Brand" />
 
-
                             <label>Category</label>
                               <br>
-
                             <select style="width:40%" name="category" >
                                       <option value="Smartphones">Smartphones</option>
                                       <option value="Computers">Computers</option>
                                       <option value="Tablets">Tablets</option>
                                       <option value="Drones" selected>Drones</option>
                                       <option value="Televisions" selected>Televisions</option>
-
                             </select>
                               <br><br>
 
@@ -45,26 +42,13 @@
                                       <option value="{{ p.id}}">{{ p.name }}</option>
                                   {% endfor %}
                                 </select>
-
-
-
                             <br>
                             <a href="{% url 'createPromotion' %}" > Create Another Promotion </a>
-
-
-
-
-
-
                             <label class="checkbox">
                                 <span class="checkmark" style="margin-left: 20px;">Stock</span>
                                  <input type="checkbox" style="width: 20px; height: 20px; display: inline;" name="stock" >
-
                             </label>
-
-
                             <button style="float:right;" type="submit" class="btn btn-default">Create Product</button>
-
 						</form>
 					</div><!--/login form-->
 				</div>
@@ -74,11 +58,7 @@
                          All fields must be filled!
                     </div>
                 {% endif %}
-
 		</div>
 	</section><!--/form-->
-
-
-
 {% endblock %}
 

@@ -2,14 +2,21 @@
 
 {% block content %}
 
-
-
-
-
-
 	<section id="slider">
+
 		<div class="container">
 			<div class="row">
+
+                <!-- Messages -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div id="hideDiv" style= "position: absolute; margin-left: 9000px;   margin-top: 150px" class=" col-sm-2 alert alert-success">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+
 				<div class="col-sm-12">
 					<div id="slider-carousel" class="carousel slide" data-ride="carousel">
 						<ol class="carousel-indicators">
@@ -39,7 +46,6 @@
 									<img src="../static/images/tvsony_slider.png" class="girl img-responsive" alt="" />
 								</div>
 							</div>
-							
 							<div class="item">
 								<div class="col-sm-6">
 									<h1>Samsung Galaxy S21 5G</h1>
@@ -50,7 +56,6 @@
 									<img src="../static/images/sams1_slider.jpeg" class="girl img-responsive" alt="" />
 								</div>
 							</div>
-							
 						</div>
 						
 						<a href="#slider-carousel" class="left control-carousel hidden-xs" data-slide="prev">
@@ -65,24 +70,14 @@
 			</div>
 		</div>
 	</section><!--/slider-->
-
-
-                    <br><br>
-
-
-
-
-
-
-
-
-
+    <br><br>
 
 <!--CATEGORIES-->
-
 	<section>
 		<div class="container">
 			<div class="row">
+
+
 
 				
 				<div class="col-sm-12 padding-right">
@@ -172,11 +167,7 @@
 						</div>
 					</div>
 
-
                     <br><br>    <br><br>
-
-
-
 
 
                     <!--RECOMMENDED ITEMS-->
@@ -212,29 +203,20 @@
 						</div>
 					</div>
 
-
-
-
-
-
-
-
-
-
                     <br><br>
-                    <!--REVIEWS-->
+                    <!--ADD REVIEWS-->
                     <div class="tab-pane fade active in" id="reviews" >
                         <div class="col-sm-12">
                             <h2 class="title text-center">Write Your Review</h2>
                             <form  method="POST" action="" >
 						                    {% csrf_token %}
                                 <span>
-                                    <input name="username" type="text" placeholder="{{ user.get_username }}"/>
-                                    <input name="userEmail" type="email" placeholder="Email Address"/>
+                                    <input name="username" type="text" placeholder="Username"/>
+                                    <input name="userEmail" type="email" placeholder="Email"/>
                                 </span>
                                 <br>
                                 <span>
-                                    <input name="rating" style="margin-left: -1px; width:80px" type="number" min="1" max="5" placeholder="Rating"/>
+                                    <input name="rating" style="margin-left: -1px; width:80px" type="number" min="1" max="5" placeholder="Rating"/><i class="fa fa-star" aria-hidden="true" ></i>
                                  </span>
 
                                 <textarea name="description" placeholder="Comment" name="" ></textarea>
@@ -248,8 +230,7 @@
                         </div>
                     </div>
 
-
-                             <!-- ####################################          MAP               ####################################-->
+                     <!--MAP-->
                     <div class="tab-pane fade active in" id="reviews" >
                         <div class="col-sm-12">
                         <br>
@@ -260,30 +241,55 @@
                         </div>
                     </div>
 
+                        <!-- ERRORS -->
+                        {% if notLogged %}
+                            <div id="hideDiv" style= "position: absolute;  margin-top: -40px" class=" col-sm-2 alert alert-danger">
+                                 You are not logged!
+                            </div>
+                        {% elif commentSuccess %}
+                            <div id="hideDiv" style= "position: absolute;  margin-top: -40px" class=" col-sm-2 alert alert-success">
+                                 Review added with success!
+                            </div>
+                        {% elif name_notFilled_or_emailNotExists %}
+                            <div id="hideDiv" style= "position: absolute; ; margin-top: -40px" class=" col-sm-2 alert alert-danger">
+                                 Fills aren't all filled or email not exists!
+                            </div>
+                        {% endif %}
 
 
 
+                    <!--REVIEWS-->
+                    <div class="col-sm-12 padding-right">    <br><br>    <br><br>
+
+                        <div class="features_items" >
+                            <h2 class="title text-center">Reviews</h2>
+                            {%  for comment in comments %}
+                                <div  >
+                                    <div class="product-image-wrapper col-sm-6">
+                                        <div class="single-products">
+                                            <div class="productinfo text-center" style="border: #2a6496; border-style: solid;">
+                                                <h2>{{ comment.userName }} </h2>
+                                                <label>Description</label>
+                                                <p>{{ comment.description }}</p>
+                                                <label>Date</label>
+                                                <p>{{ comment.commentDate }}</p>
 
 
+                                                <h3>{{ comment.rating }} <i class="fa fa-star" aria-hidden="true" ></i> </h3>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
                 </div>
 			</div>
 		</div>
 
-
-
-
-
-
-
-
-
 	</section>
-
-
                     <br><br>
                     <br><br>
-
-
     	<footer id="footer"><!--Footer-->
 
 		<div class="footer-bottom">
@@ -295,11 +301,6 @@
 			</div>
 		</div>
 
-	</footer><!--/Footer-->
-
-
-
-
-
+	</footer>
 {% endblock %}
 

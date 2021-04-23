@@ -6,12 +6,19 @@
         <br>
     <br>
 	<section id="form"><!--form-->
+                <!-- ERRORS -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div id="hideDiv" style= "position: absolute; margin-left: 1500px;   margin-top: 40px" class=" col-sm-2 alert alert-success">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
 
 				<div    style="  margin:auto;
                       width:20%;
                       padding:63px;
                      ">
-
 					<div class="login-form"><!--login form-->
 						<h2>Login to your account</h2>
 					    <form method="POST" action="">
@@ -30,10 +37,7 @@
 					</div><!--/login form-->
 				</div>
 
-		</div>
-	</section><!--/form-->
 
-
-
+	</section>
 {% endblock %}
 

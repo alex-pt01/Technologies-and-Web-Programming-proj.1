@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block content %}
+    <br>
+    <br>
+    <br>
+    <br>
+	<section id="form">
+				<div    style="  margin:auto;
+                      width:20%;
+                      padding:63px;
+                     ">
+					<div class="login-form" style="width:300px; height: 300px; text-align: center; margin-left: 30px; border: #2a6496; border-style: solid"><!--login form-->
+						<h2>My Account</h2>
+
+                        <label>Name:</label>
+                        {{ user.get_username }}
+                        <br>
+                        <label>Email:</label>
+                        {{ user.email }}
+
+					</div><!--/login form-->
+				</div>
+		</div>
+	</section><!--/form-->
+{% endblock %}
+

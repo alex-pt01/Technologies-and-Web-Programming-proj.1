@@ -39,9 +39,10 @@ class Comment(models.Model):
     userEmail = models.EmailField()
     description = models.CharField(max_length=400)
     rating = models.IntegerField()
+    commentDate = models.DateField()
 
     def __str__(self):
-        return self.userEmail
+        return self.userName
 
 
 
