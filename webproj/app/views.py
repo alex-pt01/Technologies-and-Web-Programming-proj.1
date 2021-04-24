@@ -8,7 +8,7 @@ from django.http import HttpRequest, HttpResponseRedirect
 from django.shortcuts import render, redirect
 
 # Create your views here.
-from app.forms import newUserForm, paymentForm
+from app.forms import newUserForm, paymentForm, updateUserForm
 from app.models import Product, Promotion, Comment, PaymentMethod, Payment, ShoppingCart, ShoppingCartItem
 from django.contrib.auth.models import User
 
@@ -68,7 +68,49 @@ def usersManagement(request):
 def deleteUser(request, id):
     user = User.objects.get(id=id)
     user.delete()
-    return redirect('usersManagement')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+def updateUser(request):
+    tparams = {}
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            form = updateUserForm(request.POST)
+            if form.is_valid():
+                data = form.cleaned_data
+                username = data['username']
+                email = data['email']
+                curPass = data['currentPassword']
+                newPass = data['newPassword']
+                newRepeatedPass = data['repeatNewPassword']
+                firstName = data['first_name']
+                lastName = data['last_name']
+
+                if newPass!=newRepeatedPass:
+                    form = updateUserForm()
+                    tparams['form']=form
+                    tparams['error']="Inserted Passwords Are Not The Same"
+                    return render(request, 'updateUser.html', tparams)
+                if request.user.check_password(curPass):
+
+                    user = request.user
+                    user.username = username
+                    user.first_name = firstName
+                    user.last_name = lastName
+                    user.email = email
+                    user.set_password(raw_password=newPass)
+                    user.save()
+                else:
+                    form = updateUserForm()
+                    tparams['form'] = form
+                    tparams['error'] = "Incorrect Password"
+                    return render(request, 'updateUser.html', tparams)
+                return redirect('login')
+        else:
+            form = updateUserForm()
+        tparams['form'] = form
+
+        return render(request, 'updateUser.html', tparams)
+    return redirect('login')
 
 
 def productsManagement(request):
@@ -340,7 +382,8 @@ def account(request):
         assoc = []
         for scs in shoppingCarts:
             scis = ShoppingCartItem.objects.filter(cart_id=scs.id)
-            payment = Payment.objects.filter(shopping_cart=scs)
+            payment = Payment.objects.filter(shopping_cart=scs)[0]
+            print(payment.total)
             assoc.append((scis,payment))
         tparams = {'carts':assoc}
 
@@ -353,15 +396,14 @@ def account(request):
 def checkout(request):
     if request.user.is_authenticated:
         tparams = getShoppingCart(request)
+
         if request.method == 'POST':
             form = paymentForm(request.POST)
             if form.is_valid():
                 data = form.cleaned_data
                 type = data['type']
                 card_no = data['card_no']
-                card_code = data['card_code']
-                expirationMonth = data['expirationMonth']
-                expirationYear = data['expirationYear']
+
                 address = data['address']
                 pm = PaymentMethod(type=type, card_no=card_no)
                 pm.save()
@@ -376,6 +418,10 @@ def checkout(request):
                 for item, quantity in tparams['cart']:
                     spi = ShoppingCartItem()
                     spi.product = item
+                    item.quantity = item.quantity-spi.quantity
+                    item.save()
+                    if item.quantity == 0:
+                        item.stock = False
                     spi.quantity = quantity
                     spi.cart_id = sp.id
                     spi.save()
@@ -396,17 +442,20 @@ def getShoppingCart(request):
     currentCart = []
     total = 0
     totalDiscount = 0
+
     for item in userCart:
         product = Product.objects.get(id=item[0])
         currentCart.append((product, item[1]))
         total += product.price * item[1]
+        if item[1] > product.quantity:
+            item[1]=product.quantity
         if product.promotion:
             totalDiscount += product.price * product.promotion.discount * item[1]
     tparams = {
         'cart': currentCart,
         'subtotal': total,
         'discount': totalDiscount,
-        'total': total - totalDiscount
+        'total': total - totalDiscount,
     }
     return tparams
 
@@ -425,7 +474,7 @@ def addToCart(request, id):
                 carts[request.user.id].append([id, 1])
         else:
             carts[request.user.id] = [[id, 1]]
-        print(carts)
+
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     return redirect('login')
 

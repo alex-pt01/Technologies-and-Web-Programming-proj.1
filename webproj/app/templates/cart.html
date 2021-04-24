@@ -41,12 +41,13 @@
 			<div class="table-responsive cart_info">
 				<table class="table table-condensed">
 					<thead>
+
 						<tr class="cart_menu">
 							<td class="image">Item</td>
 							<td class="description">Description</td>
-							<td class="price">Price</td>
+							<td class="description">Description</td>
 							<td class="quantity">Quantity</td>
-							<td class="total">Total</td>
+                            <td class="price">Price</td>
 							<td></td>
 						</tr>
 					</thead>
@@ -54,11 +55,9 @@
 						{% for product, quantity in cart %}
 
 						<tr>
-                            <!--
-							<td class="cart_product">
-								<a href=""><img src="images/cart/one.png" alt=""></a>
+                            <td class="col-sm-3 cart_product">
+								<a href=""><img style="width: 200px" src="{{ product.image.url }}" alt=""></a>
 							</td>
-							-->
 							<td class="cart_description">
 								<h4><a href="">{{ product.name }}</a></h4>
 								<p>Web ID: {{ product.id }}</p>
@@ -68,9 +67,13 @@
 							</td>
 							<td class="cart_quantity">
 								<div class="cart_quantity_button">
+								    {% if quantity <= product.quantity %}
 									<a class="cart_quantity_up" href="/increaseQuantity/{{ product.id }}"> + </a>
+                                    {% endif %}
 									<input class="cart_quantity_input" type="text" name="quantity" value="{{ quantity }}" autocomplete="off" size="2"/>
+                                    {% if quantity > 1 %}
 									<a class="cart_quantity_down" href="/decreaseQuantity/{{ product.id }}"> - </a>
+                                    {% endif %}
 								</div>
 							</td>
 							<td class="cart_total">

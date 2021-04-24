@@ -108,8 +108,11 @@
                                             <div class="overlay-content">
                                                 <h2 style="text-decoration: line-through">{{ product.price }}</h2>
                                                 <p>{{ product.name }}</p>
-                                                 <a class="btn btn-default add-to-cart" href="/addToCart/{{ product.id }}" type="submit" ><i class="fa fa-shopping-cart">Add To Cart</i></a>
-
+                                                {% if product.quantity != 0 %}
+                                                    <a class="btn btn-default add-to-cart" href="/addToCart/{{ product.id }}" type="submit" ><i class="fa fa-shopping-cart">Add To Cart</i></a>
+                                                {% elif product.quantity == 0 %}
+                                                    <a class="btn btn-default add-to-cart disabled" href="" type="submit" >Not In Stock</a>
+                                                {% endif %}
                                             </div>
                                         </div>
 

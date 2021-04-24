@@ -49,6 +49,7 @@ urlpatterns = [
     #######
     path('usersManagement/', views.usersManagement, name='usersManagement'),
     path('deleteUser/<str:id>', views.deleteUser, name='deleteUser'),
+    path('updateUser/', views.updateUser, name='updateUser'),
 
     path('', views.home, name='home'),
     #########

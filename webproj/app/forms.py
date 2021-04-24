@@ -39,3 +39,14 @@ class paymentForm(forms.Form):
 	expirationYear = forms.IntegerField(label='Card Expiration Year',validators =[expirationYear])
 	address = forms.CharField(label='Address',max_length=250)
 
+
+class updateUserForm(forms.Form):
+	first_name = forms.CharField(label='First Name')
+	last_name = forms.CharField(label='Last Name')
+	username = forms.CharField(label='Username')
+	email = forms.EmailField(label='Your Email')
+	currentPassword = forms.CharField(label='Current Password', widget=forms.PasswordInput())
+	newPassword = forms.CharField(label='New Password', widget=forms.PasswordInput())
+	repeatNewPassword = forms.CharField(label='Repeat New Password', widget=forms.PasswordInput())
+
+
