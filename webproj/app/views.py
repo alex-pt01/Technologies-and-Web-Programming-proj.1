@@ -226,11 +226,7 @@ def updateProduct(request, pk):
                 'category':pr.category,
                 'promotion':pr.promotion,
             })
-
-
-
         return render(request, 'updateProduct.html', {'form': form})
-    
     return redirect('login')
 
 
@@ -349,30 +345,34 @@ def searchProducts(request):
             query = request.POST['searchBar']
             result = Product.objects.filter(name__icontains=query)
 
-        if 'brandsCategories' in request.POST and len(request.POST.getlist('brandsCategories', [])) > 1:
+        if 'brandsCategories' in request.POST and len(request.POST.getlist('brandsCategories', [])) >= 1:
             brandsLstCat = request.POST.getlist('brandsCategories', [])
             for brandCat in brandsLstCat:
                 if brandCat != '':
                     productS = Product.objects.filter(
                         brand=brandCat)  # TODO apenas está a ver por BRAND e n por CATEGOYR (no shop.html só envio brand)
-                    if len(productS) > 1:
+                    if len(productS) >= 1:
                         for p in productS:
                             productsList.append(p)
                     else:
-                        productsList.append(productS)
+                        productsList = result
             result = productsList
+
+
+
 
         if 'brandsProducts' in request.POST:
             brandsLst = request.POST.getlist('brandsProducts', [])
+            print(brandsLst)
             for brand in brandsLst:
                 if brand != '':
                     products = Product.objects.filter(
                         brand=brand)
-                    if len(products) > 1:
+                    if len(products) >= 1:
                         for p in products:
                             productsList.append(p)
                     else:
-                        productsList.append(products)
+                        productsList = result
             result = productsList
 
         if 'priceRange' in request.POST:

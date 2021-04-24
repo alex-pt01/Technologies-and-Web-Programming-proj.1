@@ -77,17 +77,20 @@ class CommentForm(forms.Form):
                                 validators=[validators.MinValueValidator(1), validators.MaxValueValidator(5)])
     commentDate = forms.DateField(label="Comment date", help_text='Required. Format: YYYY-MM-DD')
 
+
 class createProductForm(forms.Form):
-	name = forms.CharField(label="Name",required=True)
-	price = forms.FloatField(label="Price",required=True)
-	description = forms.CharField(label="Description",required=True, max_length=350)
-	image = forms.ImageField(label="Image")
-	quantity = forms.IntegerField(label="Quantity",required=True,min_value=0)
-	stock = forms.BooleanField(label="Stock")
-	brand = forms.CharField(label="Brand")
-	CATEGORY = (('Smartphones', 'Smartphones'),	('Computers', 'Computers'),	('Tablets', 'Tablets'),	('Drones', 'Drones'), ('Televisions', 'Televisions'))
-	category =forms.ChoiceField(choices=CATEGORY)
-	promotion = forms.ModelChoiceField(queryset=Promotion.objects.all())
+    name = forms.CharField(label="Name", required=True)
+    price = forms.FloatField(label="Price", required=True)
+    description = forms.CharField(label="Description", required=True, max_length=350)
+    image = forms.ImageField(label="Image")
+    quantity = forms.IntegerField(label="Quantity", required=True, min_value=0)
+    stock = forms.BooleanField(label="Stock")
+    brand = forms.CharField(label="Brand")
+    CATEGORY = (
+    ('Smartphones', 'Smartphones'), ('Computers', 'Computers'), ('Tablets', 'Tablets'), ('Drones', 'Drones'),
+    ('Televisions', 'Televisions'))
+    category = forms.ChoiceField(choices=CATEGORY)
+    promotion = forms.ModelChoiceField(queryset=Promotion.objects.all())
 
 
 class updateUserForm(forms.Form):
