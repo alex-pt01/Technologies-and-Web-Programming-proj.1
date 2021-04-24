@@ -36,7 +36,7 @@ urlpatterns = [
     ########
     path('promotionsManagement/', views.promotionsManagement, name='promotionsManagement'),
     path('createPromotion/', views.createPromotion, name='createPromotion'),
-    path('updatePromotion/<str:pk>/', views.updatePromotion, name='updatePromotion'),
+    path('updatePromotion/<str:promotion_id>/', views.updatePromotion, name='updatePromotion'),
     path('deletePromotion/<str:id>', views.deletePromotion, name='deletePromotion'),
     ########
     path('searchProducts/', views.searchProducts, name='searchProducts'),
@@ -50,6 +50,7 @@ urlpatterns = [
     #######
     path('usersManagement/', views.usersManagement, name='usersManagement'),
     path('deleteUser/<str:id>', views.deleteUser, name='deleteUser'),
+    path('updateUser/', views.updateUser, name='updateUser'),
 
     path('', views.home, name='home'),
     #########
@@ -68,4 +69,6 @@ urlpatterns = [
 
 ]
 
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)

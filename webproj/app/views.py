@@ -8,11 +8,13 @@ from django.http import HttpRequest, HttpResponseRedirect
 from django.shortcuts import render, redirect
 
 from app.forms import newUserForm, paymentForm
+# Create your views here.
+from app.forms import newUserForm, paymentForm, updateUserForm
 from app.models import Product, Promotion, Comment, PaymentMethod, Payment, ShoppingCart, ShoppingCartItem
 from django.contrib.auth.models import User
 from app.forms import *
-carts = {}
 
+carts = {}
 
 def login(request):
     if request.user.is_authenticated:
@@ -26,7 +28,7 @@ def login(request):
 
             if user is not None:
                 loginUser(request, user)
-                messages.success(request, 'Welcome!!! ' )
+                messages.success(request, 'Welcome!!! ')
 
                 return redirect('home')
             else:
@@ -64,10 +66,54 @@ def usersManagement(request):
     users = User.objects.values()
     return render(request, 'usersManagement.html', {'users': users})
 
+
 def deleteUser(request, id):
     user = User.objects.get(id=id)
     user.delete()
-    return redirect('usersManagement')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+def updateUser(request):
+    tparams = {}
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            form = updateUserForm(request.POST)
+            if form.is_valid():
+                data = form.cleaned_data
+                username = data['username']
+                email = data['email']
+                curPass = data['currentPassword']
+                newPass = data['newPassword']
+                newRepeatedPass = data['repeatNewPassword']
+                firstName = data['first_name']
+                lastName = data['last_name']
+
+                if newPass != newRepeatedPass:
+                    form = updateUserForm()
+                    tparams['form'] = form
+                    tparams['error'] = "Inserted Passwords Are Not The Same"
+                    return render(request, 'updateUser.html', tparams)
+                if request.user.check_password(curPass):
+
+                    user = request.user
+                    user.username = username
+                    user.first_name = firstName
+                    user.last_name = lastName
+                    user.email = email
+                    user.set_password(raw_password=newPass)
+                    user.save()
+                else:
+                    form = updateUserForm()
+                    tparams['form'] = form
+                    tparams['error'] = "Incorrect Password"
+                    return render(request, 'updateUser.html', tparams)
+                return redirect('login')
+        else:
+            form = updateUserForm()
+        tparams['form'] = form
+
+        return render(request, 'updateUser.html', tparams)
+    return redirect('login')
 
 
 def productsManagement(request):
@@ -77,36 +123,37 @@ def productsManagement(request):
 
     return render(request, 'productsManagement.html', form)
 
+
 def shop(request):
     return render(request, 'shop.html')
 
 
+#TODO -> Problema com a imagem
 def createProduct(request):
     assert isinstance(request, HttpRequest)
+    promotion = Promotion.objects.all()
 
     if request.method == "POST":
-        pritn("PPOOST")
-        form = createProductForm(request.POST, request.FILES)
+        form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
             product = Product(name=form.cleaned_data["name"],
                               price=form.cleaned_data["price"],
-                              description=form.cleaned_data["description_"],
-                              image=form.cleaned_data["imagem"],
+                              description=form.cleaned_data["description"],
+                              image=request.FILES.get("imageProduct"),
                               quantity=form.cleaned_data["quantity"],
                               stock=form.cleaned_data["stock"],
                               brand=form.cleaned_data["brand"],
                               category=form.cleaned_data["category"],
-                              promotion=Promotion.objects.get(name=form.cleaned_data["promo"])
+                              promotion=Promotion.objects.get(id=form.cleaned_data["promotion"])
                               )
+            print("SSS")
             product.save()
+            print("ccc")
+
             return redirect("shop")
     else:
-        print("cccccccccccccc")
-
-        form = createProductForm()
-        promotion = Promotion.objects.all()
+        form = ProductForm()
     return render(request, 'createProduct.html', {"form": form, 'promotion': promotion})
-
 
 
 """ 
@@ -142,9 +189,43 @@ def createProduct(request):
             return render(request, 'createProduct.html', {'error': True})
 """
 
-
-
+#TODO -> Problema com a imagem
 def updateProduct(request, pk):
+    assert isinstance(request, HttpRequest)
+    promotion = Promotion.objects.all()
+
+    if request.method == "POST":
+
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            product = Product.objects.get(id=pk)
+            product.name = form.cleaned_data["name"]
+            product.price = form.cleaned_data["price"]
+            product.description = form.cleaned_data["description"]
+            product.image = request.FILES["imageProduct"]
+            product.quantity = form.cleaned_data["quantity"]
+            product.stock = form.cleaned_data["stock"]
+            product.brand = form.cleaned_data["brand"]
+            product.category = form.cleaned_data["category"]
+            product.promotion = Promotion.objects.get(id=form.cleaned_data["promotion"])
+
+            product.save()
+            return redirect("shop")
+    else:
+        product = Product.objects.get(id=pk)
+        form = ProductForm(initial={"name": product.name,
+                                    "price": product.price,
+                                    "description": product.description,
+                                    "image": product.image,
+                                    "quantity": product.quantity,
+                                    "stock": product.stock,
+                                    "brand": product.brand,
+                                    "category": product.category,
+                                    "promotion": product.promotion,
+                                    })
+    return render(request, "updateProduct.html", {"form": form})
+
+    """
     product = Product.objects.get(id=pk)
     if request.method == 'POST':
         product.name = request.POST['name']
@@ -154,7 +235,7 @@ def updateProduct(request, pk):
         product.quantity = request.POST['quantity']
         product.stock = request.POST['stock']
         product.brand = request.POST['brand']
-        product.category = request.POST['category']
+        product.category = request.POST[    product = Product.objects.get(id=pk)
 
         promotion_ = request.POST.get('promo')
         print(type(promotion_))
@@ -171,17 +252,18 @@ def updateProduct(request, pk):
         product.save()
         return render(request, 'shop.html')
     return render(request, 'updateProduct.html', {'product': product})
+"""
+
 
 def deleteComment(request, id):
     comment = Comment.objects.get(id=id)
     comment.delete()
     return redirect('commentsManagement')
 
+
 def commentsManagement(request):
     comments = Comment.objects.all()
-
     form = {'comments': comments}
-
     return render(request, 'commentsManagement.html', form)
 
 
@@ -193,41 +275,50 @@ def deleteProduct(request, id):
 
 def promotionsManagement(request):
     promotions = Promotion.objects.all()
-
     form = {'promotions': promotions}
-
     return render(request, 'promotionsManagement.html', form)
 
 
 def createPromotion(request):
     assert isinstance(request, HttpRequest)
+    if not request.user.is_authenticated or request.user.username != 'admin':
+        return redirect("login")
 
-    if 'name' in request.POST and 'discount' in request.POST:
-        name_ = request.POST['name']
-        discount_ = request.POST['discount']
-        description_ = request.POST['description']
-        deadline_ = request.POST['date']
-        if name_ and discount_:
-
-            promotion = Promotion(name=name_, discount=discount_, description=description_, deadline=deadline_)
+    if request.method == "POST":
+        form = PromotionForm(request.POST)
+        if form.is_valid():
+            promotion = Promotion(name=form.cleaned_data["name"],
+                                  discount=form.cleaned_data["discount"],
+                                  description=form.cleaned_data["description"],
+                                  deadline=form.cleaned_data["deadline"],
+                                  )
             promotion.save()
-            return render(request, 'promotionsManagement.html')
-        else:
-            return render(request, 'createPromotion.html', {'error': True})
+            return redirect("promotionsManagement")
     else:
-        return render(request, 'createPromotion.html', {'error': False})
+        form = PromotionForm()
+    return render(request, 'createPromotion.html', {"form": form})
 
 
-def updatePromotion(request, pk):
-    promotion = Promotion.objects.get(id=pk)
-    if request.method == 'POST':
-        promotion.name = request.POST['name']
-        promotion.discount = request.POST['discount']
-        promotion.description = request.POST['description']
-        promotion.deadline = request.POST['deadline']
-        promotion.save()
-        return render(request, 'promotionsManagement.html')
-    return render(request, 'updatePromotion.html', {'promotion': promotion})
+def updatePromotion(request, promotion_id):
+    assert isinstance(request, HttpRequest)
+    if request.method == "POST":
+        form = PromotionForm(request.POST)
+        if form.is_valid():
+            promotion = Promotion.objects.get(id=promotion_id)
+            promotion.name = form.cleaned_data["name"]
+            promotion.discount = form.cleaned_data["discount"]
+            promotion.description = form.cleaned_data["description"]
+            promotion.deadline = form.cleaned_data["deadline"]
+            promotion.save()
+            return redirect("promotionsManagement")
+    else:
+        promotion = Promotion.objects.get(id=promotion_id)
+        form = PromotionForm(initial={"name": promotion.name,
+                                      "discount": promotion.discount,
+                                      "description": promotion.description,
+                                      "deadline": promotion.deadline,
+                                      })
+    return render(request, "updatePromotion.html", {"form": form})
 
 
 def deletePromotion(request, id):
@@ -323,56 +414,41 @@ def searchProducts(request):
 def home(request):
     assert isinstance(request, HttpRequest)
     recommendedProducts = Product.objects.all()[0:3]
-    #get distinct accounts
     comments = Comment.objects.order_by('userEmail').distinct()
 
-    if request.method == 'POST':
+    if not request.user.is_authenticated:
+        return redirect("login")
 
-
-        if request.user.is_authenticated :
-            userEmail = request.user.email
-            userName = request.user.username
-            description = request.POST['description']
-            rating = request.POST['rating']
-
-
-
-            if  userName and userEmail and description:
-                comment = Comment(userName=userName, userEmail=userEmail, description=description, rating=rating, commentDate= datetime.now())
-                comment.save()
-                tparams = {
-                           'commentSuccess': True,
-                            'comments':comments, 'recommendedProducts':recommendedProducts
-                           }
-                return render(request, 'index.html', tparams)
-            else:
-                return render(request, 'index.html', {'name_notFilled': True, 'comments':comments, 'recommendedProducts':recommendedProducts})
-        else:
-
-            tparams = {'productsList': recommendedProducts,
-                       'comments': comments, 'notLogged': True, 'recommendedProducts':recommendedProducts}
-            return render(request, 'index.html', tparams)
-
+    if request.method == "POST":
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = Comment(userName=form.cleaned_data["userName"],
+                                  userEmail=form.cleaned_data["userEmail"],
+                                  description=form.cleaned_data["description"],
+                                  rating=form.cleaned_data["rating"],
+                                  commentDate=form.cleaned_data["commentDate"],
+                              )
+            comment.save()
+            return redirect("home")
     else:
-        tparams = {'productsList': recommendedProducts,
-                                    'comments':comments}
-
-        return render(request, 'index.html', tparams)
+        form = CommentForm()
+    return render(request, 'index.html', {"form": form, "recommendedProducts":recommendedProducts,"comments":comments })
 
 
 
 def account(request):
-    shoppingCarts = ShoppingCart.objects.filter(user_id= request.user.id)
+    shoppingCarts = ShoppingCart.objects.filter(user_id=request.user.id)
     if shoppingCarts:
         assoc = []
         for scs in shoppingCarts:
             scis = ShoppingCartItem.objects.filter(cart_id=scs.id)
-            payment = Payment.objects.filter(shopping_cart=scs)
-            assoc.append((scis,payment))
-        tparams = {'carts':assoc}
+            payment = Payment.objects.filter(shopping_cart=scs)[0]
+            print(payment.total)
+            assoc.append((scis, payment))
+        tparams = {'carts': assoc}
 
     else:
-        tparams = {'cart':[]}
+        tparams = {'cart': []}
         shoppingCarts = []
     return render(request, 'account.html', tparams)
 
@@ -380,15 +456,14 @@ def account(request):
 def checkout(request):
     if request.user.is_authenticated:
         tparams = getShoppingCart(request)
+
         if request.method == 'POST':
             form = paymentForm(request.POST)
             if form.is_valid():
                 data = form.cleaned_data
                 type = data['type']
                 card_no = data['card_no']
-                card_code = data['card_code']
-                expirationMonth = data['expirationMonth']
-                expirationYear = data['expirationYear']
+
                 address = data['address']
                 pm = PaymentMethod(type=type, card_no=card_no)
                 pm.save()
@@ -403,6 +478,10 @@ def checkout(request):
                 for item, quantity in tparams['cart']:
                     spi = ShoppingCartItem()
                     spi.product = item
+                    item.quantity = item.quantity - spi.quantity
+                    item.save()
+                    if item.quantity == 0:
+                        item.stock = False
                     spi.quantity = quantity
                     spi.cart_id = sp.id
                     spi.save()
@@ -423,17 +502,20 @@ def getShoppingCart(request):
     currentCart = []
     total = 0
     totalDiscount = 0
+
     for item in userCart:
         product = Product.objects.get(id=item[0])
         currentCart.append((product, item[1]))
         total += product.price * item[1]
+        if item[1] > product.quantity:
+            item[1] = product.quantity
         if product.promotion:
             totalDiscount += product.price * product.promotion.discount * item[1]
     tparams = {
         'cart': currentCart,
         'subtotal': total,
         'discount': totalDiscount,
-        'total': total - totalDiscount
+        'total': total - totalDiscount,
     }
     return tparams
 
@@ -452,7 +534,7 @@ def addToCart(request, id):
                 carts[request.user.id].append([id, 1])
         else:
             carts[request.user.id] = [[id, 1]]
-        print(carts)
+
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     return redirect('login')
 

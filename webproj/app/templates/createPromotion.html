@@ -10,28 +10,12 @@
 						<h2>Create Promotion</h2>
 					    <form method="POST" action="">
 						    {% csrf_token %}
-							<input name="name" type="text" placeholder="Name" />
-                            <input name="discount" type="number" min="0.00" max="10000.00" step="0.01" placeholder="Price" />
-
-
-                            <label>Description</label>
-
-                            <textarea  name="description" rows="4" cols="50" maxlength="300" placeholder="Description">
-                            </textarea>
-                              <br><br>
-                            <label>Deadline </label>
-                            <input type="date" name="date" class="form-control" id="date" value="{{placement.date|date:"Y-m-d" }}">
-                            <label>Today: </label>
-                            {{ date }}
+                            {{ form }}
                             <button style="float:right;" type="submit" class="btn btn-default">Create Promotion</button>
 						</form>
 					    </div><!--/login form-->
                 <br><br>
-                {% if error %}
-                    <div class="alert alert-danger">
-                         All <fields></fields> must be filled!
-                    </div>
-                {% endif %}
+
 				</div>
 		</div>
 	</section>

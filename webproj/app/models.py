@@ -6,7 +6,7 @@ from django.db import models
 # Create your models here.
 class Promotion(models.Model):
     name = models.CharField(max_length=80)
-    discount = models.FloatField(null=True)
+    discount = models.FloatField()
     description = models.CharField(max_length=300)
     deadline = models.DateField()
 
@@ -18,7 +18,7 @@ class Product(models.Model):
     name = models.CharField(max_length=80)
     price = models.FloatField()
     description = models.CharField(max_length=300)
-    image = models.FileField(upload_to='static/images')
+    image = models.ImageField(upload_to='static/images/', blank=True, null=True)
     quantity = models.IntegerField()
     stock = models.BooleanField()
     brand = models.CharField(max_length=80)

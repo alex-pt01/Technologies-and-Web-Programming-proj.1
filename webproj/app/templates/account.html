@@ -13,26 +13,42 @@
 						<h2>My Account</h2>
 
                         <label>Name:</label>
+                        {{ user.last_name }}, {{ user.first_name }}
+                        <br>
+                        <label>Joined:</label>
+                        {{ user.date_joined }}
+                        <br>
+                        <label>Username:</label>
                         {{ user.get_username }}
                         <br>
                         <label>Email:</label>
                         {{ user.email }}
-
-					</div><!--/login form-->
+                        <p>
+                            <a class="btn btn-sm btn-danger" href="{% url 'deleteUser' user.id %}">Delete Account</a>
+					    </p>
+                        <p>
+                            <a class="btn btn-sm btn-info" href="{% url 'updateUser' %}">Update Account</a>
+                        </p>
+                    </div><!--/login form-->
 				</div>
 
 
-
-
-	</section><!--/form-->
+    <div class="container">
+            <div class="table-responsive cart_info">
+					<h2>History</h2>
+                    <hr>
+				</div>
+    </div>
     {% for scis, payment in carts %}
         <section id="cart_items">
+
 		<div class="container">
             <div class="table-responsive cart_info">
 				<table class="table table-condensed">
 					<thead>
 						<tr class="cart_menu">
 							<td class="image">Item</td>
+							<td class="description">Product</td>
 							<td class="description">Description</td>
 
 							<td class="quantity">Quantity</td>
@@ -44,16 +60,15 @@
 
                             {% for sci in scis %}
                                 <tr>
-                            <!--
-							<td class="cart_product">
-								<a href=""><img src="images/cart/one.png" alt=""></a>
+							<td class="col-sm-3 cart_product">
+								<a href=""><img style="width: 200px" src="{{ sci.product.image.url }}" alt=""></a>
 							</td>
-							-->
-							<td class="cart_description">
+
+							<td class="col-sm-4 cart_description">
 								<h4><a href="">{{ sci.product.name }}</a></h4>
 								<p>Web ID: {{ sci.product.id }}</p>
 							</td>
-							<td class="cart_price" style="max-width:300px">
+							<td class="col-sm-2 cart_price" style="max-width:300px">
 								<p>{{ sci.product.description }}</p>
 							</td>
 							<td class="cart_quantity">
@@ -68,7 +83,13 @@
 						</tr>
 
                             {% endfor %}
+                          <tr>
+                              <td class="description"><p></p></td>
+                              <td class="description">Date: <h4>{{ payment.date }}</h4></td>
+                              <td class="description">Address: <h4>{{ payment.address }}</h4></td>
+                              <td class="price">Total: <h4>{{ payment.total }}</h4></td>
 
+                          </tr>
 
 
 
@@ -76,7 +97,7 @@
 				</table>
 			</div>
 		</div>
-	</section> <!--/#cart_items-->
+
     {%  endfor %}
 {% endblock %}
 

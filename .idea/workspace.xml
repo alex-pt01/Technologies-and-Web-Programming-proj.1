@@ -2,10 +2,20 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a08c26bc-6a11-4889-bb56-d899e8a7e226" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/webproj/app/static/images/iph12.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webproj/app/templates/updateUser.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/webproj/app/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/forms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/webproj/app/static/css/main.css" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/static/css/main.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webproj/app/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webproj/app/templates/account.html" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/templates/account.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webproj/app/templates/cart.html" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/templates/cart.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webproj/app/templates/checkout.html" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/templates/checkout.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/webproj/app/templates/createProduct.html" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/templates/createProduct.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webproj/app/templates/createPromotion.html" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/templates/createPromotion.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webproj/app/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/templates/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webproj/app/templates/shop.html" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/templates/shop.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webproj/app/templates/updateProduct.html" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/templates/updateProduct.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webproj/app/templates/updatePromotion.html" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/templates/updatePromotion.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/webproj/app/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/webproj/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/db.sqlite3" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/webproj/webproj/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/webproj/urls.py" afterDir="false" />
@@ -36,7 +46,12 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/webproj/app/static/images" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Alex\Desktop\TPW_PROJ\tpw_proj1\webproj\app\static\images" />
+    </key>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -53,6 +68,7 @@
       <workItem from="1619214173722" duration="14000" />
       <workItem from="1619214190849" duration="32000" />
       <workItem from="1619255597468" duration="8782000" />
+      <workItem from="1619264468568" duration="11537000" />
     </task>
     <servers />
   </component>
