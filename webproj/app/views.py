@@ -16,6 +16,7 @@ from app.forms import *
 
 carts = {}
 
+
 def login(request):
     if request.user.is_authenticated:
         return redirect('home')
@@ -128,7 +129,6 @@ def shop(request):
     return render(request, 'shop.html')
 
 
-#TODO -> Problema com a imagem
 def createProduct(request):
     assert isinstance(request, HttpRequest)
     promotion = Promotion.objects.all()
@@ -189,7 +189,7 @@ def createProduct(request):
             return render(request, 'createProduct.html', {'error': True})
 """
 
-#TODO -> Problema com a imagem
+
 def updateProduct(request, pk):
     assert isinstance(request, HttpRequest)
     promotion = Promotion.objects.all()
@@ -407,7 +407,7 @@ def searchProducts(request):
                'brands': brands,
                'productsList': result
                }
-
+    print(result)
     return render(request, 'shop.html', tparams)
 
 
@@ -423,17 +423,17 @@ def home(request):
         form = CommentForm(request.POST)
         if form.is_valid():
             comment = Comment(userName=form.cleaned_data["userName"],
-                                  userEmail=form.cleaned_data["userEmail"],
-                                  description=form.cleaned_data["description"],
-                                  rating=form.cleaned_data["rating"],
-                                  commentDate=form.cleaned_data["commentDate"],
+                              userEmail=form.cleaned_data["userEmail"],
+                              description=form.cleaned_data["description"],
+                              rating=form.cleaned_data["rating"],
+                              commentDate=form.cleaned_data["commentDate"],
                               )
             comment.save()
             return redirect("home")
     else:
         form = CommentForm()
-    return render(request, 'index.html', {"form": form, "recommendedProducts":recommendedProducts,"comments":comments })
-
+    return render(request, 'index.html',
+                  {"form": form, "recommendedProducts": recommendedProducts, "comments": comments})
 
 
 def account(request):
@@ -471,7 +471,7 @@ def checkout(request):
                 sp.save()
                 payment = Payment()
                 payment.address = address
-                payment.total = tparams['total']
+                payment.total = round(tparams['total'], 2)
                 payment.method = pm
                 payment.shopping_cart = sp
                 payment.save()
@@ -502,20 +502,21 @@ def getShoppingCart(request):
     currentCart = []
     total = 0
     totalDiscount = 0
-
+    userCart.sort(key=lambda a: a[0])
     for item in userCart:
         product = Product.objects.get(id=item[0])
         currentCart.append((product, item[1]))
         total += product.price * item[1]
-        if item[1] > product.quantity:
+
+        if item[1] >= product.quantity:
             item[1] = product.quantity
         if product.promotion:
             totalDiscount += product.price * product.promotion.discount * item[1]
     tparams = {
         'cart': currentCart,
-        'subtotal': total,
-        'discount': totalDiscount,
-        'total': total - totalDiscount,
+        'subtotal': round(total, 2),
+        'discount': round(totalDiscount, 2),
+        'total': round(total - totalDiscount, 2),
     }
     return tparams
 

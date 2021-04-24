@@ -67,7 +67,7 @@
 							</td>
 							<td class="cart_quantity">
 								<div class="cart_quantity_button">
-								    {% if quantity <= product.quantity %}
+								    {% if quantity < product.quantity %}
 									<a class="cart_quantity_up" href="/increaseQuantity/{{ product.id }}"> + </a>
                                     {% endif %}
 									<input class="cart_quantity_input" type="text" name="quantity" value="{{ quantity }}" autocomplete="off" size="2"/>

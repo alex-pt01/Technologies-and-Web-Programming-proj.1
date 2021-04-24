@@ -33,6 +33,14 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
+    def discount(self):
+        if self.promotion:
+            return round(self.price*self.promotion.discount,2)
+        return 0
+    def promotionPrice(self):
+        if self.promotion:
+            return round(self.price - self.discount(),2)
+        return 0
 
 class Comment(models.Model):
     userName = models.CharField(max_length=80)
@@ -40,7 +48,7 @@ class Comment(models.Model):
     description = models.CharField(max_length=400)
     rating = models.IntegerField()
     commentDate = models.DateField()
-
+    product = models.ForeignKey(Product, default=None, blank = True, null = True, on_delete=models.CASCADE)
     def __str__(self):
         return self.userName
 
