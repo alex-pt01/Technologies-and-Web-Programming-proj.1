@@ -2,6 +2,7 @@ from django.forms import ModelForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django import forms
+from django.core import validators
 
 
 def cardNo(value):
@@ -39,3 +40,16 @@ class paymentForm(forms.Form):
 	expirationYear = forms.IntegerField(label='Card Expiration Year',validators =[expirationYear])
 	address = forms.CharField(label='Address',max_length=250)
 
+class createProductForm(forms.Form):
+	name = forms.CharField(label="Name", max_length=80)
+	price = forms.FloatField(label="Price",validators=[validators.MinValueValidator(0), validators.MaxValueValidator(99999)])
+	description = forms.CharField(widget=forms.Textarea(attr={'class':'alert alert-danger'}), label="Description", max_length=250)
+	image = forms.FileField(label="Image")
+	quantity = forms.IntegerField(label="Quantity",validators=[validators.MinValueValidator(0)])
+	stock = forms.BooleanField(label="Stock")
+	brand = forms.CharField(label="Brand", max_length=80)
+	CATEGORY = (('Smartphones', 'Smartphones'),
+				('Computers', 'Computers'),
+				('Tablets', 'Tablets'),
+				('Drones', 'Drones')
+				, ('Televisions', 'Televisions'))

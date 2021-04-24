@@ -7,11 +7,10 @@ from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpRequest, HttpResponseRedirect
 from django.shortcuts import render, redirect
 
-# Create your views here.
 from app.forms import newUserForm, paymentForm
 from app.models import Product, Promotion, Comment, PaymentMethod, Payment, ShoppingCart, ShoppingCartItem
 from django.contrib.auth.models import User
-
+from app.forms import *
 carts = {}
 
 
@@ -78,11 +77,40 @@ def productsManagement(request):
 
     return render(request, 'productsManagement.html', form)
 
+def shop(request):
+    return render(request, 'shop.html')
+
 
 def createProduct(request):
     assert isinstance(request, HttpRequest)
 
-    if request.method == 'POST' and 'img01' in request.FILES:
+    if request.method == "POST":
+        pritn("PPOOST")
+        form = createProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            product = Product(name=form.cleaned_data["name"],
+                              price=form.cleaned_data["price"],
+                              description=form.cleaned_data["description_"],
+                              image=form.cleaned_data["imagem"],
+                              quantity=form.cleaned_data["quantity"],
+                              stock=form.cleaned_data["stock"],
+                              brand=form.cleaned_data["brand"],
+                              category=form.cleaned_data["category"],
+                              promotion=Promotion.objects.get(name=form.cleaned_data["promo"])
+                              )
+            product.save()
+            return redirect("shop")
+    else:
+        print("cccccccccccccc")
+
+        form = createProductForm()
+        promotion = Promotion.objects.all()
+    return render(request, 'createProduct.html', {"form": form, 'promotion': promotion})
+
+
+
+""" 
+   if request.method == 'POST' and 'img01' in request.FILES:
         name = request.POST['name']
         price = request.POST['price']
         description_ = request.POST['description']
@@ -112,9 +140,8 @@ def createProduct(request):
             return render(request, 'shop.html')
         else:
             return render(request, 'createProduct.html', {'error': True})
+"""
 
-    promotion = Promotion.objects.all()
-    return render(request, 'createProduct.html', {'promotion': promotion})
 
 
 def updateProduct(request, pk):

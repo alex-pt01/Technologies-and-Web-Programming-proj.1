@@ -45,7 +45,8 @@ urlpatterns = [
     ########
     path('commentsManagement/', views.commentsManagement, name='commentsManagement'),
     path('deleteComment/<str:id>', views.deleteComment, name='deleteComment'),
-
+    ######
+    path('shop/', views.shop, name='shop'),
     #######
     path('usersManagement/', views.usersManagement, name='usersManagement'),
     path('deleteUser/<str:id>', views.deleteUser, name='deleteUser'),
