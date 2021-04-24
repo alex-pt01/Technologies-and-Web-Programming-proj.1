@@ -6,7 +6,7 @@ from django.db import models
 # Create your models here.
 class Promotion(models.Model):
     name = models.CharField(max_length=80)
-    discount = models.FloatField(null=True)
+    discount = models.FloatField()
     description = models.CharField(max_length=300)
     deadline = models.DateField()
 

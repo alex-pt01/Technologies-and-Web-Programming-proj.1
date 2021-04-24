@@ -1,5 +1,16 @@
 {% extends "layout.html" %}
 {% block content %}
+	<section ><!--form-->
+
+    <div class="row">
+        <div class="col-md-4 col-md-offset-4">
+            <div class="login-form"><!--login form-->
+                <h2>Create Product</h2>
+                <form method="POST" action=".">
+                    {% csrf_token %}
+
+                    {{ form}}
+                    <br><br>
 
 				<div class="col-sm-4 col-sm-offset-1" style="margin-left: 35%; margin-right: auto;">
 					<div class="login-form"><!--login form-->
