@@ -34,49 +34,45 @@
 			<div class="table-responsive cart_info">
 				<table class="table table-condensed">
 					<thead>
+
 						<tr class="cart_menu">
 							<td class="image">Item</td>
-							<td class="description"></td>
-							<td class="price">Price</td>
+							<td class="description">Description</td>
+							<td class="description">Description</td>
 							<td class="quantity">Quantity</td>
-							<td class="total">Total</td>
+                            <td class="price">Price</td>
 							<td></td>
 						</tr>
 					</thead>
 					<tbody>
 						<tr>
 							<td colspan="4">
+                                 {% for product, quantity in cart %}
 
-                                {% for product, quantity in cart %}
-
-						        <tr>
-
-                                <td class="cart_product">
-                                    <a href=""><img src="images/cart/one.png" alt=""></a>
-                                </td>
-
-                                <td class="cart_description">
-                                    <h4><a href="">{{ product.name }}</a></h4>
-                                    <p>Web ID: {{ product.id }}</p>
-                                </td>
-                                <td class="cart_price" style="max-width:300px">
-                                    <p>{{ product.description }}</p>
-                                </td>
-                                <td class="cart_quantity">
-                                    <div class="cart_quantity_button">
-                                        <a class="cart_quantity_up" href="/increaseQuantity/{{ product.id }}"> + </a>
-                                        <input class="cart_quantity_input" type="text" name="quantity" value="{{ quantity }}" autocomplete="off" size="2"/>
-                                        <a class="cart_quantity_down" href="/decreaseQuantity/{{ product.id }}"> - </a>
-                                    </div>
-                                </td>
-                                <td class="cart_total">
-                                    <p class="cart_total_price">{{ product.price }}€</p>
-                                </td>
-                                <td class="cart_delete">
-                                    <a class="cart_quantity_delete" href="/removeFromCart/{{ product.id }}" type="submit" ><i class="fa fa-times"></i></a>
-                                </td>
-                            </tr>
-                        {%  endfor %}
+                                <tr>
+                                    <td class="col-sm-3 cart_product">
+                                        <a href=""><img style="width: 200px" src="{{ product.image.url }}" alt=""></a>
+                                    </td>
+                                    <td class="cart_description">
+                                        <h4><a href="">{{ product.name }}</a></h4>
+                                        <p>Web ID: {{ product.id }}</p>
+                                    </td>
+                                    <td class="cart_price" style="max-width:300px">
+                                        <p>{{ product.description }}</p>
+                                    </td>
+                                    <td class="cart_quantity">
+                                        <div class="cart_quantity_button">
+                                            <input class="cart_quantity_input" type="text" name="quantity" value="{{ quantity }}" autocomplete="off" size="2"/>
+                                        </div>
+                                    </td>
+                                    <td class="cart_total">
+                                        <p class="cart_total_price">{{ product.price }}€</p>
+                                    </td>
+                                    <td class="cart_delete">
+                                        <a class="cart_quantity_delete" href="/removeFromCart/{{ product.id }}" type="submit" ><i class="fa fa-times"></i></a>
+                                    </td>
+                                </tr>
+                                {%  endfor %}
                             </td>
 
 							<td colspan="2">
@@ -100,15 +96,23 @@
 					</tbody>
 				</table>
 			</div>
-			<div class="payment-options">
-                    <form action="." method="post">
-                        {% csrf_token %}
-                        {{ form.as_p }}
-                        <input type="submit" value="Submit">
-                    </form>
+            <div    style="  margin:auto;
+                      width:40%;;
+                     ">
+					<div class="login-form">
+						<h2>Payment</h2>
+                        <hr>
+					    <form method="POST" action="">
+						    {% csrf_token %}
+                            {{ form }}
+                            <input style="float:right; width: 50%" type="submit" class="btn btn-default" type="submit" value="Submit">
+						</form>
 
+					</div>
 				</div>
+
 		</div>
+    <br>
 	</section> <!--/#cart_items-->
 
 	

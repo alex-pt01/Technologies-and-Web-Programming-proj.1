@@ -40,7 +40,7 @@ class Comment(models.Model):
     description = models.CharField(max_length=400)
     rating = models.IntegerField()
     commentDate = models.DateField()
-
+    product = models.ForeignKey(Product, default=None, blank = True, null = True, on_delete=models.CASCADE)
     def __str__(self):
         return self.userName
 

@@ -339,7 +339,7 @@ def home(request):
     assert isinstance(request, HttpRequest)
     recommendedProducts = Product.objects.all()[0:3]
     #get distinct accounts
-    comments = Comment.objects.order_by('userEmail').distinct()
+    comments = Comment.objects.filter(product=None).order_by('userEmail').distinct()
 
     if request.method == 'POST':
 
@@ -411,7 +411,7 @@ def checkout(request):
                 sp.save()
                 payment = Payment()
                 payment.address = address
-                payment.total = tparams['total']
+                payment.total = round(tparams['total'], 2)
                 payment.method = pm
                 payment.shopping_cart = sp
                 payment.save()
@@ -442,20 +442,20 @@ def getShoppingCart(request):
     currentCart = []
     total = 0
     totalDiscount = 0
-
+    userCart.sort(key=lambda a: a[0])
     for item in userCart:
         product = Product.objects.get(id=item[0])
         currentCart.append((product, item[1]))
         total += product.price * item[1]
-        if item[1] > product.quantity:
-            item[1]=product.quantity
+        if item[1] >= product.quantity:
+            item[1] = product.quantity
         if product.promotion:
             totalDiscount += product.price * product.promotion.discount * item[1]
     tparams = {
         'cart': currentCart,
-        'subtotal': total,
-        'discount': totalDiscount,
-        'total': total - totalDiscount,
+        'subtotal': round(total, 2),
+        'discount': round(totalDiscount, 2),
+        'total': round(total-totalDiscount, 2),
     }
     return tparams
 
