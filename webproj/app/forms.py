@@ -75,7 +75,6 @@ class CommentForm(forms.Form):
     description = forms.CharField(label="Description", max_length=250)
     rating = forms.IntegerField(label="Rating",
                                 validators=[validators.MinValueValidator(1), validators.MaxValueValidator(5)])
-    commentDate = forms.DateField(label="Comment date", help_text='Required. Format: YYYY-MM-DD')
 
 class createProductForm(forms.Form):
 	name = forms.CharField(label="Name",required=True)

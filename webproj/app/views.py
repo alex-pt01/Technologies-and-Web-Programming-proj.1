@@ -117,12 +117,52 @@ def updateUser(request):
     return redirect('login')
 
 def productInfo(request, id):
+    canRev = False
     product = Product.objects.get(id=id)
     comments = Comment.objects.filter(product=product)
+    commentsRating = [c.rating for c in comments]
+    avg = 0
     tparams={}
+
+    if commentsRating != []:
+        avg = sum(commentsRating) / len(commentsRating)
+    if request.user.is_authenticated:
+
+        if request.method == 'POST':
+            form = CommentForm(request.POST)
+            if form.is_valid():
+                data = form.cleaned_data
+                username = data['userName']
+                email = data['userEmail']
+                descr = data['description']
+                rating = data['rating']
+
+                com = Comment(userName=username, userEmail=email, description=descr, rating=rating)
+                com.product = product
+                com.save()
+
+        else:
+            form = CommentForm()
+        tparams = {}
+        shoppingCarts = ShoppingCart.objects.filter(user_id=request.user.id)
+        bought = []
+        if shoppingCarts:
+            for scs in shoppingCarts:
+                scis = ShoppingCartItem.objects.filter(cart_id=scs.id)
+                bought += [s.product for s in scis]
+
+        if product in bought:
+            canRev = True
+
     tparams['product'] = product
     tparams['comments'] = comments
+    tparams['avg'] = round(avg, 1)
+    tparams['comNo'] = len(comments)
+    tparams['canReview'] = canRev
+    tparams['form']=form
     return render(request, 'productInfo.html', tparams)
+
+
 
 def productsManagement(request):
     products = Product.objects.all()

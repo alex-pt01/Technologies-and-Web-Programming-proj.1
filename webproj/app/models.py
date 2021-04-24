@@ -47,7 +47,7 @@ class Comment(models.Model):
     userEmail = models.EmailField()
     description = models.CharField(max_length=400)
     rating = models.IntegerField()
-    commentDate = models.DateField()
+    commentDate = models.DateField(default = datetime.now())
     product = models.ForeignKey(Product, default=None, blank = True, null = True, on_delete=models.CASCADE)
     def __str__(self):
         return self.userName
