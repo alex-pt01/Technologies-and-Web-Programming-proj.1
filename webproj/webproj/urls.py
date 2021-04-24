@@ -40,6 +40,7 @@ urlpatterns = [
     path('deletePromotion/<str:id>', views.deletePromotion, name='deletePromotion'),
     ########
     path('searchProducts/', views.searchProducts, name='searchProducts'),
+    path('details/<str:id>', views.productInfo, name='productInfo'),
     ########
     path('account/', views.account, name='account'),
     ########

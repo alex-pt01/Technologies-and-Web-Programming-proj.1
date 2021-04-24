@@ -3,6 +3,8 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django import forms
 
+from app.models import Promotion
+
 
 def cardNo(value):
 	if len(str(value)) != 12 or value<0:
@@ -38,6 +40,18 @@ class paymentForm(forms.Form):
 	expirationMonth = forms.IntegerField(label='Card Expiration Month',validators =[expirationMonth])
 	expirationYear = forms.IntegerField(label='Card Expiration Year',validators =[expirationYear])
 	address = forms.CharField(label='Address',max_length=250)
+
+class createProductForm(forms.Form):
+	name = forms.CharField(label="Name",required=True)
+	price = forms.FloatField(label="Price",required=True)
+	description = forms.CharField(label="Description",required=True, max_length=350)
+	image = forms.ImageField(label="Image")
+	quantity = forms.IntegerField(label="Quantity",required=True,min_value=0)
+	stock = forms.BooleanField(label="Stock")
+	brand = forms.CharField(label="Brand")
+	CATEGORY = (('Smartphones', 'Smartphones'),	('Computers', 'Computers'),	('Tablets', 'Tablets'),	('Drones', 'Drones'), ('Televisions', 'Televisions'))
+	category =forms.ChoiceField(choices=CATEGORY)
+	promotion = forms.ModelChoiceField(queryset=Promotion.objects.all())
 
 
 class updateUserForm(forms.Form):

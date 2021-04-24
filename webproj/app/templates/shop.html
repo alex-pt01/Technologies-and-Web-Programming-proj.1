@@ -85,7 +85,9 @@
 					<div class="features_items">
 						<h2 class="title text-center">Features Items</h2>
                         {%  for product in productsList %}
+
                             <div class="col-sm-4">
+                            <a href="/details/{{ product.id }}" >
                                 <div class="product-image-wrapper">
                                     <div class="single-products">
                                         <div class="productinfo text-center">
@@ -120,7 +122,9 @@
 
                                     </div>
                                 </div>
+                            </a>
                             </div>
+
                         {% endfor %}
 					</div>
 				</div>

@@ -18,7 +18,7 @@ class Product(models.Model):
     name = models.CharField(max_length=80)
     price = models.FloatField()
     description = models.CharField(max_length=300)
-    image = models.FileField(upload_to='static/images')
+    image = models.FileField(upload_to='static/images',blank=True, null=True)
     quantity = models.IntegerField()
     stock = models.BooleanField()
     brand = models.CharField(max_length=80)
@@ -29,7 +29,7 @@ class Product(models.Model):
                 , ('Televisions', 'Televisions'))
     category = models.CharField(max_length=150, choices=CATEGORY)
     promotion = models.ForeignKey(Promotion, default=None, blank=True, null=True, on_delete=models.CASCADE)
-
+    date = models.DateTimeField(default=datetime.now)
     def __str__(self):
         return self.name
 

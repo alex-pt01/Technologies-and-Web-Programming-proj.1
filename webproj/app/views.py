@@ -8,7 +8,7 @@ from django.http import HttpRequest, HttpResponseRedirect
 from django.shortcuts import render, redirect
 
 # Create your views here.
-from app.forms import newUserForm, paymentForm, updateUserForm
+from app.forms import newUserForm, paymentForm, updateUserForm, createProductForm
 from app.models import Product, Promotion, Comment, PaymentMethod, Payment, ShoppingCart, ShoppingCartItem
 from django.contrib.auth.models import User
 
@@ -112,6 +112,13 @@ def updateUser(request):
         return render(request, 'updateUser.html', tparams)
     return redirect('login')
 
+def productInfo(request, id):
+    product = Product.objects.get(id=id)
+    comments = Comment.objects.filter(product=product)
+    tparams={}
+    tparams['product'] = product
+    tparams['comments'] = comments
+    return render(request, 'productInfo.html', tparams)
 
 def productsManagement(request):
     products = Product.objects.all()
@@ -122,70 +129,88 @@ def productsManagement(request):
 
 
 def createProduct(request):
-    assert isinstance(request, HttpRequest)
-
-    if request.method == 'POST' and 'img01' in request.FILES:
-        name = request.POST['name']
-        price = request.POST['price']
-        description_ = request.POST['description']
-        imagem = request.FILES['img01']
-        quantity = request.POST['quantity']
-        stock = request.POST['stock']
-        brand = request.POST['brand']
-        category = request.POST['category']
-
-        # PROMOTION (obj) AND IMAGE ARE NOT WORKING!!!
-        promotion_ = request.POST.get('promo')
-        print(type(promotion_))
-        try:
-            obj = Promotion.objects.get(name=promotion_)
-        except Promotion.DoesNotExist:
-            obj = None
-
-        if stock == 'on':
-            stock = True
+    if request.user.is_authenticated and request.user.is_superuser:
+        if request.method == 'POST':
+            form = createProductForm(request.POST,request.FILES)
+            if form.is_valid():
+                data = form.cleaned_data
+                name = data['name']
+                price = data['price']
+                description = data['description']
+                image = request.FILES['image']
+                quantity = data['quantity']
+                stock = data['stock']
+                brand = data['brand']
+                category = data['category']
+                promotion = data['promotion']
+                pr = Product()
+                pr.name = name
+                pr.price = price
+                pr.description = description
+                pr.image = request.FILES["image"]
+                pr.quantity =quantity
+                pr.stock = stock
+                pr.brand=  brand
+                pr.category = category
+                pr.promotion = promotion
+                pr.save()
+                return redirect('productsManagement')
+            else:
+                print(form.errors)
         else:
-            stock = False
+            form = createProductForm()
 
-        if 'name' and 'price':
-            product = Product(name=name, price=price, description=description_, image=imagem, quantity=quantity,
-                              stock=stock, brand=brand, category=category, promotion=obj)
-            product.save()
-            return render(request, 'shop.html')
-        else:
-            return render(request, 'createProduct.html', {'error': True})
+        return render(request, 'createProduct.html', {'form': createProductForm})
+    else:
+        redirect('login')
 
-    promotion = Promotion.objects.all()
-    return render(request, 'createProduct.html', {'promotion': promotion})
 
 
 def updateProduct(request, pk):
-    product = Product.objects.get(id=pk)
-    if request.method == 'POST':
-        product.name = request.POST['name']
-        product.price = request.POST['price']
-        product.description_ = request.POST['description']
-        product.imagem = request.FILES.get('imagem')
-        product.quantity = request.POST['quantity']
-        product.stock = request.POST['stock']
-        product.brand = request.POST['brand']
-        product.category = request.POST['category']
-
-        promotion_ = request.POST.get('promo')
-        print(type(promotion_))
-        try:
-            obj = Promotion.objects.get(name=promotion_)
-        except Promotion.DoesNotExist:
-            obj = None
-
-        if product.stock == 'on':
-            product.stock = True
+    pr = Product.objects.get(id=pk)
+    if request.user.is_authenticated and request.user.is_superuser:
+        if request.method == 'POST':
+            form = createProductForm(request.POST,request.FILES)
+            if form.is_valid():
+                data = form.cleaned_data
+                name = data['name']
+                price = data['price']
+                description = data['description']
+                quantity = data['quantity']
+                stock = data['stock']
+                brand = data['brand']
+                category = data['category']
+                promotion = data['promotion']
+                pr.name = name
+                pr.price = price
+                pr.description = description
+                pr.image = request.FILES["image"]
+                pr.quantity =quantity
+                pr.stock = stock
+                pr.brand=  brand
+                pr.category = category
+                pr.promotion = promotion
+                pr.save()
+                return redirect('productsManagement')
         else:
-            product.stock = False
+            form = createProductForm(initial= {
+                'name':pr.name,
+                'price':pr.price,
+                'description':pr.description,
+                'image':pr.image,
+                'quantity':pr.quantity,
+                'stock':pr.stock,
+                'brand':pr.brand,
+                'category':pr.category,
+                'promotion':pr.promotion,
+            })
 
-        product.save()
-        return render(request, 'shop.html')
-    return render(request, 'updateProduct.html', {'product': product})
+
+
+        return render(request, 'updateProduct.html', {'form': form})
+    else:
+        redirect('login')
+
 
 def deleteComment(request, id):
     comment = Comment.objects.get(id=id)
@@ -399,6 +424,7 @@ def checkout(request):
 
         if request.method == 'POST':
             form = paymentForm(request.POST)
+
             if form.is_valid():
                 data = form.cleaned_data
                 type = data['type']

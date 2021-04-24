@@ -4,100 +4,104 @@
     <br>
     <br>
     <br>
-	<section id="form">
-				<div    style="  margin:auto;
-                      width:20%;
-                      padding:63px;
-                     ">
-					<div class="login-form" style="width:300px; height: 300px; text-align: center; margin-left: 30px; border: #2a6496; border-style: solid"><!--login form-->
-						<h2>My Account</h2>
+<div class="container">
+			<div class="row">
 
-                        <label>Name:</label>
-                        {{ user.last_name }}, {{ user.first_name }}
-                        <br>
-                        <label>Joined:</label>
-                        {{ user.date_joined }}
-                        <br>
-                        <label>Username:</label>
-                        {{ user.get_username }}
-                        <br>
-                        <label>Email:</label>
-                        {{ user.email }}
-                        <p>
-                            <a class="btn btn-sm btn-danger" href="{% url 'deleteUser' user.id %}">Delete Account</a>
-					    </p>
-                        <p>
-                            <a class="btn btn-sm btn-info" href="{% url 'updateUser' %}">Update Account</a>
-                        </p>
-                    </div><!--/login form-->
-				</div>
+				<div class="col-sm-11 padding-right">
+					<div class="product-details"><!--product-details-->
+						<div class="col-sm-6">
+							<div class="view-product">
+								<img  src="{{ product.image.url }}" alt="" />
+							</div>
+						</div>
+						<div class="col-sm-6">
+							<div class="product-information"><!--/product-information-->
+								<img src="images/product-details/new.jpg" class="newarrival" alt="" />
+								<h2>{{  product.name }}</h2>
+								<p>Web ID: {{  product.id }}</p>
+								<img src="images/product-details/rating.png" alt="" />
+								<span>
+									<span>{{  product.price }}€</span>
+									<label>Quantity:</label>
+									<input type="text" value="{{  product.quantity }}" />
+									<button type="button" class="btn btn-fefault cart">
+										<i class="fa fa-shopping-cart"></i>
+										Add to cart
+									</button>
+								</span>
+                                {% if product.stock == True %}
+                                    <p><b>Availability:</b> In Stock</p>
+                                {% else %}
+                                    <p><b>Availability:</b> Not In Stock</p>
+                                {% endif %}
+
+								<p><b>Condition:</b> New</p>
+								<p><b>Brand:</b> {{  product.brand }}</p>
+								<a href=""><img src="images/product-details/share.png" class="share img-responsive"  alt="" /></a>
+							</div><!--/product-information-->
+						</div>
+					</div>
+                     <div class="tab-pane fade active in" id="reviews" >
+                            <div class="col-sm-12">
+                                <ul><li><a href=""><i class="fa fa-calendar-o"></i>{{  product.date }}</a></li></ul>
+                                <p><b>Description: </b>{{  product.description }}</p>
+
+                            </div>
+                     </div>
+
+                </div>
+                <div class="col-sm-12 padding-right">    <br><br>    <br><br>
+
+                        <div class="features_items" >
+                            <h2 class="title text-center">Reviews</h2>
+                            {%  for comment in comments %}
+                                <div  >
+                                    <div class="product-image-wrapper col-sm-6">
+                                        <div class="single-products">
+                                            <div class="productinfo text-center" style="border: #2a6496; border-style: solid;">
+                                                <h2>{{ comment.userName }} </h2>
+                                                <label>Description</label>
+                                                <p>{{ comment.description }}</p>
+                                                <label>Date</label>
+                                                <p>{{ comment.commentDate }}</p>
 
 
-    <div class="container">
-            <div class="table-responsive cart_info">
-					<h2>History</h2>
-                    <hr>
-				</div>
-    </div>
-    {% for scis, payment in carts %}
-        <section id="cart_items">
+                                                <h3>{{ comment.rating }} <i class="fa fa-star" aria-hidden="true" ></i> </h3>
 
-		<div class="container">
-            <div class="table-responsive cart_info">
-				<table class="table table-condensed">
-					<thead>
-						<tr class="cart_menu">
-							<td class="image">Item</td>
-							<td class="description">Product</td>
-							<td class="description">Description</td>
-
-							<td class="quantity">Quantity</td>
-							<td class="price">Price</td>
-							<td></td>
-						</tr>
-					</thead>
-					<tbody>
-
-                            {% for sci in scis %}
-                                <tr>
-							<td class="col-sm-3 cart_product">
-								<a href=""><img style="width: 200px" src="{{ sci.product.image.url }}" alt=""></a>
-							</td>
-
-							<td class="col-sm-4 cart_description">
-								<h4><a href="">{{ sci.product.name }}</a></h4>
-								<p>Web ID: {{ sci.product.id }}</p>
-							</td>
-							<td class="col-sm-2 cart_price" style="max-width:300px">
-								<p>{{ sci.product.description }}</p>
-							</td>
-							<td class="cart_quantity">
-								<div class="cart_quantity_button">
-									<input class="cart_quantity_input" type="text" name="quantity" value="{{ sci.quantity }}" autocomplete="off" size="2"/>
-								</div>
-							</td>
-							<td class="cart_total">
-								<p class="cart_total_price">{{ sci.product.price }}€</p>
-							</td>
-
-						</tr>
-
+                                        </div>
+                                    </div>
+                                </div>
                             {% endfor %}
-                          <tr>
-                              <td class="description"><p></p></td>
-                              <td class="description">Date: <h4>{{ payment.date }}</h4></td>
-                              <td class="description">Address: <h4>{{ payment.address }}</h4></td>
-                              <td class="price">Total: <h4>{{ payment.total }}</h4></td>
+                        </div>
+                        </div>
+                <div class="tab-pane fade active in" id="reviews" >
+                        <div class="col-sm-12">
+                            <h2 class="title text-center">Write Your Review</h2>
+                            <form  method="POST" action="" >
+						                    {% csrf_token %}
+                                <span>
+                                    <input name="username" type="text" placeholder="Username"/>
+                                    <input name="userEmail" type="email" placeholder="Email"/>
+                                </span>
+                                <br>
+                                <span>
+                                    <input name="rating" style="margin-left: -1px; width:80px" type="number" min="1" max="5" placeholder="Rating"/><i class="fa fa-star" aria-hidden="true" ></i>
+                                 </span>
 
-                          </tr>
+                                <textarea name="description" placeholder="Comment" name="" ></textarea>
+                                <span>
+                                </span>
+                                <button type="submit" class="btn btn-default pull-right">
+                                    Submit
+                                </button>
 
-
-
-					</tbody>
-				</table>
-			</div>
-		</div>
-
-    {%  endfor %}
+                            </form>
+                        </div>
+                </div>
+		    </div>
+    </div>
+    <p></p>
+    <p></p>
+    <br>
+</div>
 {% endblock %}
-
