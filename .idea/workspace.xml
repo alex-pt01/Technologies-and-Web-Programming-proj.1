@@ -2,11 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a08c26bc-6a11-4889-bb56-d899e8a7e226" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/webproj/app/static/images/tab4samsung.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/webproj/app/static/images/tab4samsung_cQD4qFB.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/webproj/app/templates/createProduct.html" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/templates/createProduct.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/webproj/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/db.sqlite3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webproj/app/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webproj/app/templates/shop.html" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/templates/shop.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webproj/app/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,12 +24,15 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="1rIDfsRjgl1dCvPVRPKVWBJskqS" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
@@ -38,6 +41,9 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Alex\Desktop\TPW_PROJ\tpw_proj1\webproj\app\static\images" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\Alex\Desktop\TPW_PROJ\tpw_proj1\webproj\app\static\images" />
     </key>
   </component>
@@ -56,7 +62,7 @@
       <workItem from="1619214173722" duration="14000" />
       <workItem from="1619214190849" duration="32000" />
       <workItem from="1619255597468" duration="8782000" />
-      <workItem from="1619264468568" duration="14317000" />
+      <workItem from="1619264468568" duration="16421000" />
     </task>
     <servers />
   </component>
@@ -74,5 +80,8 @@
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
   </component>
 </project>
