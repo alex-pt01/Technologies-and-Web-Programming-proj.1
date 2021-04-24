@@ -331,7 +331,7 @@ def searchProducts(request):
                'brands': brands,
                'productsList': result
                }
-
+    print(result)
     return render(request, 'shop.html', tparams)
 
 
