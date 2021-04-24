@@ -24,10 +24,12 @@
 									<span>{{  product.price }}€</span>
 									<label>Quantity:</label>
 									<input type="text" value="{{  product.quantity }}" />
-									<button type="button" class="btn btn-fefault cart">
-										<i class="fa fa-shopping-cart"></i>
-										Add to cart
-									</button>
+									
+                                    {% if product.quantity != 0 %}
+                                        <a class="btn btn-fefault cart" href="/addToCart/{{ product.id }}" type="submit" ><i class="fa fa-shopping-cart">Add To Cart</i></a>
+                                    {% elif product.quantity == 0 %}
+                                        <a class="btn btn-fefault cart disabled" href="" type="submit" >Not In Stock</a>
+                                    {% endif %}
 								</span>
                                 {% if product.stock == True %}
                                     <p><b>Availability:</b> In Stock</p>
