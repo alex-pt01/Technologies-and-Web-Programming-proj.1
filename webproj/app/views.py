@@ -10,7 +10,7 @@ from django.shortcuts import render, redirect
 from app.forms import newUserForm, paymentForm
 # Create your views here.
 from app.forms import newUserForm, paymentForm, updateUserForm, createProductForm
-from app.models import Product, Promotion, Comment, PaymentMethod, Payment, ShoppingCart, ShoppingCartItem
+from app.models import Product, Promotion, Comment, PaymentMethod, Payment, ShoppingCart, ShoppingCartItem, UserCredits
 from django.contrib.auth.models import User
 from app.forms import *
 
@@ -167,8 +167,12 @@ def productInfo(request, id):
 
 
 def productsManagement(request):
-    products = Product.objects.all()
-
+    if request.user.is_authenticated:
+        products = None
+        if request.user.is_superuser:
+            products = Product.objects.all()
+        else:
+            products = Product.objects.filter(seller=request.user.get_username())
     form = {'products': products}
 
     return render(request, 'productsManagement.html', form)
@@ -179,7 +183,7 @@ def shop(request):
 
 
 def createProduct(request):
-    if request.user.is_authenticated and request.user.is_superuser:
+    if request.user.is_authenticated:
         if request.method == 'POST':
             form = createProductForm(request.POST, request.FILES)
             if form.is_valid():
@@ -187,18 +191,24 @@ def createProduct(request):
                 name = data['name']
                 price = data['price']
                 description = data['description']
-                image = request.FILES['image']
                 quantity = data['quantity']
-                stock = data['stock']
                 brand = data['brand']
                 category = data['category']
                 promotion = data['promotion']
+                condition = data['condition']
                 pr = Product()
                 pr.name = name
+                pr.condition = condition
                 pr.price = price
                 pr.description = description
                 pr.image = request.FILES["image"]
                 pr.quantity = quantity
+                if not request.user.is_superuser:
+                    seller = request.user.get_username()
+                    pr.seller = seller
+                stock = True
+                if quantity == 0:
+                    stock = False
                 pr.stock = stock
                 pr.brand = brand
                 pr.category = category
@@ -210,64 +220,53 @@ def createProduct(request):
         else:
             form = createProductForm()
 
-        return render(request, 'createProduct.html', {'form': createProductForm})
-    else:
-        redirect('login')
-
-    if request.method == "POST":
-
-        form = ProductForm(request.POST, request.FILES)
-        if form.is_valid():
-            product = Product.objects.get(id=pk)
-            product.name = form.cleaned_data["name"]
-            product.price = form.cleaned_data["price"]
-            product.description = form.cleaned_data["description"]
-            product.image = request.FILES["imageProduct"]
-            product.quantity = form.cleaned_data["quantity"]
-            product.stock = form.cleaned_data["stock"]
-            product.brand = form.cleaned_data["brand"]
-            product.category = form.cleaned_data["category"]
-            product.promotion = Promotion.objects.get(id=form.cleaned_data["promotion"])
+        return render(request, 'createProduct.html', {'form': form})
+    return redirect('login')
 
 
 def updateProduct(request, pk):
     pr = Product.objects.get(id=pk)
-    if request.user.is_authenticated and request.user.is_superuser:
-        if request.method == 'POST':
-            form = createProductForm(request.POST, request.FILES)
-            if form.is_valid():
-                data = form.cleaned_data
-                name = data['name']
-                price = data['price']
-                description = data['description']
-                quantity = data['quantity']
-                stock = data['stock']
-                brand = data['brand']
-                category = data['category']
-                promotion = data['promotion']
-                pr.name = name
-                pr.price = price
-                pr.description = description
-                pr.image = request.FILES["image"]
-                pr.quantity = quantity
-                pr.stock = stock
-                pr.brand = brand
-                pr.category = category
-                pr.promotion = promotion
-                pr.save()
-                return redirect('productsManagement')
-        else:
-            form = createProductForm(initial={
-                'name': pr.name,
-                'price': pr.price,
-                'description': pr.description,
-                'image': pr.image,
-                'quantity': pr.quantity,
-                'stock': pr.stock,
-                'brand': pr.brand,
-                'category': pr.category,
-                'promotion': pr.promotion,
-            })
+    if request.user.is_authenticated:
+        if request.user.is_superuser or request.user.get_username() == pr.seller:
+            if request.method == 'POST':
+                form = createProductForm(request.POST, request.FILES)
+                if form.is_valid():
+                    data = form.cleaned_data
+                    name = data['name']
+                    price = data['price']
+                    description = data['description']
+                    quantity = data['quantity']
+                    stock = True
+                    if quantity == 0:
+                        stock = False
+                    brand = data['brand']
+                    category = data['category']
+                    promotion = data['promotion']
+                    condition = data['condition']
+                    pr.name = name
+                    pr.price = price
+                    pr.description = description
+                    pr.image = request.FILES["image"]
+                    pr.quantity = quantity
+                    pr.stock = stock
+                    pr.brand = brand
+                    pr.condition = condition
+                    pr.category = category
+                    pr.promotion = promotion
+                    pr.save()
+                    return redirect('productsManagement')
+            else:
+                form = createProductForm(initial={
+                    'name': pr.name,
+                    'price': pr.price,
+                    'description': pr.description,
+                    'image': pr.image,
+                    'quantity': pr.quantity,
+                    'stock': pr.stock,
+                    'brand': pr.brand,
+                    'category': pr.category,
+                    'promotion': pr.promotion,
+                })
         return render(request, 'updateProduct.html', {'form': form})
     return redirect('login')
 
@@ -436,7 +435,6 @@ def searchProducts(request):
                 productS = Product.objects.filter(stock=True, promotion__isnull=False)
                 resultSearch.extend(productS)
 
-
         if 'brandsProducts' in request.POST:
             brandsLst = request.POST.getlist('brandsProducts', [])
             for brand in brandsLst:
@@ -494,20 +492,29 @@ def home(request):
 
 
 def account(request):
-    shoppingCarts = ShoppingCart.objects.filter(user_id=request.user.id)
-    if shoppingCarts:
-        assoc = []
-        for scs in shoppingCarts:
-            scis = ShoppingCartItem.objects.filter(cart_id=scs.id)
-            payment = Payment.objects.filter(shopping_cart=scs)[0]
-            print(payment.total)
-            assoc.append((scis, payment))
-        tparams = {'carts': assoc}
+    if request.user.is_authenticated:
+        shoppingCarts = ShoppingCart.objects.filter(user_id=request.user.id)
+        if request.user.is_superuser:
+            userCredit = UserCredits.objects.get(user_id=-99)
+        else:
+            try:
+                userCredit = UserCredits.objects.get(user_id=request.user.id)
+            except:
+                userCredit = UserCredits(user_id=request.user.id, credit=0.0)
+                userCredit.save()
 
-    else:
-        tparams = {'cart': []}
-        shoppingCarts = []
-    return render(request, 'account.html', tparams)
+        if shoppingCarts:
+            assoc = []
+            for scs in shoppingCarts:
+                scis = ShoppingCartItem.objects.filter(cart_id=scs.id)
+                payment = Payment.objects.filter(shopping_cart=scs)[0]
+                assoc.append((scis, payment))
+            tparams = {'carts': assoc, 'credits':userCredit.credit}
+
+        else:
+            tparams = {'cart': [],'credits':userCredit.credit}
+        return render(request, 'account.html', tparams)
+    return render('login')
 
 
 def checkout(request):
@@ -521,6 +528,7 @@ def checkout(request):
                 data = form.cleaned_data
                 type = data['type']
                 card_no = data['card_no']
+                useCredits = data['useCredits']
 
                 address = data['address']
                 pm = PaymentMethod(type=type, card_no=card_no)
@@ -533,11 +541,42 @@ def checkout(request):
                 payment.method = pm
                 payment.shopping_cart = sp
                 payment.save()
+                if useCredits:
+                    if request.user.is_superuser:
+                        creds = UserCredits.objects.get(user_id=-99)
+                    else:
+                        try:
+                            creds = UserCredits.objects.get(user_id=request.user.id)
+                        except:
+                            creds = UserCredits(user_id=request.user.id, credit=0.0)
+                            creds.save()
+
+                    if creds.credit>=payment.total:
+                        creds.credit = creds.credit-payment.total
+                    else:
+                        creds.credit = 0
+                    creds.save()
+
                 for item, quantity in tparams['cart']:
                     spi = ShoppingCartItem()
                     spi.product = item
                     item.quantity = item.quantity - spi.quantity
                     item.save()
+                    if item.seller == 'TechOn':
+                        userCredit = UserCredits.objects.get(user_id=-99)
+                    else:
+                        user = User.objects.get(username=item.seller)
+                        try:
+                            userCredit = UserCredits.objects.get(user_id=user.id)
+                        except:
+                            userCredit = UserCredits(user_id=user.id, credit=0.0)
+                            userCredit.save()
+
+                    credit = item.price * quantity
+
+                    userCredit.credit += credit
+                    userCredit.save()
+
                     if item.quantity == 0:
                         item.stock = False
                     spi.quantity = quantity

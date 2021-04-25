@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 
@@ -13,13 +14,18 @@ class Promotion(models.Model):
     def __str__(self):
         return self.name
 
+class UserCredits(models.Model):
+    credit = models.FloatField(default=0.0)
+    user_id = models.CharField(default = 0, null=False, max_length=150)
 
 class Product(models.Model):
     name = models.CharField(max_length=80)
     price = models.FloatField()
     description = models.CharField(max_length=300)
     image = models.FileField(upload_to='static/images',blank=True, null=True)
-    quantity = models.IntegerField()
+    quantity = models.IntegerField( default=1, validators=[
+            MinValueValidator(1)
+        ])
     stock = models.BooleanField()
     brand = models.CharField(max_length=80)
     CATEGORY = (('Smartphones', 'Smartphones'),
@@ -30,6 +36,9 @@ class Product(models.Model):
     category = models.CharField(max_length=150, choices=CATEGORY)
     promotion = models.ForeignKey(Promotion, default=None, blank=True, null=True, on_delete=models.CASCADE)
     date = models.DateTimeField(default=datetime.now)
+    conditions = (('New', 'New'), ('Used', 'Used'))
+    condition = models.CharField(choices=conditions, default='New', null=True, max_length=15)
+    seller = models.CharField(default='TechOn',  max_length=150)
     def __str__(self):
         return self.name
 
