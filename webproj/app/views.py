@@ -448,11 +448,14 @@ def home(request):
 def account(request):
     if request.user.is_authenticated:
         shoppingCarts = ShoppingCart.objects.filter(user_id=request.user.id)
-        try:
-            userCredit = UserCredits.objects.get(user_id=request.user.id)
-        except:
-            userCredit = UserCredits(user_id=request.user.id, credit=0.0)
-            userCredit.save()
+        if request.user.is_superuser:
+            userCredit = UserCredits.objects.get(user_id=-99)
+        else:
+            try:
+                userCredit = UserCredits.objects.get(user_id=request.user.id)
+            except:
+                userCredit = UserCredits(user_id=request.user.id, credit=0.0)
+                userCredit.save()
 
         if shoppingCarts:
             assoc = []
@@ -479,6 +482,7 @@ def checkout(request):
                 data = form.cleaned_data
                 type = data['type']
                 card_no = data['card_no']
+                useCredits = data['useCredits']
 
                 address = data['address']
                 pm = PaymentMethod(type=type, card_no=card_no)
@@ -491,17 +495,36 @@ def checkout(request):
                 payment.method = pm
                 payment.shopping_cart = sp
                 payment.save()
+                if useCredits:
+                    if request.user.is_superuser:
+                        creds = UserCredits.objects.get(user_id=-99)
+                    else:
+                        try:
+                            creds = UserCredits.objects.get(user_id=request.user.id)
+                        except:
+                            creds = UserCredits(user_id=request.user.id, credit=0.0)
+                            creds.save()
+
+                    if creds.credit>=payment.total:
+                        creds.credit = creds.credit-payment.total
+                    else:
+                        creds.credit = 0
+                    creds.save()
+
                 for item, quantity in tparams['cart']:
                     spi = ShoppingCartItem()
                     spi.product = item
                     item.quantity = item.quantity - spi.quantity
                     item.save()
-                    try:
-                        userCredit = UserCredits.objects.get(user_id=request.user.id)
-                    except:
+                    if item.seller == 'TechOn':
+                        userCredit = UserCredits.objects.get(user_id=-99)
+                    else:
                         user = User.objects.get(username=item.seller)
-                        userCredit = UserCredits(user_id=user.id, credit=0.0)
-                        userCredit.save()
+                        try:
+                            userCredit = UserCredits.objects.get(user_id=user.id)
+                        except:
+                            userCredit = UserCredits(user_id=user.id, credit=0.0)
+                            userCredit.save()
 
                     credit = item.price * quantity
 

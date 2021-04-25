@@ -43,6 +43,7 @@ class paymentForm(forms.Form):
     expirationMonth = forms.IntegerField(label='Card Expiration Month', validators=[expirationMonth])
     expirationYear = forms.IntegerField(label='Card Expiration Year', validators=[expirationYear])
     address = forms.CharField(label='Address', max_length=250)
+    useCredits = forms.BooleanField()
 
 
 class ProductForm(forms.Form):
@@ -91,6 +92,7 @@ class createProductForm(forms.Form):
     promotion = forms.ModelChoiceField(queryset=Promotion.objects.all(), required=False)
     conditions = (('New', 'New'), ('Used', 'Used'))
     condition = forms.ChoiceField(choices=conditions)
+
 
 
 
