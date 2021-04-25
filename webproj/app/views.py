@@ -4,7 +4,7 @@ from pyclbr import Class
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as loginUser, logout as logoutUser
 from django.contrib.auth.forms import UserCreationForm
-from django.http import HttpRequest, HttpResponseRedirect
+from django.http import HttpRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
 
 from app.forms import newUserForm, paymentForm
@@ -13,6 +13,8 @@ from app.forms import newUserForm, paymentForm, updateUserForm, createProductFor
 from app.models import Product, Promotion, Comment, PaymentMethod, Payment, ShoppingCart, ShoppingCartItem
 from django.contrib.auth.models import User
 from app.forms import *
+
+from app.forms import CommentForm, ProductForm, PromotionForm
 
 carts = {}
 
@@ -116,13 +118,14 @@ def updateUser(request):
         return render(request, 'updateUser.html', tparams)
     return redirect('login')
 
+
 def productInfo(request, id):
     canRev = False
     product = Product.objects.get(id=id)
     comments = Comment.objects.filter(product=product)
     commentsRating = [c.rating for c in comments]
     avg = 0
-    tparams={}
+    tparams = {}
 
     if commentsRating != []:
         avg = sum(commentsRating) / len(commentsRating)
@@ -159,9 +162,8 @@ def productInfo(request, id):
     tparams['avg'] = round(avg, 1)
     tparams['comNo'] = len(comments)
     tparams['canReview'] = canRev
-    tparams['form']=form
+    tparams['form'] = form
     return render(request, 'productInfo.html', tparams)
-
 
 
 def productsManagement(request):
@@ -179,7 +181,7 @@ def shop(request):
 def createProduct(request):
     if request.user.is_authenticated and request.user.is_superuser:
         if request.method == 'POST':
-            form = createProductForm(request.POST,request.FILES)
+            form = createProductForm(request.POST, request.FILES)
             if form.is_valid():
                 data = form.cleaned_data
                 name = data['name']
@@ -196,9 +198,9 @@ def createProduct(request):
                 pr.price = price
                 pr.description = description
                 pr.image = request.FILES["image"]
-                pr.quantity =quantity
+                pr.quantity = quantity
                 pr.stock = stock
-                pr.brand=  brand
+                pr.brand = brand
                 pr.category = category
                 pr.promotion = promotion
                 pr.save()
@@ -211,7 +213,6 @@ def createProduct(request):
         return render(request, 'createProduct.html', {'form': createProductForm})
     else:
         redirect('login')
-
 
     if request.method == "POST":
 
@@ -228,11 +229,12 @@ def createProduct(request):
             product.category = form.cleaned_data["category"]
             product.promotion = Promotion.objects.get(id=form.cleaned_data["promotion"])
 
+
 def updateProduct(request, pk):
     pr = Product.objects.get(id=pk)
     if request.user.is_authenticated and request.user.is_superuser:
         if request.method == 'POST':
-            form = createProductForm(request.POST,request.FILES)
+            form = createProductForm(request.POST, request.FILES)
             if form.is_valid():
                 data = form.cleaned_data
                 name = data['name']
@@ -247,24 +249,24 @@ def updateProduct(request, pk):
                 pr.price = price
                 pr.description = description
                 pr.image = request.FILES["image"]
-                pr.quantity =quantity
+                pr.quantity = quantity
                 pr.stock = stock
-                pr.brand=  brand
+                pr.brand = brand
                 pr.category = category
                 pr.promotion = promotion
                 pr.save()
                 return redirect('productsManagement')
         else:
-            form = createProductForm(initial= {
-                'name':pr.name,
-                'price':pr.price,
-                'description':pr.description,
-                'image':pr.image,
-                'quantity':pr.quantity,
-                'stock':pr.stock,
-                'brand':pr.brand,
-                'category':pr.category,
-                'promotion':pr.promotion,
+            form = createProductForm(initial={
+                'name': pr.name,
+                'price': pr.price,
+                'description': pr.description,
+                'image': pr.image,
+                'quantity': pr.quantity,
+                'stock': pr.stock,
+                'brand': pr.brand,
+                'category': pr.category,
+                'promotion': pr.promotion,
             })
         return render(request, 'updateProduct.html', {'form': form})
     return redirect('login')
@@ -351,6 +353,15 @@ def searchProducts(request):
     # categorias e brands [(, )..]
     listCategoriesAndBrands = Product.objects.order_by('category').values_list('category', 'brand').distinct()
 
+    #####################
+    # list_Products = []
+    # for c in listCategoriesAndBrands:
+    #    list_Products.append(Product.objects.filter(category=c[0], brand=c[1])[0])
+    # print(list_Products)
+    # res = []
+    # [res.append(x) for x in list_Products if x.category not in res.category]
+    #####################
+
     productsFilter = {}
     for c in listCategoriesAndBrands:
         if c[0] not in productsFilter.keys():
@@ -386,24 +397,24 @@ def searchProducts(request):
             result = Product.objects.filter(name__icontains=query)
 
         if 'brandsCategories' in request.POST and len(request.POST.getlist('brandsCategories', [])) >= 1:
+
             brandsLstCat = request.POST.getlist('brandsCategories', [])
-            for brandCat in brandsLstCat:
-                if brandCat != '':
-                    productS = Product.objects.filter(
-                        brand=brandCat)  # TODO apenas está a ver por BRAND e n por CATEGOYR (no shop.html só envio brand)
+
+            categories = request.POST.getlist('categories', [])
+            print(categories)
+
+            for cat in categories:
+                for brandCat in brandsLstCat:
+                    productS = Product.objects.filter(brand__icontains=brandCat, category__icontains=cat)
+
                     if len(productS) >= 1:
                         for p in productS:
                             productsList.append(p)
-                    else:
-                        productsList = result
-            result = productsList
-
-
+                result = productsList
 
 
         if 'brandsProducts' in request.POST:
             brandsLst = request.POST.getlist('brandsProducts', [])
-            print(brandsLst)
             for brand in brandsLst:
                 if brand != '':
                     products = Product.objects.filter(
@@ -424,9 +435,9 @@ def searchProducts(request):
                'totalBrands': Product.objects.values('brand').distinct().count(),
                'totalCategories': Product.objects.values('category').distinct().count(),
                'brands': brands,
-               'productsList': result
+               'productsList': result,
+
                }
-    print(result)
     return render(request, 'shop.html', tparams)
 
 

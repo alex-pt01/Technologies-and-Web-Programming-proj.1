@@ -2,56 +2,70 @@
 
 {% block content %}
     <br><br>
-        <!--SEARCH BAR-->
-        <div class="col-sm-10">
-        <div style="float:right; margin-right: 200px" class="search_box pull-right ">
-        <form action="." method="POST">
-                {% csrf_token %}
-                <input name="searchBar"  style="height:30px" type="search" placeholder="Search"/>
-                <button style="height:30px"  type="submit" class="search_box pull-right">Search</button>
-        </form>
-        </div>
-        </div>
+
 
 	<section>
 		<div class="container">
 			<div class="row">
 				<div class="col-sm-3">
 					<div class="left-sidebar">
-						<h2>Category ({{ totalCategories }})</h2>
-						<div class="panel-group category-products" id="accordian">
 
-                  <!--CATEGORY AND PRODUCT BRANDS-->
-                    <form method="POST" action="" >
+
+
+    <div class="panel-group category-products" style="border-style: none;" id="accordian">
+                </div>
+
+
+                <!--SEARCH-->
+                <div class="panel-group search_box">
+                  <form action="." method="POST">
+                    {% csrf_token %}
+                    <input name="searchBar"  style="height:30px; margin-lef:400px; border-radius: 10px;" type="search" placeholder="Search"/>
+                            <div class=" category-products" style="border-style: none;" >
+                                <button  style="float:right ; margin-top: -40px" type="submit" class="badge pull-right">Search</button>
+                            </div>                </form>
+                </div>
+
+
+
+                <!--CATEGORY AND PRODUCT BRANDS-->
+                <h2>Category ({{ totalCategories }})</h2>
+
+                <form method="POST" action="" >
+                    {% csrf_token %}
                         {% for category, prodBrands in productsFilter.items %}
-							<div class="panel panel-default">
-								<div class="panel-heading">
-									<h4 class="panel-title">
-										<a data-toggle="collapse" data-parent="#accordian" href="#{{ category }}">
-											<span class="badge pull-right"><i class="fa fa-plus"></i></span>
-                                            {{ category }}
-										</a>
-									</h4>
-								</div>
-								<div id="{{ category }}" class="panel-collapse collapse">
-									<div class="panel-body">
-										<ul>
-                                            {%  for prodBrand in prodBrands %}
-                                                {% csrf_token %}
-											<li>  <input style="margin-right: 10px" type="checkbox" name="brandsCategories" value="{{ prodBrand }}">{{ prodBrand }}  </li>
-										    {% endfor %}
-										</ul>
-									</div>
-								</div>
-							</div>
-                         {% endfor %}
-                        <button name="brandsCategories" style="float:right" type="submit" class="badge pull-right">Search</button>
-                    </form>
-                    </div>
+                        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+                        <ul class="term-reference checkbox-container">
+                                    <div class="checkbox">
+                                    <div class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title">
+                                                  <label class="control-label">
+                                                <input type="checkbox" class="form-checkbox checkbox-parent" name="categories" value="{{ category }}">{{ category }}
+                                                </label>
+                                            </div>
 
 
+                                                <ul class="panel-body">
+                                                  <li>
+                                                      {%  for prodBrand in prodBrands %}
+                                                            <div class="checkbox">
+                                                              <label class="control-label">
+                                                                <input name="brandsCategories" type="checkbox" class="form-checkbox checkbox-child" name="brandsCategories" value="{{ prodBrand }}">{{ prodBrand}}
+                                                              </label>
+                                                            </div>
+                                                        {% endfor %}
+                                                  </li>
+                                                </ul>
+                                </div>
+                                </div>
+                                </ul>
 
-
+                                 {% endfor %}
+                                    <div class=" category-products" style="border-style: none;" >
+                                        <button  style="float:right" type="submit" class="badge pull-right">Search</button>
+                                    </div>
+                                </form>
 
 
 
@@ -71,13 +85,26 @@
                             </div>
                         </form>
                     </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
                         <!--Price Range-->
                        <div class="panel-group category-products">
                             <h2>Price Range</h2>
                                 <form method="POST" action="." >
                                     {% csrf_token %}
-                                    <input  style=" margin-left: 20px; "name="minPrice" type="number" min="0" max="9990.99" step="0.50" placeholder="Min" /> ---
-                                    <input name="maxPrice" type="number" min="50" max="10000" step="0.50" placeholder="Max"  />
+                                    <input  style=" margin-left: 20px ;border-radius: 10px;" name="minPrice" type="number" min="0" max="9990.99" step="0.50" placeholder="Min" /> ---
+                                    <input style="border-radius: 10px; " name="maxPrice" type="number" min="50" max="10000" step="0.50" placeholder="Max"  />
                                     <br>
                                     <button name="priceRange" style="position:absolute; margin-left: 200px; margin-top: 6px" type="submit" class="badge pull-right">Search</button>
                                 </form>
@@ -87,8 +114,10 @@
 					</div>
 				</div>
 
+                    <br><br><br>
+
                 <!--SHOW PRODUCTS-->
-				<div class="col-sm-9 padding-right">
+				<div class="col-sm-9 padding-right"> <br><br> <br><br>
 					<div class="features_items">
 						<h2 class="title text-center">Features Items</h2>
                         {%  for product in productsList %}
@@ -137,15 +166,23 @@
 				</div>
 			</div>
 		</div>
+    </div>
 	</section>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
     <script>
-    function myFunction(x,y) {
-      var str1 = "Hello ";
-      var str2 = "world!";
-      var str3 = " Have a nice day!";
-      var res = str1.concat(str2, str3);
-      document.getElementById("demo").innerHTML = res;
-    }
-</script>
+
+        $(document).ready(function(){
+      $('.checkbox-child').on('click', function() {
+        var $childCheckbox = $(this);
+        if ($childCheckbox.is(":checked")){
+          $childCheckbox
+            .closest('.checkbox-container')
+            .find('.checkbox-parent')
+            .prop("checked", true);
+        }
+      });
+    });
+    </script>
+
 {% endblock %}

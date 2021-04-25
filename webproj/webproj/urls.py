@@ -61,6 +61,7 @@ urlpatterns = [
     path('decreaseQuantity/<str:id>', views.decreaseQuantity, name='decreaseQuantity'),
 
 
+
     #TODO
     path('checkout/', views.checkout, name='checkout'),
     path('cart/', views.cart, name='cart')
