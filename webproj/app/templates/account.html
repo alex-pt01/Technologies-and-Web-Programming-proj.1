@@ -23,21 +23,28 @@
                         <br>
                         <label>Email:</label>
                         {{ user.email }}
+                        <br>
+                        <label>Credits:</label>
+                        {{ credits }}
                         <p>
                             <a class="btn btn-sm btn-danger" href="{% url 'deleteUser' user.id %}">Delete Account</a>
 					    </p>
                         <p>
                             <a class="btn btn-sm btn-info" href="{% url 'updateUser' %}">Update Account</a>
                         </p>
+
                     </div><!--/login form-->
 				</div>
 
 
     <div class="container">
             <div class="table-responsive cart_info">
-					<h2>History</h2>
-                    <hr>
-				</div>
+					 <a class="btn btn-fefault cart" href="{% url 'createProduct' %}">Sell An Item</a>
+                     <a class="btn btn-fefault cart" href="{% url "productsManagement" %}" ><i class="fa fa-cog"></i>  Products </a>
+                <hr>
+                    <h2>History</h2>
+
+            </div>
     </div>
     {% for scis, payment in carts %}
         <section id="cart_items">

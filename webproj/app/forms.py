@@ -83,13 +83,15 @@ class createProductForm(forms.Form):
     description = forms.CharField(label="Description", required=True, max_length=350)
     image = forms.ImageField(label="Image")
     quantity = forms.IntegerField(label="Quantity", required=True, min_value=0)
-    stock = forms.BooleanField(label="Stock")
     brand = forms.CharField(label="Brand")
     CATEGORY = (
     ('Smartphones', 'Smartphones'), ('Computers', 'Computers'), ('Tablets', 'Tablets'), ('Drones', 'Drones'),
     ('Televisions', 'Televisions'))
     category = forms.ChoiceField(choices=CATEGORY)
-    promotion = forms.ModelChoiceField(queryset=Promotion.objects.all())
+    promotion = forms.ModelChoiceField(queryset=Promotion.objects.all(), required=False)
+    conditions = (('New', 'New'), ('Used', 'Used'))
+    condition = forms.ChoiceField(choices=conditions)
+
 
 
 class updateUserForm(forms.Form):
