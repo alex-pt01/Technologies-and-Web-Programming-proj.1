@@ -24,7 +24,7 @@ class Product(models.Model):
     description = models.CharField(max_length=300)
     image = models.FileField(upload_to='static/images',blank=True, null=True)
     quantity = models.IntegerField( default=1, validators=[
-            MinValueValidator(1)
+            MinValueValidator(0)
         ])
     stock = models.BooleanField()
     brand = models.CharField(max_length=80)
