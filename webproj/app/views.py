@@ -350,18 +350,9 @@ def searchProducts(request):
     for pB in productsBrands:
         brands[pB] = Product.objects.filter(brand=pB).count()
 
-    # categorias e brands [(, )..]
     listCategoriesAndBrands = Product.objects.order_by('category').values_list('category', 'brand').distinct()
 
-    #####################
-    # list_Products = []
-    # for c in listCategoriesAndBrands:
-    #    list_Products.append(Product.objects.filter(category=c[0], brand=c[1])[0])
-    # print(list_Products)
-    # res = []
-    # [res.append(x) for x in list_Products if x.category not in res.category]
-    #####################
-
+    noResults = False
     productsFilter = {}
     for c in listCategoriesAndBrands:
         if c[0] not in productsFilter.keys():
@@ -369,75 +360,111 @@ def searchProducts(request):
         else:
             productsFilter[c[0]].append(c[1])
 
-    # productFilter={}
-    # for c in productsCategories:
-    #    print(Product.objects.all().filter(category=c).values('brand', 'pk').distinct())
-    #    productFilter[c] = Product.objects.all().filter(category=c).values('brand').distinct()
-
-    # print(type(productCategories))
-
-    # obter categorias e brands
-
     query = ''
     productsList = []
+    resultSearch = []
     result = Product.objects.all()
     if request.method == 'POST':
         # home search images click
         if 'Smartphones' in request.POST:
-            result = Product.objects.filter(category="Smartphones")
+            resultSearch = Product.objects.filter(category="Smartphones")
         if 'Televisions' in request.POST:
-            result = Product.objects.filter(category="Televisions")
+            resultSearch = Product.objects.filter(category="Televisions")
         if 'Drones' in request.POST:
-            result = Product.objects.filter(category="Drones")
+            resultSearch = Product.objects.filter(category="Drones")
         if 'Computers' in request.POST:
-            result = Product.objects.filter(category="Computers")
+            resultSearch = Product.objects.filter(category="Computers")
 
         if 'searchBar' in request.POST:
             query = request.POST['searchBar']
-            result = Product.objects.filter(name__icontains=query)
+            resultSearch = Product.objects.filter(name__icontains=query)
 
-        if 'brandsCategories' in request.POST and len(request.POST.getlist('brandsCategories', [])) >= 1:
-
+        if 'brandsCategories' in request.POST or 'categories' in request.POST or 'stockCheck' in request.POST or 'promotionCheck' in request.POST:
             brandsLstCat = request.POST.getlist('brandsCategories', [])
-
             categories = request.POST.getlist('categories', [])
+            stockCheck = request.POST.getlist('stockCheck', [])
+            promotionCheck = request.POST.getlist('promotionCheck', [])
+            productS = []
+            productsList = []
             print(categories)
 
-            for cat in categories:
-                for brandCat in brandsLstCat:
-                    productS = Product.objects.filter(brand__icontains=brandCat, category__icontains=cat)
+            if len(brandsLstCat) != 0 :
+                print("OKW")
+                for cat in categories:
+                    for brandCat in brandsLstCat:
+                        print("--------------------")
+                        print(brandCat)
+                        if len(stockCheck) == 1:
+                            productS = Product.objects.filter(brand__icontains=brandCat, category__icontains=cat,
+                                                              stock=True)
+                        elif len(promotionCheck) == 1:
+                            productS = Product.objects.filter(brand__icontains=brandCat, category__icontains=cat,
+                                                              promotion__isnull=False)
+                        elif len(stockCheck) == 1 and len(promotionCheck) == 1:
+                            productS = Product.objects.filter(brand__icontains=brandCat, category__icontains=cat,
+                                                              stock=True, promotion__isnull=False)
+                        else:
+                            productS = Product.objects.filter(brand__icontains=brandCat, category__icontains=cat)
+                        resultSearch.extend(productS)
 
-                    if len(productS) >= 1:
-                        for p in productS:
-                            productsList.append(p)
-                result = productsList
+            elif len(brandsLstCat) == 0 and len(categories) != 0:
+                for cat in categories:
+                    print("CATEGORY")
+                    print(cat)
+                    if len(stockCheck) == 1:
+                        productS = Product.objects.filter(category__icontains=cat,
+                                                          stock=True)
+                    elif len(promotionCheck) == 1:
+                        productS = Product.objects.filter(category__icontains=cat,
+                                                          promotion__isnull=False)
+                    elif len(stockCheck) == 1 and len(promotionCheck) == 1:
+                        productS = Product.objects.filter(category__icontains=cat,
+                                                          stock=True, promotion__isnull=False)
+                    else:
+                        productS = Product.objects.filter( category__icontains=cat)
+                    resultSearch.extend(productS)
+
+            elif len(stockCheck) != 0 :
+                productS = Product.objects.filter(stock=True)
+                resultSearch.extend(productS)
+
+            elif len(promotionCheck) != 0:
+                productS = Product.objects.filter(promotion__isnull=False)
+                resultSearch.extend(productS)
+
+            elif len(stockCheck) != 0 and len(promotionCheck) != 0 :
+                productS = Product.objects.filter(stock=True, promotion__isnull=False)
+                resultSearch.extend(productS)
 
 
         if 'brandsProducts' in request.POST:
             brandsLst = request.POST.getlist('brandsProducts', [])
             for brand in brandsLst:
-                if brand != '':
-                    products = Product.objects.filter(
-                        brand=brand)
-                    if len(products) >= 1:
-                        for p in products:
-                            productsList.append(p)
-                    else:
-                        productsList = result
-            result = productsList
+                products = Product.objects.filter(brand=brand)
+                if len(products) >= 1:
+                    for p in products:
+                        productsList.append(p)
+            resultSearch = productsList
 
         if 'priceRange' in request.POST:
             minPrice = request.POST['minPrice']
             maxPrice = request.POST['maxPrice']
-            result = Product.objects.filter(price__range=[minPrice, maxPrice])
+            resultSearch = Product.objects.filter(price__range=[minPrice, maxPrice])
+
+        if len(resultSearch) != 0:
+            result = resultSearch
+        if len(resultSearch) == 0:
+            noResults = True
 
     tparams = {'productsFilter': productsFilter,
                'totalBrands': Product.objects.values('brand').distinct().count(),
                'totalCategories': Product.objects.values('category').distinct().count(),
                'brands': brands,
                'productsList': result,
+               'noResults': noResults
 
                }
+
     return render(request, 'shop.html', tparams)
 
 

@@ -3,9 +3,21 @@
   <component name="ChangeListManager">
     <list default="true" id="a08c26bc-6a11-4889-bb56-d899e8a7e226" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webproj/app/templates/cart.html" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/templates/cart.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webproj/app/templates/commentsManagement.html" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/templates/commentsManagement.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webproj/app/templates/createProduct.html" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/templates/createProduct.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webproj/app/templates/createPromotion.html" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/templates/createPromotion.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webproj/app/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/templates/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webproj/app/templates/layout.html" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/templates/layout.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webproj/app/templates/productsManagement.html" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/templates/productsManagement.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webproj/app/templates/promotionsManagement.html" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/templates/promotionsManagement.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/webproj/app/templates/shop.html" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/templates/shop.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webproj/app/templates/updateProduct.html" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/templates/updateProduct.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webproj/app/templates/updatePromotion.html" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/templates/updatePromotion.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webproj/app/templates/updateUser.html" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/templates/updateUser.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webproj/app/templates/usersManagement.html" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/templates/usersManagement.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/webproj/app/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/app/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/webproj/webproj/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/webproj/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/webproj/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/webproj/db.sqlite3" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,7 +83,9 @@
       <workItem from="1619255597468" duration="8782000" />
       <workItem from="1619264468568" duration="16695000" />
       <workItem from="1619294490544" duration="4706000" />
-      <workItem from="1619345418645" duration="8175000" />
+      <workItem from="1619345418645" duration="8299000" />
+      <workItem from="1619361441871" duration="2662000" />
+      <workItem from="1619372259775" duration="5869000" />
     </task>
     <servers />
   </component>

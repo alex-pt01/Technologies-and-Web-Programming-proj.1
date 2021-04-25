@@ -1,11 +1,10 @@
 {% extends "layout.html" %}
 {% block content %}
     <br>
-    <section id="form">
+	<section ><!--form-->
+        <div class="row">
+				<div class="col-sm-2 col-sm-offset-5" >
 
-				<div    style="  margin:auto;
-                      width:20%;;
-                     ">
 					<div class="login-form">
 						<a  class="btn btn-default" href="{% url 'account' %}">Go Back</a>
                         <h2>Update Your account</h2>
@@ -26,7 +25,8 @@
                         </div>
                 {% endif %}
 
-
+        </div>
+    </div>
 	</section>
 {% endblock %}
 

@@ -39,10 +39,13 @@
         <div style="  margin:auto;
           width:90%;
           padding:10px;">
-    	<section id="form"><!--form-->
-            <a class="btn btn-sm btn-success col-sm-1 " style="  margin-right:5%;
-                    float:right"  href="{% url 'createProduct' %}" > Create Product </a>
-                <br><br>
+
+
+
+	<section ><!--form-->
+        <div class="row">
+				<div class="col-sm-8 col-sm-offset-2" >
+
                 <table class="styled-table">
                 <tr>
                     <th>Name</th>
@@ -73,7 +76,22 @@
                     </tr>
                 {%  endfor %}
                 </table>
+        </div>
+    </div>
 	</section>
-</div>
+
+    	<footer id="footer"><!--Footer-->
+
+		<div class="footer-bottom">
+			<div class="container">
+				<div class="row">
+					<p class="pull-left">Copyright © 2021 TechOn . All rights reserved.</p>
+					<p class="pull-right">TPW Project</p>
+				</div>
+			</div>
+		</div>
+
+	</footer>
+
 {% endblock %}
 

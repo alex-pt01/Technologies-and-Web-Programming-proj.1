@@ -37,32 +37,34 @@
 
     </style>
     <!--Comments MANAGEMENT-->
-        <div style="  margin:auto;
-                   width:70%;
-          padding:63px;">
-    	<section id="form"><!--form-->
-                <br><br>
-                <table class="styled-table">
-                <tr>
-                    <th>Username</th>
-                    <th>UserEmail</th>
-                    <th>Description</th>
-                    <th>Rating</th>
-                    <th>Comment date</th>
-                    <th>Delete Comment</th>
-                </tr>
-                {% for comment in comments %}
+
+            <section ><!--form-->
+                <div class="row">
+                 <div class="col-sm-6 col-sm-offset-3">
+                    <br><br>
+                    <table class="styled-table">
                     <tr>
-                        <th>{{ comment.userName }}</th>
-                        <th>{{ comment.userEmail }}</th>
-                        <th>{{ comment.description }}</th>
-                        <th>{{ comment.rating }}<i class="fa fa-star" aria-hidden="true" ></i></th>
-                        <th>{{ comment.commentDate }}</th>
-                        <th><a class="btn btn-sm btn-danger" href="{% url 'deleteComment' comment.id %}">Delete</a></th>
+                        <th>Username</th>
+                        <th>UserEmail</th>
+                        <th>Description</th>
+                        <th>Rating</th>
+                        <th>Comment date</th>
+                        <th>Delete Comment</th>
                     </tr>
-                {%  endfor %}
-                </table>
-	</section>
-</div>
+                    {% for comment in comments %}
+                        <tr>
+                            <th>{{ comment.userName }}</th>
+                            <th>{{ comment.userEmail }}</th>
+                            <th>{{ comment.description }}</th>
+                            <th>{{ comment.rating }}<i class="fa fa-star" aria-hidden="true" ></i></th>
+                            <th>{{ comment.commentDate }}</th>
+                            <th><a class="btn btn-sm btn-danger" href="{% url 'deleteComment' comment.id %}">Delete</a></th>
+                        </tr>
+                    {%  endfor %}
+                    </table>
+         </div>
+    </div>
+        </section>
+
 {% endblock %}
 
