@@ -74,7 +74,7 @@ class Comment(models.Model):
 class PaymentMethod(models.Model):
     TYPES = (('Credit Card', 'Credit Card'), ('Debit Card', 'Debit Card'))
     type = models.CharField(choices=TYPES, max_length=150)
-    card_no = models.CharField(max_length=12)
+    card_no = models.CharField(max_length=16)
 
 
 class ShoppingCart(models.Model):
