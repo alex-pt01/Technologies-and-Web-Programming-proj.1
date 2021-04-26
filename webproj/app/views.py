@@ -602,7 +602,20 @@ def checkout(request):
                 carts[request.user.id] = []
                 return redirect('account')
         else:
-            form = paymentForm()
+            try:
+
+                if request.user.is_superuser:
+                    username = 'TechOn'
+                else:
+                    username = request.user.get_username()
+                payment = Payment.objects.filter(username=username).order_by('-id')[0]
+                form = paymentForm(initial={
+                    'type': payment.method.type,
+                    'card_no':payment.method.card_no
+                })
+
+            except:
+                form = paymentForm()
         tparams['form'] = form
 
         return render(request, 'checkout.html', tparams)
