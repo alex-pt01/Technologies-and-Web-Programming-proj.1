@@ -481,7 +481,7 @@ def home(request):
                               userEmail=form.cleaned_data["userEmail"],
                               description=form.cleaned_data["description"],
                               rating=form.cleaned_data["rating"],
-                              commentDate=form.cleaned_data["commentDate"],
+                              commentDate=datetime.now(),
                               )
             comment.save()
             return redirect("home")
