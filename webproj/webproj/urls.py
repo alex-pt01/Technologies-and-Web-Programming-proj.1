@@ -43,6 +43,7 @@ urlpatterns = [
     path('details/<str:id>', views.productInfo, name='productInfo'),
     ########
     path('account/', views.account, name='account'),
+    path('sold/', views.soldManagement, name='soldManagement'),
     ########
     path('commentsManagement/', views.commentsManagement, name='commentsManagement'),
     path('deleteComment/<str:id>', views.deleteComment, name='deleteComment'),

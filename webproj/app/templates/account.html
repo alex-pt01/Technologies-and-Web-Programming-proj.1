@@ -40,7 +40,8 @@
     <div class="container">
             <div class="table-responsive cart_info">
 					 <a class="btn btn-fefault cart" href="{% url 'createProduct' %}">Sell An Item</a>
-                     <a class="btn btn-fefault cart" href="{% url "productsManagement" %}" ><i class="fa fa-cog"></i>  Products </a>
+                     <a class="btn btn-fefault cart" href="{% url "productsManagement" %}" ><i class="fa fa-cog"></i>  My Products </a>
+                     <a class="btn btn-fefault cart" href="{% url "soldManagement" %}" ><i class="fa fa-cog"></i>  Products Sold </a>
                 <hr>
                     <h2>History</h2>
 
@@ -87,6 +88,7 @@
 								<p class="cart_total_price">{{ sci.product.price }}€</p>
 							</td>
 
+
 						</tr>
 
                             {% endfor %}
@@ -95,6 +97,7 @@
                               <td class="description">Date: <h4>{{ payment.date }}</h4></td>
                               <td class="description">Address: <h4>{{ payment.address }}</h4></td>
                               <td class="price">Total: <h4>{{ payment.total }}</h4></td>
+                              <td class="price">Credits: <h4>-{{ payment.usedCredits }}</h4></td>
 
                           </tr>
 
@@ -104,7 +107,7 @@
 				</table>
 			</div>
 		</div>
-
+        </section>
     {%  endfor %}
 {% endblock %}
 

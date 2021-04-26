@@ -14,9 +14,7 @@ class Promotion(models.Model):
     def __str__(self):
         return self.name
 
-class UserCredits(models.Model):
-    credit = models.FloatField(default=0.0)
-    user_id = models.CharField(default = 0, null=False, max_length=150)
+
 
 class Product(models.Model):
     name = models.CharField(max_length=80)
@@ -51,6 +49,14 @@ class Product(models.Model):
             return round(self.price - self.discount(),2)
         return 0
 
+class Sold(models.Model):
+    product = models.ForeignKey(Product, null=False,on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=1)
+    buyer = models.CharField(null=False, max_length=150)
+    date = models.DateField(default=datetime.now())
+    promotion = models.ForeignKey(Promotion, default=None,null=True, on_delete=models.CASCADE)
+    total = models.FloatField(default=0.0)
+
 class Comment(models.Model):
     userName = models.CharField(max_length=80)
     userEmail = models.EmailField()
@@ -82,7 +88,8 @@ class Payment(models.Model):
     date = models.DateField(default=datetime.now)
     method = models.ForeignKey(PaymentMethod, on_delete=models.CASCADE)
     shopping_cart = models.ForeignKey(ShoppingCart, on_delete=models.CASCADE)
-
+    usedCredits = models.FloatField(default = 0.0)
+    username = models.CharField(max_length=250, default='TechOn')
 
 class ShoppingCartItem(models.Model):
     quantity = models.IntegerField(default=1)

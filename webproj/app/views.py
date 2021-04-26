@@ -10,7 +10,8 @@ from django.shortcuts import render, redirect
 from app.forms import newUserForm, paymentForm
 # Create your views here.
 from app.forms import newUserForm, paymentForm, updateUserForm, createProductForm
-from app.models import Product, Promotion, Comment, PaymentMethod, Payment, ShoppingCart, ShoppingCartItem, UserCredits
+from app.models import Product, Promotion, Comment, PaymentMethod, Payment, ShoppingCart, ShoppingCartItem, \
+    Sold
 from django.contrib.auth.models import User
 from app.forms import *
 
@@ -494,14 +495,7 @@ def home(request):
 def account(request):
     if request.user.is_authenticated:
         shoppingCarts = ShoppingCart.objects.filter(user_id=request.user.id)
-        if request.user.is_superuser:
-            userCredit = UserCredits.objects.get(user_id=-99)
-        else:
-            try:
-                userCredit = UserCredits.objects.get(user_id=request.user.id)
-            except:
-                userCredit = UserCredits(user_id=request.user.id, credit=0.0)
-                userCredit.save()
+        creds = getCredits(request)
 
         if shoppingCarts:
             assoc = []
@@ -509,13 +503,37 @@ def account(request):
                 scis = ShoppingCartItem.objects.filter(cart_id=scs.id)
                 payment = Payment.objects.filter(shopping_cart=scs)[0]
                 assoc.append((scis, payment))
-            tparams = {'carts': assoc, 'credits':userCredit.credit}
+            tparams = {'carts': assoc, 'credits':creds}
 
         else:
-            tparams = {'cart': [],'credits':userCredit.credit}
+            tparams = {'cart': [],'credits':creds}
         return render(request, 'account.html', tparams)
     return render('login')
 
+
+def getCredits(request):
+    if request.user.is_superuser:
+        userProducts = Product.objects.filter(seller='TechOn')
+        buyer = 'TechOn'
+    else:
+        username = request.user.get_username()
+        userProducts = Product.objects.filter(seller=username)
+        buyer = username
+
+    credits = 0
+    for pr in userProducts:
+        sold = Sold.objects.filter(product=pr)
+        for s in sold:
+            credits += s.total
+
+
+    payments = Payment.objects.filter(username=buyer)
+
+    creditDiscount = 0
+    for p in payments:
+        creditDiscount+=p.usedCredits
+
+    return round(credits - creditDiscount,2)
 
 def checkout(request):
     if request.user.is_authenticated:
@@ -525,6 +543,11 @@ def checkout(request):
             form = paymentForm(request.POST)
 
             if form.is_valid():
+                if request.user.is_superuser:
+                    buyer = 'TechOn'
+                else:
+                    username = request.user.get_username()
+                    buyer = username
                 data = form.cleaned_data
                 type = data['type']
                 card_no = data['card_no']
@@ -540,45 +563,39 @@ def checkout(request):
                 payment.total = round(tparams['total'], 2)
                 payment.method = pm
                 payment.shopping_cart = sp
-                payment.save()
+                payment.username = buyer
                 if useCredits:
-                    if request.user.is_superuser:
-                        creds = UserCredits.objects.get(user_id=-99)
+                    creds = getCredits(request)
+                    if creds<=payment.total:
+                        payment.usedCredits = creds
                     else:
-                        try:
-                            creds = UserCredits.objects.get(user_id=request.user.id)
-                        except:
-                            creds = UserCredits(user_id=request.user.id, credit=0.0)
-                            creds.save()
+                        payment.usedCredits = payment.total
+                payment.save()
 
-                    if creds.credit>=payment.total:
-                        creds.credit = creds.credit-payment.total
-                    else:
-                        creds.credit = 0
-                    creds.save()
+
 
                 for item, quantity in tparams['cart']:
                     spi = ShoppingCartItem()
                     spi.product = item
-                    item.quantity = item.quantity - spi.quantity
+                    item.quantity = item.quantity - quantity
                     item.save()
-                    if item.seller == 'TechOn':
-                        userCredit = UserCredits.objects.get(user_id=-99)
-                    else:
-                        user = User.objects.get(username=item.seller)
-                        try:
-                            userCredit = UserCredits.objects.get(user_id=user.id)
-                        except:
-                            userCredit = UserCredits(user_id=user.id, credit=0.0)
-                            userCredit.save()
 
-                    credit = item.price * quantity
+                    #Saving Sell Record
+                    s = Sold()
+                    s.product = item
+                    s.total = round(item.price*quantity,2)
+                    if item.promotion:
+                        s.total -= round(s.total*item.promotion.discount,2)
+                    s.promotion = item.promotion
+                    s.quantity = quantity
+                    s.buyer = request.user.get_username()
+                    s.save()
 
-                    userCredit.credit += credit
-                    userCredit.save()
+
 
                     if item.quantity == 0:
                         item.stock = False
+                    item.save()
                     spi.quantity = quantity
                     spi.cart_id = sp.id
                     spi.save()
@@ -673,4 +690,20 @@ def cart(request):
     if request.user.is_authenticated:
         tparams = getShoppingCart(request)
         return render(request, 'cart.html', tparams)
+    return redirect('login')
+
+
+def soldManagement(request):
+    tparams = {}
+    if request.user.is_authenticated:
+        if request.user.is_superuser:
+            userProducts = Product.objects.filter(seller = 'TechOn')
+        else:
+            username = request.user.get_username()
+            userProducts = Product.objects.filter(seller = username)
+        sold = []
+        for pr in userProducts:
+            sold += Sold.objects.filter(product=pr)
+        tparams['sold'] = sold
+        return render(request, 'soldManagement.html', tparams)
     return redirect('login')
