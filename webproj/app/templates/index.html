@@ -179,6 +179,7 @@
 								<div class="item active">
 
                                     {%  for product in recommendedProducts %}
+                                        <a href="/details/{{ product.id }}">
                                             <div class="col-sm-4">
                                                 <div class="product-image-wrapper">
                                                     <div class="single-products">
@@ -196,6 +197,7 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                        </a>
                                     {% endfor %}
                                 </div>
 							</div>

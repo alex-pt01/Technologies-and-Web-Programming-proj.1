@@ -530,8 +530,6 @@ def home(request):
     recommendedProducts = Product.objects.all()[0:3]
     comments = Comment.objects.order_by('userEmail').distinct()
 
-    if not request.user.is_authenticated:
-        return redirect("login")
 
     if request.method == "POST":
         form = CommentForm(request.POST)
