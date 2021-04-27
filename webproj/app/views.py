@@ -473,19 +473,19 @@ def searchProducts(request):
                     for cat in categories:
                         if len(stockCheck) != 0:
                             productS = Product.objects.filter(
-                                Q(brand=brandCat) & Q(category=cat)| Q(stock=True) | Q(
+                                Q(category=cat)| Q(stock=True) | Q(
                                     condition=usedCheck) | Q(condition=newCheck)| Q(seller=seller))
                         if len(promotionCheck) != 0:
                             productS = Product.objects.filter(
-                                Q(brand=brandCat) & Q(category=cat) | Q(condition=usedCheck) | Q(
+                                Q(category=cat) | Q(condition=usedCheck) | Q(
                                     condition=newCheck) | Q(promotion__isnull=False)| Q(seller=seller))
                         if len(stockCheck) != 0 and len(promotionCheck) != 0:
                             productS = Product.objects.filter(
-                                Q(brand=brandCat) & Q(category=cat) | Q(condition=usedCheck) | Q(
+                                Q(category=cat) | Q(condition=usedCheck) | Q(
                                     condition=newCheck) | Q(promotion__isnull=False) | Q(stock=True)| Q(seller=seller))
                         else:
                             productS = Product.objects.filter(
-                                Q(brand=brandCat) & Q(category=cat) | Q(condition=usedCheck) | Q(
+                                Q(category=cat) | Q(condition=usedCheck) | Q(
                                     condition=newCheck)| Q(seller=seller))
                             resultSearch.extend(productS)
 
@@ -566,7 +566,7 @@ def account(request):
         else:
             tparams = {'cart': [], 'credits': creds}
         return render(request, 'account.html', tparams)
-    return render('login')
+    return redirect('login')
 
 
 def getCredits(request):
