@@ -10,8 +10,8 @@ from app.models import Promotion
 
 
 def cardNo(value):
-    if len(str(value)) != 12 or value < 0:
-        raise forms.ValidationError("Card Number Should Have 12 digits")
+    if len(str(value)) != 16 or value < 0:
+        raise forms.ValidationError("Card Number Should Have 16 digits")
 
 
 def cardCode(value):

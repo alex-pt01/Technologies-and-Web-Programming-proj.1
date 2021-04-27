@@ -14,9 +14,7 @@ class Promotion(models.Model):
     def __str__(self):
         return self.name
 
-class UserCredits(models.Model):
-    credit = models.FloatField(default=0.0)
-    user_id = models.CharField(default = 0, null=False, max_length=150)
+
 
 class Product(models.Model):
     name = models.CharField(max_length=80)
@@ -24,7 +22,7 @@ class Product(models.Model):
     description = models.CharField(max_length=300)
     image = models.FileField(upload_to='static/images',blank=True, null=True)
     quantity = models.IntegerField( default=1, validators=[
-            MinValueValidator(1)
+            MinValueValidator(0)
         ])
     stock = models.BooleanField()
     brand = models.CharField(max_length=80)
@@ -38,6 +36,7 @@ class Product(models.Model):
     date = models.DateTimeField(default=datetime.now)
     conditions = (('New', 'New'), ('Used', 'Used'))
     condition = models.CharField(choices=conditions, default='New', null=True, max_length=15)
+
     seller = models.CharField(default='TechOn',  max_length=150)
     def __str__(self):
         return self.name
@@ -50,6 +49,14 @@ class Product(models.Model):
         if self.promotion:
             return round(self.price - self.discount(),2)
         return 0
+
+class Sold(models.Model):
+    product = models.ForeignKey(Product, null=False,on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=1)
+    buyer = models.CharField(null=False, max_length=150)
+    date = models.DateField(default=datetime.now())
+    promotion = models.ForeignKey(Promotion, default=None,null=True, on_delete=models.CASCADE)
+    total = models.FloatField(default=0.0)
 
 class Comment(models.Model):
     userName = models.CharField(max_length=80)
@@ -68,7 +75,7 @@ class Comment(models.Model):
 class PaymentMethod(models.Model):
     TYPES = (('Credit Card', 'Credit Card'), ('Debit Card', 'Debit Card'))
     type = models.CharField(choices=TYPES, max_length=150)
-    card_no = models.CharField(max_length=12)
+    card_no = models.CharField(max_length=16)
 
 
 class ShoppingCart(models.Model):
@@ -82,7 +89,8 @@ class Payment(models.Model):
     date = models.DateField(default=datetime.now)
     method = models.ForeignKey(PaymentMethod, on_delete=models.CASCADE)
     shopping_cart = models.ForeignKey(ShoppingCart, on_delete=models.CASCADE)
-
+    usedCredits = models.FloatField(default = 0.0)
+    username = models.CharField(max_length=250, default='TechOn')
 
 class ShoppingCartItem(models.Model):
     quantity = models.IntegerField(default=1)

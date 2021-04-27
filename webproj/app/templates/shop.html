@@ -35,7 +35,7 @@
                         <form method="POST" action="." >
                             {% csrf_token %}
                             <input  style=" margin-left: 20px ;border-radius: 10px; border-top:none" name="minPrice" type="number" min="0" max="9990.99" step="0.50" placeholder="Min" /> ---
-                            <input style="border-radius: 10px; border-top:none " name="maxPrice " type="number"  min="50" max="10000" step="0.50" placeholder="Max"  />
+                            <input style="border-radius: 10px; border-top:none " name="maxPrice" type="number"  min="50" max="10000" step="0.50" placeholder="Max"  />
                             <br>
                             <button name="priceRange" style="position:absolute; margin-left: 200px; margin-top: 6px" type="submit" class="badge pull-right">Search</button>
                         </form>
@@ -73,7 +73,7 @@
                                                       {%  for prodBrand in prodBrands %}
                                                             <div class="checkbox">
                                                               <label class="control-label">
-                                                                <input name="brandsCategories" type="checkbox" class="form-checkbox checkbox-child" name="brandsCategories" value="{{ prodBrand }}">{{ prodBrand}}
+                                                                <input  type="checkbox" class="form-checkbox checkbox-child" name="brandsCategories" value="{{ prodBrand }}">{{ prodBrand}}
                                                               </label>
                                                             </div>
                                                         {% endfor %}
@@ -86,10 +86,20 @@
                                  {% endfor %}
                                 <strong>Stock </strong>      <input type="checkbox" name="stockCheck" >
                                 <strong style="margin-left: 120px">Promotion </strong>    <input type="checkbox" name="promotionCheck" >
+                                <strong>New </strong>      <input type="checkbox" name="newCheck" >
+                                <strong style="margin-left: 128px">Used </strong>    <input type="checkbox" name="usedCheck" >
 
-                                    <div class=" category-products" style="border-style: none;" >
-                                        <button  style="float:right" type="submit" class="badge pull-right">Search</button>
-                                    </div>
+                                <br><br>
+                                <strong style="color: orange; font-size: 20px">Seller(s)</strong>
+                                    <br><br>
+                                  {%  for seller in sellers %}
+                                           <p><input  type="checkbox" class="form-checkbox checkbox-child" name="sellers" value="{{ seller }}">{{ seller}}</p>
+                                  {% endfor %}
+
+
+                                <div class=" category-products" style="border-style: none;" >
+                                    <button  style="float:right" type="submit" class="badge pull-right">Search</button>
+                                </div>
                                 </form>
 
 

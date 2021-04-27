@@ -10,11 +10,13 @@ from django.shortcuts import render, redirect
 from app.forms import newUserForm, paymentForm
 # Create your views here.
 from app.forms import newUserForm, paymentForm, updateUserForm, createProductForm
-from app.models import Product, Promotion, Comment, PaymentMethod, Payment, ShoppingCart, ShoppingCartItem, UserCredits
+from app.models import Product, Promotion, Comment, PaymentMethod, Payment, ShoppingCart, ShoppingCartItem, \
+    Sold
 from django.contrib.auth.models import User
 from app.forms import *
 
 from app.forms import CommentForm, ProductForm, PromotionForm
+from django.db.models import Q
 
 carts = {}
 
@@ -358,7 +360,7 @@ def searchProducts(request):
             productsFilter[c[0]] = [c[1]]
         else:
             productsFilter[c[0]].append(c[1])
-
+    sellers = list(set(Product.objects.values_list('seller', flat=True)))
     query = ''
     productsList = []
     resultSearch = []
@@ -378,62 +380,115 @@ def searchProducts(request):
             query = request.POST['searchBar']
             resultSearch = Product.objects.filter(name__icontains=query)
 
-        if 'brandsCategories' in request.POST or 'categories' in request.POST or 'stockCheck' in request.POST or 'promotionCheck' in request.POST:
+        if 'brandsCategories' in request.POST or 'categories' in request.POST or 'stockCheck' in request.POST or 'promotionCheck' in request.POST \
+                or 'usedCheck' in request.POST or 'newCheck' in request.POST or 'sellers_' in request.POST:
             brandsLstCat = request.POST.getlist('brandsCategories', [])
             categories = request.POST.getlist('categories', [])
             stockCheck = request.POST.getlist('stockCheck', [])
             promotionCheck = request.POST.getlist('promotionCheck', [])
+            usedCheck = request.POST.getlist('usedCheck', [])
+            newCheck = request.POST.getlist('newCheck', [])
+            sellers_ = request.POST.getlist('sellers', [])
+
             productS = []
             productsList = []
-            print(categories)
 
-            if len(brandsLstCat) != 0 :
-                print("OKW")
+            if len(brandsLstCat) != 0:
+                print("B != 0")
+
                 for cat in categories:
                     for brandCat in brandsLstCat:
-                        print("--------------------")
-                        print(brandCat)
-                        if len(stockCheck) == 1:
-                            productS = Product.objects.filter(brand__icontains=brandCat, category__icontains=cat,
-                                                              stock=True)
-                        elif len(promotionCheck) == 1:
-                            productS = Product.objects.filter(brand__icontains=brandCat, category__icontains=cat,
-                                                              promotion__isnull=False)
-                        elif len(stockCheck) == 1 and len(promotionCheck) == 1:
-                            productS = Product.objects.filter(brand__icontains=brandCat, category__icontains=cat,
-                                                              stock=True, promotion__isnull=False)
+                        if len(stockCheck) != 0 and len(promotionCheck) == 0:
+                            print(productS, "1")
+                            productS = Product.objects.filter(
+                                Q(brand=brandCat) & Q(category=cat) | Q(stock=True) | Q(
+                                    condition=usedCheck) | Q(condition=newCheck))
+                        elif len(promotionCheck) != 0 and len(stockCheck) == 0:
+                            print(productS, "2")
+
+                            productS = Product.objects.filter(
+                                Q(brand=brandCat) & Q(category=cat) | Q(condition=usedCheck) | Q(
+                                    condition=newCheck) | Q(promotion__isnull=False))
+                        elif len(stockCheck) != 0 and len(promotionCheck) != 0:
+                            print(productS, "3")
+
+                            productS = Product.objects.filter(
+                                Q(brand=brandCat) & Q(category=cat) | Q(condition=usedCheck) | Q(
+                                    condition=newCheck) | Q(promotion__isnull=False) | Q(stock=True))
                         else:
-                            productS = Product.objects.filter(brand__icontains=brandCat, category__icontains=cat)
+                            print(productS, "4")
+                            print(brandCat, cat)
+                            productS = Product.objects.filter(
+                                Q(brand=brandCat) & Q(category=cat) | Q(condition=usedCheck) | Q(
+                                    condition=newCheck))
+                            print(productS, "4")
+
                         resultSearch.extend(productS)
+                print(resultSearch)
 
-            elif len(brandsLstCat) == 0 and len(categories) != 0:
+            elif len(categories) != 0 and len(brandsLstCat) == 0:
+                print("B == 0 AND C != 0")
+
                 for cat in categories:
-                    print("CATEGORY")
-                    print(cat)
-                    if len(stockCheck) == 1:
-                        productS = Product.objects.filter(category__icontains=cat,
-                                                          stock=True)
-                    elif len(promotionCheck) == 1:
-                        productS = Product.objects.filter(category__icontains=cat,
-                                                          promotion__isnull=False)
-                    elif len(stockCheck) == 1 and len(promotionCheck) == 1:
-                        productS = Product.objects.filter(category__icontains=cat,
-                                                          stock=True, promotion__isnull=False)
+                    if len(stockCheck) != 0:
+                        productS = Product.objects.filter( Q(category=cat) | Q(stock=True) | Q(
+                                    condition=usedCheck) | Q(condition=newCheck))
+                    elif len(promotionCheck) != 0:
+                        productS = Product.objects.filter(Q(category=cat) | Q(condition=usedCheck) | Q(
+                                condition=newCheck) | Q(promotion__isnull=False))
+                    elif len(stockCheck) != 0 and len(promotionCheck) != 0:
+                        productS = Product.objects.filter(Q(category=cat) | Q(condition=usedCheck) | Q(
+                                condition=newCheck) | Q(promotion__isnull=False) | Q(stock=True))
                     else:
-                        productS = Product.objects.filter( category__icontains=cat)
-                    resultSearch.extend(productS)
+                        productS = Product.objects.filter(Q(category__icontains=cat) | Q(condition=usedCheck) | Q(
+                                condition=newCheck))
+                    resultSearch = productS
 
-            elif len(stockCheck) != 0 :
-                productS = Product.objects.filter(stock=True)
-                resultSearch.extend(productS)
+            elif len(brandsLstCat) == 0 and len(categories) == 0:
+                print("B AND C == 0")
+                if len(stockCheck) != 0:
+                    print("A1")
+                    productS = Product.objects.filter( Q(stock=True) | Q(
+                        condition=usedCheck) | Q(condition=newCheck))
+                elif len(promotionCheck) != 0:
+                    print("A2")
+                    productS = Product.objects.filter( Q(condition=usedCheck) | Q(
+                        condition=newCheck) | Q(promotion__isnull=False))
+                elif len(stockCheck) != 0 and len(promotionCheck) != 0:
+                    print("A3")
+                    productS = Product.objects.filter(Q(condition=usedCheck) | Q(
+                        condition=newCheck) | Q(promotion__isnull=False) | Q(stock=True))
+                else:
+                    print("A4")
+                    productS = Product.objects.filter( Q(condition=usedCheck) | Q( condition=newCheck))
+                print(productS)
+                resultSearch = productS
 
-            elif len(promotionCheck) != 0:
-                productS = Product.objects.filter(promotion__isnull=False)
-                resultSearch.extend(productS)
 
-            elif len(stockCheck) != 0 and len(promotionCheck) != 0 :
-                productS = Product.objects.filter(stock=True, promotion__isnull=False)
-                resultSearch.extend(productS)
+            elif len(sellers_) != 0:
+                print("SELLER != 0")
+
+                for seller in sellers_:
+                    for cat in categories:
+                        if len(stockCheck) != 0:
+                            productS = Product.objects.filter(
+                                Q(brand=brandCat) & Q(category=cat)| Q(stock=True) | Q(
+                                    condition=usedCheck) | Q(condition=newCheck)| Q(seller=seller))
+                        if len(promotionCheck) != 0:
+                            productS = Product.objects.filter(
+                                Q(brand=brandCat) & Q(category=cat) | Q(condition=usedCheck) | Q(
+                                    condition=newCheck) | Q(promotion__isnull=False)| Q(seller=seller))
+                        if len(stockCheck) != 0 and len(promotionCheck) != 0:
+                            productS = Product.objects.filter(
+                                Q(brand=brandCat) & Q(category=cat) | Q(condition=usedCheck) | Q(
+                                    condition=newCheck) | Q(promotion__isnull=False) | Q(stock=True)| Q(seller=seller))
+                        else:
+                            productS = Product.objects.filter(
+                                Q(brand=brandCat) & Q(category=cat) | Q(condition=usedCheck) | Q(
+                                    condition=newCheck)| Q(seller=seller))
+                            resultSearch.extend(productS)
+
+
 
         if 'brandsProducts' in request.POST:
             brandsLst = request.POST.getlist('brandsProducts', [])
@@ -445,9 +500,11 @@ def searchProducts(request):
             resultSearch = productsList
 
         if 'priceRange' in request.POST:
-            minPrice = request.POST['minPrice']
-            maxPrice = request.POST['maxPrice']
-            resultSearch = Product.objects.filter(price__range=[minPrice, maxPrice])
+            minPrice = request.POST.get('minPrice', False)
+            maxPrice_ = request.POST.get('maxPrice', False)
+            print(maxPrice_)
+            resultSearch = Product.objects.filter(price__range=[minPrice, maxPrice_])
+            print(resultSearch)
 
         if len(resultSearch) != 0:
             result = resultSearch
@@ -459,7 +516,8 @@ def searchProducts(request):
                'totalCategories': Product.objects.values('category').distinct().count(),
                'brands': brands,
                'productsList': result,
-               'noResults': noResults
+               'noResults': noResults,
+               'sellers': sellers
 
                }
 
@@ -494,14 +552,7 @@ def home(request):
 def account(request):
     if request.user.is_authenticated:
         shoppingCarts = ShoppingCart.objects.filter(user_id=request.user.id)
-        if request.user.is_superuser:
-            userCredit = UserCredits.objects.get(user_id=-99)
-        else:
-            try:
-                userCredit = UserCredits.objects.get(user_id=request.user.id)
-            except:
-                userCredit = UserCredits(user_id=request.user.id, credit=0.0)
-                userCredit.save()
+        creds = getCredits(request)
 
         if shoppingCarts:
             assoc = []
@@ -509,12 +560,36 @@ def account(request):
                 scis = ShoppingCartItem.objects.filter(cart_id=scs.id)
                 payment = Payment.objects.filter(shopping_cart=scs)[0]
                 assoc.append((scis, payment))
-            tparams = {'carts': assoc, 'credits':userCredit.credit}
+            tparams = {'carts': assoc, 'credits': creds}
 
         else:
-            tparams = {'cart': [],'credits':userCredit.credit}
+            tparams = {'cart': [], 'credits': creds}
         return render(request, 'account.html', tparams)
     return render('login')
+
+
+def getCredits(request):
+    if request.user.is_superuser:
+        userProducts = Product.objects.filter(seller='TechOn')
+        buyer = 'TechOn'
+    else:
+        username = request.user.get_username()
+        userProducts = Product.objects.filter(seller=username)
+        buyer = username
+
+    credits = 0
+    for pr in userProducts:
+        sold = Sold.objects.filter(product=pr)
+        for s in sold:
+            credits += s.total
+
+    payments = Payment.objects.filter(username=buyer)
+
+    creditDiscount = 0
+    for p in payments:
+        creditDiscount += p.usedCredits
+
+    return round(credits - creditDiscount, 2)
 
 
 def checkout(request):
@@ -525,6 +600,11 @@ def checkout(request):
             form = paymentForm(request.POST)
 
             if form.is_valid():
+                if request.user.is_superuser:
+                    buyer = 'TechOn'
+                else:
+                    username = request.user.get_username()
+                    buyer = username
                 data = form.cleaned_data
                 type = data['type']
                 card_no = data['card_no']
@@ -540,52 +620,55 @@ def checkout(request):
                 payment.total = round(tparams['total'], 2)
                 payment.method = pm
                 payment.shopping_cart = sp
-                payment.save()
+                payment.username = buyer
                 if useCredits:
-                    if request.user.is_superuser:
-                        creds = UserCredits.objects.get(user_id=-99)
+                    creds = getCredits(request)
+                    if creds <= payment.total:
+                        payment.usedCredits = creds
                     else:
-                        try:
-                            creds = UserCredits.objects.get(user_id=request.user.id)
-                        except:
-                            creds = UserCredits(user_id=request.user.id, credit=0.0)
-                            creds.save()
-
-                    if creds.credit>=payment.total:
-                        creds.credit = creds.credit-payment.total
-                    else:
-                        creds.credit = 0
-                    creds.save()
+                        payment.usedCredits = payment.total
+                payment.save()
 
                 for item, quantity in tparams['cart']:
                     spi = ShoppingCartItem()
                     spi.product = item
-                    item.quantity = item.quantity - spi.quantity
+                    item.quantity = item.quantity - quantity
                     item.save()
-                    if item.seller == 'TechOn':
-                        userCredit = UserCredits.objects.get(user_id=-99)
-                    else:
-                        user = User.objects.get(username=item.seller)
-                        try:
-                            userCredit = UserCredits.objects.get(user_id=user.id)
-                        except:
-                            userCredit = UserCredits(user_id=user.id, credit=0.0)
-                            userCredit.save()
 
-                    credit = item.price * quantity
-
-                    userCredit.credit += credit
-                    userCredit.save()
+                    # Saving Sell Record
+                    s = Sold()
+                    s.product = item
+                    s.total = round(item.price * quantity, 2)
+                    if item.promotion:
+                        s.total -= round(s.total * item.promotion.discount, 2)
+                    s.promotion = item.promotion
+                    s.quantity = quantity
+                    s.buyer = request.user.get_username()
+                    s.save()
 
                     if item.quantity == 0:
                         item.stock = False
+                    item.save()
                     spi.quantity = quantity
                     spi.cart_id = sp.id
                     spi.save()
                 carts[request.user.id] = []
                 return redirect('account')
         else:
-            form = paymentForm()
+            try:
+
+                if request.user.is_superuser:
+                    username = 'TechOn'
+                else:
+                    username = request.user.get_username()
+                payment = Payment.objects.filter(username=username).order_by('-id')[0]
+                form = paymentForm(initial={
+                    'type': payment.method.type,
+                    'card_no': payment.method.card_no
+                })
+
+            except:
+                form = paymentForm()
         tparams['form'] = form
 
         return render(request, 'checkout.html', tparams)
@@ -673,4 +756,20 @@ def cart(request):
     if request.user.is_authenticated:
         tparams = getShoppingCart(request)
         return render(request, 'cart.html', tparams)
+    return redirect('login')
+
+
+def soldManagement(request):
+    tparams = {}
+    if request.user.is_authenticated:
+        if request.user.is_superuser:
+            userProducts = Product.objects.filter(seller='TechOn')
+        else:
+            username = request.user.get_username()
+            userProducts = Product.objects.filter(seller=username)
+        sold = []
+        for pr in userProducts:
+            sold += Sold.objects.filter(product=pr)
+        tparams['sold'] = sold
+        return render(request, 'soldManagement.html', tparams)
     return redirect('login')
