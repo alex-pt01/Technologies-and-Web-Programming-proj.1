@@ -159,13 +159,14 @@ def productInfo(request, id):
         if product in bought:
             canRev = True
 
-    tparams['product'] = product
-    tparams['comments'] = comments
-    tparams['avg'] = round(avg, 1)
-    tparams['comNo'] = len(comments)
-    tparams['canReview'] = canRev
-    tparams['form'] = form
-    return render(request, 'productInfo.html', tparams)
+        tparams['product'] = product
+        tparams['comments'] = comments
+        tparams['avg'] = round(avg, 1)
+        tparams['comNo'] = len(comments)
+        tparams['canReview'] = canRev
+        tparams['form'] = form
+        return render(request, 'productInfo.html', tparams)
+    return redirect('login')
 
 
 def productsManagement(request):
