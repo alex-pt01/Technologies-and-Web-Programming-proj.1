@@ -386,7 +386,7 @@ def searchProducts(request):
             promotionCheck = request.POST.getlist('promotionCheck', [])
             usedCheck = request.POST.getlist('usedCheck', [])
             newCheck = request.POST.getlist('newCheck', [])
-            sellers = request.POST.getlist('sellers', [])
+            sellers_ = request.POST.getlist('sellers', [])
 
             allProducts = Product.objects.all()
 
@@ -404,9 +404,9 @@ def searchProducts(request):
                 allProducts = allProducts.filter(condition='Used')
             if len(newCheck)!=0:
                 allProducts = allProducts.filter(condition='New')
-            if len(sellers)!=0:
-                print(sellers)
-                allProducts = allProducts.filter(seller__in=sellers)
+            if len(sellers_)!=0:
+                print(sellers_)
+                allProducts = allProducts.filter(seller__in=sellers_)
             result = allProducts
 
 
