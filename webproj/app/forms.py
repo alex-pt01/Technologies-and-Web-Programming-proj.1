@@ -43,7 +43,7 @@ class paymentForm(forms.Form):
     expirationMonth = forms.IntegerField(label='Card Expiration Month', validators=[expirationMonth])
     expirationYear = forms.IntegerField(label='Card Expiration Year', validators=[expirationYear])
     address = forms.CharField(label='Address', max_length=250)
-    useCredits = forms.BooleanField()
+    useCredits = forms.BooleanField(required=False, label="Use Credits?")
 
 
 class ProductForm(forms.Form):

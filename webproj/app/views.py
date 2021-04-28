@@ -501,10 +501,24 @@ def searchProducts(request):
             resultSearch = productsList
 
         if 'priceRange' in request.POST:
-            minPrice = request.POST.get('minPrice', False)
-            maxPrice_ = request.POST.get('maxPrice', False)
-            print(maxPrice_)
-            resultSearch = Product.objects.filter(price__range=[minPrice, maxPrice_])
+            print("maxPrice_")
+            minPrice = request.POST.get('minPrice', 0)
+            if minPrice == '':
+                minPrice = 0
+            maxPrice_ = request.POST.get('maxPrice', 10000000000000000000000000000000)
+            if maxPrice_ == '':
+                maxPrice_ = 10000000000000000000000
+
+
+
+
+            allProds = Product.objects.exclude(promotion = None)
+            resultSearch = [p for p in Product.objects.filter(promotion = None, price__range = [minPrice,maxPrice_])]
+            for prod in allProds:
+                actualPrice = prod.price - prod.price * prod.promotion.discount
+                if actualPrice > float(minPrice) and actualPrice < float(maxPrice_):
+                    resultSearch.append(prod)
+
             print(resultSearch)
 
         if len(resultSearch) != 0:
