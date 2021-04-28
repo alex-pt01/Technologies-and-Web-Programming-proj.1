@@ -145,6 +145,7 @@ def productInfo(request, id):
                 com = Comment(userName=username, userEmail=email, description=descr, rating=rating)
                 com.product = product
                 com.save()
+                return redirect('details/'+str(id))
 
         else:
             form = CommentForm()
