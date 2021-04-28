@@ -28,28 +28,23 @@
 
 
 
-                <!--Price Range-->
-                <h2>Price Range</h2>
 
-               <div class="panel-group category-products" style="border-style: none;">
-                        <form method="POST" action="." >
-                            {% csrf_token %}
-                            <input  style=" margin-left: 20px ;border-radius: 10px; border-top:none" name="minPrice" type="number" min="0" max="9990.99" step="0.50" placeholder="Min" /> ---
-                            <input style="border-radius: 10px; border-top:none " name="maxPrice" type="number"  min="50" max="10000" step="0.50" placeholder="Max"  />
-                            <br>
-                            <button name="priceRange" style="position:absolute; margin-left: 200px; margin-top: 6px" type="submit" class="badge pull-right">Search</button>
-                        </form>
-
-                </div>
-
-                <br><br>
-
-                <!--CATEGORY AND PRODUCT BRANDS-->
-                <h2>Category ({{ totalCategories }})</h2>
 
                 <form method="POST" action="" >
                     {% csrf_token %}
+                        <!--Price Range-->
+                        <h2>Price Range</h2>
 
+                        <div class="panel-group category-products" style="border-style: none;">
+                            {% csrf_token %}
+                            <input  style=" margin-left: 20px ;border-radius: 10px; border-top:none" name="minPrice" type="number" min="0" max="9990.99" step="0.50" placeholder="Min" /> ---
+                            <input style="border-radius: 10px; border-top:none " name="maxPrice" type="number"  min="50" max="10000" step="0.50" placeholder="Max"  />
+
+                        </div>
+
+
+                <!--CATEGORY AND PRODUCT BRANDS-->
+                <h2>Category ({{ totalCategories }})</h2>
                         {% for category, prodBrands in productsFilter.items %}
                         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
                         <ul class="term-reference checkbox-container">

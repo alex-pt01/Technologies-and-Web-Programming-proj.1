@@ -366,17 +366,17 @@ def searchProducts(request):
     if request.method == 'POST':
         # home search images click
         if 'Smartphones' in request.POST:
-            resultSearch = Product.objects.filter(category="Smartphones")
+            result = Product.objects.filter(category="Smartphones")
         if 'Televisions' in request.POST:
-            resultSearch = Product.objects.filter(category="Televisions")
+            result = Product.objects.filter(category="Televisions")
         if 'Drones' in request.POST:
-            resultSearch = Product.objects.filter(category="Drones")
+            result = Product.objects.filter(category="Drones")
         if 'Computers' in request.POST:
-            resultSearch = Product.objects.filter(category="Computers")
+            result = Product.objects.filter(category="Computers")
 
         if 'searchBar' in request.POST:
             query = request.POST['searchBar']
-            resultSearch = Product.objects.filter(name__icontains=query)
+            result = Product.objects.filter(name__icontains=query)
 
         if 'brandsCategories' in request.POST or 'categories' in request.POST or 'stockCheck' in request.POST or 'promotionCheck' in request.POST \
                 or 'usedCheck' in request.POST or 'newCheck' in request.POST or 'sellers' in request.POST:
@@ -413,7 +413,7 @@ def searchProducts(request):
 
 
 
-        if 'priceRange' in request.POST:
+        if 'minPrice' in request.POST or 'maxPrice' in request.POST:
             print("maxPrice_")
             minPrice = request.POST.get('minPrice', 0)
             if minPrice == '':
