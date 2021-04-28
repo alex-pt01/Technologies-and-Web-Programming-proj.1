@@ -362,9 +362,6 @@ def searchProducts(request):
         else:
             productsFilter[c[0]].append(c[1])
     sellers = list(set(Product.objects.values_list('seller', flat=True)))
-    query = ''
-    productsList = []
-    resultSearch = []
     result = Product.objects.all()
     if request.method == 'POST':
         # home search images click
@@ -391,114 +388,30 @@ def searchProducts(request):
             newCheck = request.POST.getlist('newCheck', [])
             sellers_ = request.POST.getlist('sellers', [])
 
-            productS = []
-            productsList = []
+            filters = {}
+            allProducts = Product.objects.all()
 
             if len(brandsLstCat) != 0:
-                print("B != 0")
+                allProducts = allProducts.filter(brand__in = brandsLstCat)
 
-                for cat in categories:
-                    for brandCat in brandsLstCat:
-                        if len(stockCheck) != 0 and len(promotionCheck) == 0:
-                            print(productS, "1")
-                            productS = Product.objects.filter(
-                                Q(brand=brandCat) & Q(category=cat) | Q(stock=True) | Q(
-                                    condition=usedCheck) | Q(condition=newCheck))
-                        elif len(promotionCheck) != 0 and len(stockCheck) == 0:
-                            print(productS, "2")
+            if len(categories)!=0:
+                allProducts = allProducts.filter(category__in=categories)
 
-                            productS = Product.objects.filter(
-                                Q(brand=brandCat) & Q(category=cat) | Q(condition=usedCheck) | Q(
-                                    condition=newCheck) | Q(promotion__isnull=False))
-                        elif len(stockCheck) != 0 and len(promotionCheck) != 0:
-                            print(productS, "3")
-
-                            productS = Product.objects.filter(
-                                Q(brand=brandCat) & Q(category=cat) | Q(condition=usedCheck) | Q(
-                                    condition=newCheck) | Q(promotion__isnull=False) | Q(stock=True))
-                        else:
-                            print(productS, "4")
-                            print(brandCat, cat)
-                            productS = Product.objects.filter(
-                                Q(brand=brandCat) & Q(category=cat) | Q(condition=usedCheck) | Q(
-                                    condition=newCheck))
-                            print(productS, "4")
-
-                        resultSearch.extend(productS)
-                print(resultSearch)
-
-            elif len(categories) != 0 and len(brandsLstCat) == 0:
-                print("B == 0 AND C != 0")
-
-                for cat in categories:
-                    if len(stockCheck) != 0:
-                        productS = Product.objects.filter( Q(category=cat) | Q(stock=True) | Q(
-                                    condition=usedCheck) | Q(condition=newCheck))
-                    elif len(promotionCheck) != 0:
-                        productS = Product.objects.filter(Q(category=cat) | Q(condition=usedCheck) | Q(
-                                condition=newCheck) | Q(promotion__isnull=False))
-                    elif len(stockCheck) != 0 and len(promotionCheck) != 0:
-                        productS = Product.objects.filter(Q(category=cat) | Q(condition=usedCheck) | Q(
-                                condition=newCheck) | Q(promotion__isnull=False) | Q(stock=True))
-                    else:
-                        productS = Product.objects.filter(Q(category__icontains=cat) | Q(condition=usedCheck) | Q(
-                                condition=newCheck))
-                    resultSearch = productS
-
-            elif len(brandsLstCat) == 0 and len(categories) == 0:
-                print("B AND C == 0")
-                if len(stockCheck) != 0:
-                    print("A1")
-                    productS = Product.objects.filter( Q(stock=True) | Q(
-                        condition=usedCheck) | Q(condition=newCheck))
-                elif len(promotionCheck) != 0:
-                    print("A2")
-                    productS = Product.objects.filter( Q(condition=usedCheck) | Q(
-                        condition=newCheck) | Q(promotion__isnull=False))
-                elif len(stockCheck) != 0 and len(promotionCheck) != 0:
-                    print("A3")
-                    productS = Product.objects.filter(Q(condition=usedCheck) | Q(
-                        condition=newCheck) | Q(promotion__isnull=False) | Q(stock=True))
-                else:
-                    print("A4")
-                    productS = Product.objects.filter( Q(condition=usedCheck) | Q( condition=newCheck))
-                print(productS)
-                resultSearch = productS
-
-
-            elif len(sellers_) != 0:
-                print("SELLER != 0")
-
-                for seller in sellers_:
-                    for cat in categories:
-                        if len(stockCheck) != 0:
-                            productS = Product.objects.filter(
-                                Q(category=cat)| Q(stock=True) | Q(
-                                    condition=usedCheck) | Q(condition=newCheck)| Q(seller=seller))
-                        if len(promotionCheck) != 0:
-                            productS = Product.objects.filter(
-                                Q(category=cat) | Q(condition=usedCheck) | Q(
-                                    condition=newCheck) | Q(promotion__isnull=False)| Q(seller=seller))
-                        if len(stockCheck) != 0 and len(promotionCheck) != 0:
-                            productS = Product.objects.filter(
-                                Q(category=cat) | Q(condition=usedCheck) | Q(
-                                    condition=newCheck) | Q(promotion__isnull=False) | Q(stock=True)| Q(seller=seller))
-                        else:
-                            productS = Product.objects.filter(
-                                Q(category=cat) | Q(condition=usedCheck) | Q(
-                                    condition=newCheck)| Q(seller=seller))
-                            resultSearch.extend(productS)
+            if len(stockCheck)!=0:
+                allProducts = allProducts.filter(stock=True)
+            if len(promotionCheck)!=0:
+                allProducts = allProducts.exclude(promotion=None)
+            if len(usedCheck)!=0:
+                allProducts = allProducts.filter(condition='Used')
+            if len(newCheck)!=0:
+                allProducts = allProducts.filter(condition='New')
+            if len(sellers_)!=0:
+                allProducts = allProducts.filter(seller__in=sellers_)
+            result = allProducts
 
 
 
-        if 'brandsProducts' in request.POST:
-            brandsLst = request.POST.getlist('brandsProducts', [])
-            for brand in brandsLst:
-                products = Product.objects.filter(brand=brand)
-                if len(products) >= 1:
-                    for p in products:
-                        productsList.append(p)
-            resultSearch = productsList
+
 
         if 'priceRange' in request.POST:
             print("maxPrice_")
@@ -512,18 +425,16 @@ def searchProducts(request):
 
 
 
-            allProds = Product.objects.exclude(promotion = None)
-            resultSearch = [p for p in Product.objects.filter(promotion = None, price__range = [minPrice,maxPrice_])]
+            allProds = result.exclude(promotion = None)
+            resultSearch = [p for p in result.filter(promotion = None, price__range = [minPrice,maxPrice_])]
             for prod in allProds:
                 actualPrice = prod.price - prod.price * prod.promotion.discount
                 if actualPrice > float(minPrice) and actualPrice < float(maxPrice_):
                     resultSearch.append(prod)
-
-            print(resultSearch)
-
-        if len(resultSearch) != 0:
             result = resultSearch
-        if len(resultSearch) == 0:
+
+
+        if len(result) == 0:
             noResults = True
 
     tparams = {'productsFilter': productsFilter,
