@@ -300,8 +300,7 @@ def promotionsManagement(request):
 
 
 def createPromotion(request):
-    assert isinstance(request, HttpRequest)
-    if not request.user.is_authenticated or request.user.username != 'admin':
+    if not request.user.is_authenticated:
         return redirect("login")
 
     if request.method == "POST":
