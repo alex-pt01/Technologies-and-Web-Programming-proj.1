@@ -379,16 +379,15 @@ def searchProducts(request):
             resultSearch = Product.objects.filter(name__icontains=query)
 
         if 'brandsCategories' in request.POST or 'categories' in request.POST or 'stockCheck' in request.POST or 'promotionCheck' in request.POST \
-                or 'usedCheck' in request.POST or 'newCheck' in request.POST or 'sellers_' in request.POST:
+                or 'usedCheck' in request.POST or 'newCheck' in request.POST or 'sellers' in request.POST:
             brandsLstCat = request.POST.getlist('brandsCategories', [])
             categories = request.POST.getlist('categories', [])
             stockCheck = request.POST.getlist('stockCheck', [])
             promotionCheck = request.POST.getlist('promotionCheck', [])
             usedCheck = request.POST.getlist('usedCheck', [])
             newCheck = request.POST.getlist('newCheck', [])
-            sellers_ = request.POST.getlist('sellers', [])
+            sellers = request.POST.getlist('sellers', [])
 
-            filters = {}
             allProducts = Product.objects.all()
 
             if len(brandsLstCat) != 0:
@@ -405,8 +404,9 @@ def searchProducts(request):
                 allProducts = allProducts.filter(condition='Used')
             if len(newCheck)!=0:
                 allProducts = allProducts.filter(condition='New')
-            if len(sellers_)!=0:
-                allProducts = allProducts.filter(seller__in=sellers_)
+            if len(sellers)!=0:
+                print(sellers)
+                allProducts = allProducts.filter(seller__in=sellers)
             result = allProducts
 
 
