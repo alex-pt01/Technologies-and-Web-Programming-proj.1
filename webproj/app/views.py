@@ -438,7 +438,7 @@ def searchProducts(request):
         if len(result) == 0:
             noResults = True
 
-    paginator = Paginator(result, 6)
+    paginator = Paginator(result, 9)
 
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
