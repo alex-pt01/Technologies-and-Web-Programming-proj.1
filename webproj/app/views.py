@@ -17,6 +17,7 @@ from app.forms import *
 
 from app.forms import CommentForm, ProductForm, PromotionForm
 from django.db.models import Q
+from django.core.paginator import Paginator
 
 carts = {}
 
@@ -437,11 +438,16 @@ def searchProducts(request):
         if len(result) == 0:
             noResults = True
 
+    paginator = Paginator(result, 6)
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     tparams = {'productsFilter': productsFilter,
                'totalBrands': Product.objects.values('brand').distinct().count(),
                'totalCategories': Product.objects.values('category').distinct().count(),
                'brands': brands,
-               'productsList': result,
+               'productsList': page_obj,
                'noResults': noResults,
                'sellers': sellers
 
