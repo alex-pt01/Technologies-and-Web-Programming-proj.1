@@ -1,5 +1,10 @@
 from datetime import datetime
 from pyclbr import Class
+# rest Framework
+from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from app.serializers import *
 
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as loginUser, logout as logoutUser
@@ -19,6 +24,122 @@ from app.forms import CommentForm, ProductForm, PromotionForm
 from django.db.models import Q
 from django.core.paginator import Paginator
 
+
+######################Products####################################
+# TODO: MultiValueDictKeyError at /ws/product
+@api_view(['GET'])
+def get_product(request):
+    id = int(request.GET['id'])
+    try:
+        product = Product.objects.get(id=id)
+    except Product.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    serializer = ProductSerializer(product)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def get_products(request):
+    products = Product.objects.all()
+    if 'num' in request.GET:
+        num = int(request.GET['num'])
+        products = products[:num]
+    serializer = ProductSerializer(products, many=True)
+    return Response(serializer.data)
+
+
+# TODO: no postman n aceita uma imagem ... formato (?)
+@api_view(['POST'])
+def create_product(request):
+    serializer = ProductSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# TODO: no postman n aceita uma imagem ... formato (?)
+@api_view(['PUT'])
+def update_product(request):
+    id = request.data['id']
+    try:
+        product = Product.objects.get(id=id)
+    except Product.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    serializer = ProductSerializer(product, data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['DELETE'])
+def del_product(request, id):
+    try:
+        product = Product.objects.get(id=id)
+    except Product.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    product.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+######################Promotions####################################
+@api_view(['GET'])
+def get_promotions(request):
+    promotions = Promotion.objects.all()
+    if 'num' in request.GET:
+        num = int(request.GET['num'])
+        promotions = promotions[:num]
+    serializer = PromotionSerializer(promotions, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['POST'])
+def create_promotion(request):
+    serializer = PromotionSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# TODO: How it works o.o?
+@api_view(['PUT'])
+def update_promotion(request):
+    id = request.data['id']
+    try:
+        promotion = Promotion.objects.get(id=id)
+    except Promotion.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    serializer = PromotionSerializer(product, data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['DELETE'])
+def del_promotion(request, id):
+    try:
+        promotion = Promotion.objects.get(id=id)
+    except Promotion.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    promotion.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+"""
 carts = {}
 
 
@@ -703,3 +824,4 @@ def soldManagement(request):
         tparams['sold'] = sold
         return render(request, 'soldManagement.html', tparams)
     return redirect('login')
+"""
