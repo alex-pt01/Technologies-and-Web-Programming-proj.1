@@ -126,13 +126,114 @@ def del_promotion(request, id):
     promotion.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
 
+######################Search####################################
+@api_view(['GET'])
+def search_products(request):
+    print("OKKKKKKKKKKKKK")
+    productsBrands = Product.objects.order_by('brand').values_list('brand', flat=True).distinct()
+    brands = {}
+    for pB in productsBrands:
+        brands[pB] = Product.objects.filter(brand=pB).count()
+
+    listCategoriesAndBrands = Product.objects.order_by('category').values_list('category', 'brand').distinct()
+
+    noResults = False
+    productsFilter = {}
+    for c in listCategoriesAndBrands:
+        if c[0] not in productsFilter.keys():
+            productsFilter[c[0]] = [c[1]]
+        else:
+            productsFilter[c[0]].append(c[1])
+    sellers = list(set(Product.objects.values_list('seller', flat=True)))
+    result = Product.objects.all()
+
+
+    if 'Smartphones' in request.GET:
+        result = Product.objects.filter(category="Smartphones")
+    if 'Televisions' in request.GET:
+        result = Product.objects.filter(category="Televisions")
+    if 'Drones' in request.GET:
+        result = Product.objects.filter(category="Drones")
+    if 'Computers' in request.GET:
+        result = Product.objects.filter(category="Computers")
+
+    if 'searchBar' in request.GET:
+        query = request.GET['searchBar']
+        result = Product.objects.filter(name__icontains=query)
+
+    if 'brandsCategories' in request.GET or 'categories' in request.GET or 'stockCheck' in request.GET or 'promotionCheck' in request.GET \
+            or 'usedCheck' in request.GET or 'newCheck' in request.GET or 'sellers' in request.GET:
+        brandsLstCat = request.GET.getlist('brandsCategories', [])
+        categories = request.GET.getlist('categories', [])
+        stockCheck = request.GET.getlist('stockCheck', [])
+        promotionCheck = request.GET.getlist('promotionCheck', [])
+        usedCheck = request.GET.getlist('usedCheck', [])
+        newCheck = request.GET.getlist('newCheck', [])
+        sellers_ = request.GET.getlist('sellers', [])
+
+        allProducts = Product.objects.all()
+
+        if len(brandsLstCat) != 0:
+            allProducts = allProducts.filter(brand__in=brandsLstCat)
+
+        if len(categories) != 0:
+            allProducts = allProducts.filter(category__in=categories)
+
+        if len(stockCheck) != 0:
+            allProducts = allProducts.filter(stock=True)
+        if len(promotionCheck) != 0:
+            allProducts = allProducts.exclude(promotion=None)
+        if len(usedCheck) != 0:
+            allProducts = allProducts.filter(condition='Used')
+        if len(newCheck) != 0:
+            allProducts = allProducts.filter(condition='New')
+        if len(sellers_) != 0:
+            print(sellers_)
+            allProducts = allProducts.filter(seller__in=sellers_)
+        result = allProducts
+
+    if 'minPrice' in request.GET or 'maxPrice' in request.GET:
+        print("maxPrice_")
+        minPrice = request.GET.get('minPrice', 0)
+        if minPrice == '':
+            minPrice = 0
+        maxPrice_ = request.GET.get('maxPrice', 10000000000000000000000000000000)
+        if maxPrice_ == '':
+            maxPrice_ = 10000000000000000000000
+
+        allProds = result.exclude(promotion=None)
+        resultSearch = [p for p in result.filter(promotion=None, price__range=[minPrice, maxPrice_])]
+        for prod in allProds:
+            actualPrice = prod.price - prod.price * prod.promotion.discount
+            if actualPrice > float(minPrice) and actualPrice < float(maxPrice_):
+                resultSearch.append(prod)
+        result = resultSearch
 
 
 
+    print("..")
+    serializer = ProductSerializer(result, many=True)
+    return Response(serializer.data)
 
 
+######################Comemnts####################################
+@api_view(['POST'])
+def create_comment(request):
+    serializer = CommentSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(['DELETE'])
+def del_comment(request, id):
+    try:
+        comment = Comment.objects.get(id=id)
+    except Product.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    comment.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 
@@ -187,8 +288,8 @@ def signup(request):
 def logout(request):
     logoutUser(request)
     return redirect('home')
-
-
+"""
+"""
 def usersManagement(request):
     users = User.objects.values()
     return render(request, 'usersManagement.html', {'users': users})
@@ -485,6 +586,7 @@ def searchProducts(request):
             productsFilter[c[0]].append(c[1])
     sellers = list(set(Product.objects.values_list('seller', flat=True)))
     result = Product.objects.all()
+    
     if request.method == 'POST':
         # home search images click
         if 'Smartphones' in request.POST:

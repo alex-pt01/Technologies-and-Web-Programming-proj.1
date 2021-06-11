@@ -33,6 +33,11 @@ urlpatterns = [
     path('ws/promotioncre', views.create_promotion),
     path('ws/promotionup', views.update_promotion),
     path('ws/promotiondel/<int:id>', views.del_promotion),
+    #Search
+    path('ws/search', views.search_products),
+    #Comments
+    path('ws/commentcre', views.create_comment),
+    path('ws/commentdel/<int:id>', views.del_comment),
 
 ]
 
