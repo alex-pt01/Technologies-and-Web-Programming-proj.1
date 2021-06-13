@@ -23,6 +23,35 @@ from app.forms import *
 from app.forms import CommentForm, ProductForm, PromotionForm
 from django.db.models import Q
 from django.core.paginator import Paginator
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
+
+
+@api_view(['POST'])
+def sign_up(request):
+    print('signUP')
+    username = request.data['username']
+    password = request.data['password']
+    user = User.objects.create(username=username, password=password)
+    user.set_password(user.password)
+    user.save()
+    return Response(status=status.HTTP_201_CREATED)
+
+
+class CustomAuthToken(ObtainAuthToken):
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data,
+                                           context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({
+            'username': user.username,
+            'token': token.key
+        })
 
 
 ######################Products####################################

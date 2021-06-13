@@ -19,25 +19,38 @@ from django.contrib import admin
 from django.urls import path
 from app import views
 from django.contrib.auth import views as auth_views
+from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [
+    path('login', views.CustomAuthToken.as_view()),
+    path('signup', views.sign_up),
 
     # Products
-    path('ws/product', views.get_product),
-    path('ws/products', views.get_products),
-    path('ws/productcre', views.create_product),
-    path('ws/productup', views.update_product),
-    path('ws/productdel/<int:id>', views.del_product),
+    path('product', views.get_product),
+    path('products', views.get_products),
+    path('productcre', views.create_product),
+    path('productup', views.update_product),
+    path('productdel/<int:id>', views.del_product),
     # Promotions
-    path('ws/promotions', views.get_promotions),
-    path('ws/promotioncre', views.create_promotion),
-    path('ws/promotionup', views.update_promotion),
-    path('ws/promotiondel/<int:id>', views.del_promotion),
+    path('promotions', views.get_promotions),
+    path('promotioncre', views.create_promotion),
+    path('promotionup', views.update_promotion),
+    path('promotiondel/<int:id>', views.del_promotion),
     #Search
-    path('ws/search', views.search_products),
+    path('search', views.search_products),
     #Comments
-    path('ws/commentcre', views.create_comment),
-    path('ws/commentdel/<int:id>', views.del_comment),
+    path('commentcre', views.create_comment),
+    path('commentdel/<int:id>', views.del_comment),
+
+
+
+
+
+
+
+
+    path('admin/', admin.site.urls),
+
 
 ]
 
