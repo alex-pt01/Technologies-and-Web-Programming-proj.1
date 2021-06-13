@@ -21,8 +21,15 @@ from app import views
 from django.contrib.auth import views as auth_views
 from rest_framework.authtoken.views import obtain_auth_token
 from django.conf.urls import url
+from django.urls import path, include
+from django.contrib.auth.models import User
+from rest_framework import routers, serializers, viewsets
+from django.urls import path
+
 urlpatterns = [
+    # username, password
     path('login', views.CustomAuthToken.as_view()),
+    #username, password
     path('signup', views.sign_up),
 
     # Products
@@ -43,10 +50,9 @@ urlpatterns = [
     path('commentcre', views.create_comment),
     path('commentdel/<int:id>', views.del_comment),
     #Current user
-    #path('account', views.current_user),
 
 
-
+    path('products/sold', views.sold_products),
     path('admin/', admin.site.urls),
 
 ]
@@ -56,14 +62,11 @@ if settings.DEBUG:
                           document_root=settings.MEDIA_ROOT)
     """
     path('account/', views.account, name='account'),
-    path('sold/', views.soldManagement, name='soldManagement'),
-    ######
-    path('shop/', views.shop, name='shop'),
-    #######
     path('usersManagement/', views.usersManagement, name='usersManagement'),
     path('deleteUser/<str:id>', views.deleteUser, name='deleteUser'),
     path('updateUser/', views.updateUser, name='updateUser'),
     #########
+    
     path('addToCart/<str:id>', views.addToCart, name='addToCart'),
     path('removeFromCart/<str:id>', views.removeFromCart, name='removeFromCart'),
     path('increaseQuantity/<str:id>', views.increaseQuantity, name='increaseQuantity'),

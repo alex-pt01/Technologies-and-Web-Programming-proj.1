@@ -10,8 +10,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
 from app.forms import *
-from app.models import Product, Promotion, Comment, PaymentMethod, Payment, ShoppingCart, ShoppingCartItem, \
-    Sold
+from app.models import *
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.core.paginator import Paginator
@@ -21,6 +20,19 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+"""
+@authentication_classes((TokenAuthentication, ))
+@permission_classes((IsAuthenticated, ))
+"""
 
 @api_view(['POST'])
 def sign_up(request):
@@ -203,6 +215,7 @@ def search_products(request, cat=None):
     serializer = ProductSerializer(result, many=True)
     return Response(serializer.data)
 
+
 @api_view(['GET'])
 def search_products_price(request, initprice=None, endprice=None):
     try:
@@ -211,6 +224,7 @@ def search_products_price(request, initprice=None, endprice=None):
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Product.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
+
 
 ######################Comemnts####################################
 @api_view(['POST'])
@@ -230,6 +244,12 @@ def del_comment(request, id):
         return Response(status=status.HTTP_404_NOT_FOUND)
     comment.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET'])
+def sold_products(request):
+    sold_products = Sold.objects.all()
+    serializer = SoldSerializer(sold_products, many=True)
+    return Response(serializer.data)
 
 """
 @api_view(['GET'])
@@ -255,38 +275,6 @@ def current_user(request):
         return render(request, 'account.html', tparams)
 
 """
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 """
 carts = {}

@@ -7,16 +7,11 @@ from django.db.models.signals import post_save
 from rest_framework.authtoken.models import Token
 from django.dispatch import receiver
 from rest_framework import serializers
+from django.urls import path, include
+from django.contrib.auth.models import User
+from rest_framework import routers, serializers, viewsets
 
-# Create your models here.
 
-"""
-class UserSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = User
-        fields = ['username', 'email']
- """
 class Promotion(models.Model):
     name = models.CharField(max_length=80)
     discount = models.FloatField()

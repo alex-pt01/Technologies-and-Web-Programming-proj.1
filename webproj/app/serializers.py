@@ -1,6 +1,8 @@
 from app.models import *
 from rest_framework import serializers
 
+from django.contrib.auth import get_user_model
+
 
 class PromotionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -10,6 +12,7 @@ class PromotionSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(max_length=None, use_url=True)
+    promotion = PromotionSerializer()
 
     class Meta:
         model = Product
@@ -18,12 +21,17 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class SoldSerializer(serializers.ModelSerializer):
+    product = ProductSerializer()
+    promotion = PromotionSerializer()
+
     class Meta:
         model = Sold
         fields = ('id', 'product', 'quantity', 'buyer', 'date', 'buyer', 'promotion', 'total')
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    product = ProductSerializer()
+
     class Meta:
         model = Comment
         fields = ('id', 'userName', 'userEmail', 'description', 'rating', 'commentDate', 'product')
@@ -42,12 +50,17 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
 
 
 class PaymentSerializer(serializers.ModelSerializer):
+    method = PaymentMethodSerializer()
+    shopping_cart = ShoppingCartSerializer()
+
     class Meta:
         model = Payment
         fields = ('id', 'address', 'total', 'date', 'method', 'shopping_cart', 'usedCredits', 'username')
 
 
 class ShoppingCartItemSerializer(serializers.ModelSerializer):
+    product = ProductSerializer()
+
     class Meta:
         model = ShoppingCartItem
         fields = ('id', 'quantity', 'cart_id', 'product')
