@@ -1,26 +1,18 @@
 from datetime import datetime
 from pyclbr import Class
-# rest Framework
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from app.serializers import *
-
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as loginUser, logout as logoutUser
 from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect
-
-from app.forms import newUserForm, paymentForm
-# Create your views here.
-from app.forms import newUserForm, paymentForm, updateUserForm, createProductForm
+from app.forms import *
 from app.models import Product, Promotion, Comment, PaymentMethod, Payment, ShoppingCart, ShoppingCartItem, \
     Sold
 from django.contrib.auth.models import User
-from app.forms import *
-
-from app.forms import CommentForm, ProductForm, PromotionForm
 from django.db.models import Q
 from django.core.paginator import Paginator
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -55,10 +47,8 @@ class CustomAuthToken(ObtainAuthToken):
 
 
 ######################Products####################################
-# TODO: MultiValueDictKeyError at /ws/product
 @api_view(['GET'])
-def get_product(request):
-    id = int(request.GET['id'])
+def get_product(request, id):
     try:
         product = Product.objects.get(id=id)
     except Product.DoesNotExist:
@@ -70,14 +60,10 @@ def get_product(request):
 @api_view(['GET'])
 def get_products(request):
     products = Product.objects.all()
-    if 'num' in request.GET:
-        num = int(request.GET['num'])
-        products = products[:num]
     serializer = ProductSerializer(products, many=True)
     return Response(serializer.data)
 
 
-# TODO: no postman n aceita uma imagem ... formato (?)
 @api_view(['POST'])
 def create_product(request):
     serializer = ProductSerializer(data=request.data)
@@ -87,10 +73,8 @@ def create_product(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# TODO: no postman n aceita uma imagem ... formato (?)
 @api_view(['PUT'])
-def update_product(request):
-    id = request.data['id']
+def update_product(request, id):
     try:
         product = Product.objects.get(id=id)
     except Product.DoesNotExist:
@@ -116,9 +100,6 @@ def del_product(request, id):
 @api_view(['GET'])
 def get_promotions(request):
     promotions = Promotion.objects.all()
-    if 'num' in request.GET:
-        num = int(request.GET['num'])
-        promotions = promotions[:num]
     serializer = PromotionSerializer(promotions, many=True)
     return Response(serializer.data)
 
@@ -132,10 +113,8 @@ def create_promotion(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# TODO: How it works o.o?
 @api_view(['PUT'])
-def update_promotion(request):
-    id = request.data['id']
+def update_promotion(request, id):
     try:
         promotion = Promotion.objects.get(id=id)
     except Promotion.DoesNotExist:
@@ -146,6 +125,7 @@ def update_promotion(request):
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['DELETE'])
 def del_promotion(request, id):
     try:
@@ -155,10 +135,10 @@ def del_promotion(request, id):
     promotion.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
 
+
 ######################Search####################################
 @api_view(['GET'])
-def search_products(request):
-    print("OKKKKKKKKKKKKK")
+def search_products(request, cat=None):
     productsBrands = Product.objects.order_by('brand').values_list('brand', flat=True).distinct()
     brands = {}
     for pB in productsBrands:
@@ -176,22 +156,22 @@ def search_products(request):
     sellers = list(set(Product.objects.values_list('seller', flat=True)))
     result = Product.objects.all()
 
-
-    if 'Smartphones' in request.GET:
+    if 'Smartphones' in cat:
+        print("SMRTP")
         result = Product.objects.filter(category="Smartphones")
-    if 'Televisions' in request.GET:
+    if 'Televisions' in cat:
         result = Product.objects.filter(category="Televisions")
-    if 'Drones' in request.GET:
+    if 'Drones' in cat:
         result = Product.objects.filter(category="Drones")
-    if 'Computers' in request.GET:
+    if 'Computers' in cat:
         result = Product.objects.filter(category="Computers")
 
-    if 'searchBar' in request.GET:
+    if 'searchBar' in cat:
         query = request.GET['searchBar']
         result = Product.objects.filter(name__icontains=query)
 
-    if 'brandsCategories' in request.GET or 'categories' in request.GET or 'stockCheck' in request.GET or 'promotionCheck' in request.GET \
-            or 'usedCheck' in request.GET or 'newCheck' in request.GET or 'sellers' in request.GET:
+    if 'brandsCategories' in cat or 'categories' in cat or 'stockCheck' in cat or 'promotionCheck' in cat \
+            or 'usedCheck' in cat or 'newCheck' in cat or 'sellers' in cat:
         brandsLstCat = request.GET.getlist('brandsCategories', [])
         categories = request.GET.getlist('categories', [])
         stockCheck = request.GET.getlist('stockCheck', [])
@@ -220,30 +200,17 @@ def search_products(request):
             print(sellers_)
             allProducts = allProducts.filter(seller__in=sellers_)
         result = allProducts
-
-    if 'minPrice' in request.GET or 'maxPrice' in request.GET:
-        print("maxPrice_")
-        minPrice = request.GET.get('minPrice', 0)
-        if minPrice == '':
-            minPrice = 0
-        maxPrice_ = request.GET.get('maxPrice', 10000000000000000000000000000000)
-        if maxPrice_ == '':
-            maxPrice_ = 10000000000000000000000
-
-        allProds = result.exclude(promotion=None)
-        resultSearch = [p for p in result.filter(promotion=None, price__range=[minPrice, maxPrice_])]
-        for prod in allProds:
-            actualPrice = prod.price - prod.price * prod.promotion.discount
-            if actualPrice > float(minPrice) and actualPrice < float(maxPrice_):
-                resultSearch.append(prod)
-        result = resultSearch
-
-
-
-    print("..")
     serializer = ProductSerializer(result, many=True)
     return Response(serializer.data)
 
+@api_view(['GET'])
+def search_products_price(request, initprice=None, endprice=None):
+    try:
+        resultS = [p for p in Product.objects.filter(promotion=None, price__range=[initprice, endprice])]
+        serializer = ProductSerializer(resultS, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Product.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
 ######################Comemnts####################################
 @api_view(['POST'])
@@ -263,6 +230,58 @@ def del_comment(request, id):
         return Response(status=status.HTTP_404_NOT_FOUND)
     comment.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+"""
+@api_view(['GET'])
+@authentication_classes((TokenAuthentication, ))
+@permission_classes((IsAuthenticated, ))
+def current_user(request):
+    username = request.data['utilizador']
+
+    if request.user.is_authenticated:
+        shoppingCarts = ShoppingCart.objects.filter(user_id=request.user.id)
+        creds = getCredits(request)
+
+        if shoppingCarts:
+            assoc = []
+            for scs in shoppingCarts:
+                scis = ShoppingCartItem.objects.filter(cart_id=scs.id)
+                payment = Payment.objects.filter(shopping_cart=scs)[0]
+                assoc.append((scis, payment))
+            tparams = {'carts': assoc, 'credits': creds}
+
+        else:
+            tparams = {'cart': [], 'credits': creds}
+        return render(request, 'account.html', tparams)
+
+"""
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
