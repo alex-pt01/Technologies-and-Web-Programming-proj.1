@@ -51,6 +51,11 @@ urlpatterns = [
     path('commentdel/<int:id>', views.del_comment),
     #Current user
 
+    path('users', views.get_users),
+    path('userdel/<int:id>', views.del_user),
+    path('userup/<int:id>', views.update_user),
+
+
 
     path('products/sold', views.sold_products),
     path('admin/', admin.site.urls),
@@ -62,9 +67,6 @@ if settings.DEBUG:
                           document_root=settings.MEDIA_ROOT)
     """
     path('account/', views.account, name='account'),
-    path('usersManagement/', views.usersManagement, name='usersManagement'),
-    path('deleteUser/<str:id>', views.deleteUser, name='deleteUser'),
-    path('updateUser/', views.updateUser, name='updateUser'),
     #########
     
     path('addToCart/<str:id>', views.addToCart, name='addToCart'),

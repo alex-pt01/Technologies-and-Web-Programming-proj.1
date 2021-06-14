@@ -34,6 +34,38 @@ from rest_framework.response import Response
 @permission_classes((IsAuthenticated, ))
 """
 
+
+######################Users####################################
+@api_view(['GET'])
+def get_users(request):
+    users = User.objects.all()
+    serializer = UserSerializer(users, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['DELETE'])
+def del_user(request, id):
+    try:
+        user = User.objects.get(id=id)
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    user.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['PUT'])
+def update_user(request, id):
+    try:
+        user = User.objects.get(id=id)
+    except User.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    serializer = UserSerializer(user, data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 @api_view(['POST'])
 def sign_up(request):
     print('signUP')
@@ -245,11 +277,24 @@ def del_comment(request, id):
     comment.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
 
+
 @api_view(['GET'])
 def sold_products(request):
     sold_products = Sold.objects.all()
     serializer = SoldSerializer(sold_products, many=True)
     return Response(serializer.data)
+
+
+
+
+
+
+
+
+
+
+
+
 
 """
 @api_view(['GET'])
@@ -277,465 +322,6 @@ def current_user(request):
 """
 
 """
-carts = {}
-
-
-def login(request):
-    if request.user.is_authenticated:
-        return redirect('home')
-    else:
-        if request.method == 'POST':
-            username = request.POST.get('user')
-            password = request.POST.get('pass')
-
-            user = authenticate(request, username=username, password=password)
-
-            if user is not None:
-                loginUser(request, user)
-                messages.success(request, 'Welcome!!! ')
-
-                return redirect('home')
-            else:
-                messages.info(request, 'Username OR password is incorrect')
-
-        context = {}
-        return render(request, 'login.html', context)
-
-
-def signup(request):
-    if request.user.is_authenticated:
-        messages.info(request, 'You are already registered')
-        return redirect('home')
-    else:
-        form = newUserForm()
-        if request.method == 'POST':
-            form = newUserForm(request.POST)
-            if form.is_valid():
-                form.save()
-                user = form.cleaned_data.get('username')
-                # messages (dict)
-                messages.success(request, 'Account was created for ' + user)
-
-                return redirect('login')
-
-        return render(request, 'signup.html', {'form': form})
-
-
-def logout(request):
-    logoutUser(request)
-    return redirect('home')
-"""
-"""
-def usersManagement(request):
-    users = User.objects.values()
-    return render(request, 'usersManagement.html', {'users': users})
-
-
-def deleteUser(request, id):
-    user = User.objects.get(id=id)
-    user.delete()
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
-
-def updateUser(request):
-    tparams = {}
-    if request.user.is_authenticated:
-        if request.method == 'POST':
-            form = updateUserForm(request.POST)
-            if form.is_valid():
-                data = form.cleaned_data
-                username = data['username']
-                email = data['email']
-                curPass = data['currentPassword']
-                newPass = data['newPassword']
-                newRepeatedPass = data['repeatNewPassword']
-                firstName = data['first_name']
-                lastName = data['last_name']
-
-                if newPass != newRepeatedPass:
-                    form = updateUserForm()
-                    tparams['form'] = form
-                    tparams['error'] = "Inserted Passwords Are Not The Same"
-                    return render(request, 'updateUser.html', tparams)
-                if request.user.check_password(curPass):
-
-                    user = request.user
-                    user.username = username
-                    user.first_name = firstName
-                    user.last_name = lastName
-                    user.email = email
-                    user.set_password(raw_password=newPass)
-                    user.save()
-                else:
-                    form = updateUserForm()
-                    tparams['form'] = form
-                    tparams['error'] = "Incorrect Password"
-                    return render(request, 'updateUser.html', tparams)
-                return redirect('login')
-        else:
-            form = updateUserForm()
-        tparams['form'] = form
-
-        return render(request, 'updateUser.html', tparams)
-    return redirect('login')
-
-
-def productInfo(request, id):
-    canRev = False
-    product = Product.objects.get(id=id)
-    comments = Comment.objects.filter(product=product)
-    commentsRating = [c.rating for c in comments]
-    avg = 0
-    tparams = {}
-
-    if commentsRating != []:
-        avg = sum(commentsRating) / len(commentsRating)
-    if request.user.is_authenticated:
-
-        if request.method == 'POST':
-            form = CommentForm(request.POST)
-            if form.is_valid():
-                data = form.cleaned_data
-                username = data['userName']
-                email = data['userEmail']
-                descr = data['description']
-                rating = data['rating']
-
-                com = Comment(userName=username, userEmail=email, description=descr, rating=rating)
-                com.product = product
-                com.save()
-                return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
-        else:
-            form = CommentForm()
-        tparams = {}
-        shoppingCarts = ShoppingCart.objects.filter(user_id=request.user.id)
-        bought = []
-        if shoppingCarts:
-            for scs in shoppingCarts:
-                scis = ShoppingCartItem.objects.filter(cart_id=scs.id)
-                bought += [s.product for s in scis]
-
-        if product in bought:
-            canRev = True
-
-        tparams['product'] = product
-        tparams['comments'] = comments
-        tparams['avg'] = round(avg, 1)
-        tparams['comNo'] = len(comments)
-        tparams['canReview'] = canRev
-        tparams['form'] = form
-        return render(request, 'productInfo.html', tparams)
-    return redirect('login')
-
-
-def productsManagement(request):
-    if request.user.is_authenticated:
-        products = None
-        if request.user.is_superuser:
-            products = Product.objects.all()
-        else:
-            products = Product.objects.filter(seller=request.user.get_username())
-    form = {'products': products}
-
-    return render(request, 'productsManagement.html', form)
-
-
-def shop(request):
-    return render(request, 'shop.html')
-
-
-def createProduct(request):
-    if request.user.is_authenticated:
-        if request.method == 'POST':
-            form = createProductForm(request.POST, request.FILES)
-            if form.is_valid():
-                data = form.cleaned_data
-                name = data['name']
-                price = data['price']
-                description = data['description']
-                quantity = data['quantity']
-                brand = data['brand']
-                category = data['category']
-                promotion = data['promotion']
-                condition = data['condition']
-                pr = Product()
-                pr.name = name
-                pr.condition = condition
-                pr.price = price
-                pr.description = description
-                pr.image = request.FILES["image"]
-                pr.quantity = quantity
-                if not request.user.is_superuser:
-                    seller = request.user.get_username()
-                    pr.seller = seller
-                stock = True
-                if quantity == 0:
-                    stock = False
-                pr.stock = stock
-                pr.brand = brand
-                pr.category = category
-                pr.promotion = promotion
-                pr.save()
-                return redirect('productsManagement')
-            else:
-                print(form.errors)
-        else:
-            form = createProductForm()
-
-        return render(request, 'createProduct.html', {'form': form})
-    return redirect('login')
-
-
-def updateProduct(request, pk):
-    pr = Product.objects.get(id=pk)
-    if request.user.is_authenticated:
-        if request.user.is_superuser or request.user.get_username() == pr.seller:
-            if request.method == 'POST':
-                form = createProductForm(request.POST, request.FILES)
-                if form.is_valid():
-                    data = form.cleaned_data
-                    name = data['name']
-                    price = data['price']
-                    description = data['description']
-                    quantity = data['quantity']
-                    stock = True
-                    if quantity == 0:
-                        stock = False
-                    brand = data['brand']
-                    category = data['category']
-                    promotion = data['promotion']
-                    condition = data['condition']
-                    pr.name = name
-                    pr.price = price
-                    pr.description = description
-                    pr.image = request.FILES["image"]
-                    pr.quantity = quantity
-                    pr.stock = stock
-                    pr.brand = brand
-                    pr.condition = condition
-                    pr.category = category
-                    pr.promotion = promotion
-                    pr.save()
-                    return redirect('productsManagement')
-            else:
-                form = createProductForm(initial={
-                    'name': pr.name,
-                    'price': pr.price,
-                    'description': pr.description,
-                    'image': pr.image,
-                    'quantity': pr.quantity,
-                    'stock': pr.stock,
-                    'brand': pr.brand,
-                    'category': pr.category,
-                    'promotion': pr.promotion,
-                })
-        return render(request, 'updateProduct.html', {'form': form})
-    return redirect('login')
-
-
-def deleteComment(request, id):
-    comment = Comment.objects.get(id=id)
-    comment.delete()
-    return redirect('commentsManagement')
-
-
-def commentsManagement(request):
-    comments = Comment.objects.all()
-    form = {'comments': comments}
-    return render(request, 'commentsManagement.html', form)
-
-
-def deleteProduct(request, id):
-    product = Product.objects.get(id=id)
-    product.delete()
-    return redirect('productsManagement')
-
-
-def promotionsManagement(request):
-    promotions = Promotion.objects.all()
-    form = {'promotions': promotions}
-    return render(request, 'promotionsManagement.html', form)
-
-
-def createPromotion(request):
-    if not request.user.is_authenticated:
-        return redirect("login")
-
-    if request.method == "POST":
-        form = PromotionForm(request.POST)
-        if form.is_valid():
-            promotion = Promotion(name=form.cleaned_data["name"],
-                                  discount=form.cleaned_data["discount"],
-                                  description=form.cleaned_data["description"],
-                                  deadline=form.cleaned_data["deadline"],
-                                  )
-            promotion.save()
-            return redirect("promotionsManagement")
-    else:
-        form = PromotionForm()
-    return render(request, 'createPromotion.html', {"form": form})
-
-
-def updatePromotion(request, promotion_id):
-    assert isinstance(request, HttpRequest)
-    if request.method == "POST":
-        form = PromotionForm(request.POST)
-        if form.is_valid():
-            promotion = Promotion.objects.get(id=promotion_id)
-            promotion.name = form.cleaned_data["name"]
-            promotion.discount = form.cleaned_data["discount"]
-            promotion.description = form.cleaned_data["description"]
-            promotion.deadline = form.cleaned_data["deadline"]
-            promotion.save()
-            return redirect("promotionsManagement")
-    else:
-        promotion = Promotion.objects.get(id=promotion_id)
-        form = PromotionForm(initial={"name": promotion.name,
-                                      "discount": promotion.discount,
-                                      "description": promotion.description,
-                                      "deadline": promotion.deadline,
-                                      })
-    return render(request, "updatePromotion.html", {"form": form})
-
-
-def deletePromotion(request, id):
-    promotion = Promotion.objects.get(id=id)
-    promotion.delete()
-    return redirect('promotionsManagement')
-
-
-def searchProducts(request):
-    productsBrands = Product.objects.order_by('brand').values_list('brand', flat=True).distinct()
-    brands = {}
-    for pB in productsBrands:
-        brands[pB] = Product.objects.filter(brand=pB).count()
-
-    listCategoriesAndBrands = Product.objects.order_by('category').values_list('category', 'brand').distinct()
-
-    noResults = False
-    productsFilter = {}
-    for c in listCategoriesAndBrands:
-        if c[0] not in productsFilter.keys():
-            productsFilter[c[0]] = [c[1]]
-        else:
-            productsFilter[c[0]].append(c[1])
-    sellers = list(set(Product.objects.values_list('seller', flat=True)))
-    result = Product.objects.all()
-    
-    if request.method == 'POST':
-        # home search images click
-        if 'Smartphones' in request.POST:
-            result = Product.objects.filter(category="Smartphones")
-        if 'Televisions' in request.POST:
-            result = Product.objects.filter(category="Televisions")
-        if 'Drones' in request.POST:
-            result = Product.objects.filter(category="Drones")
-        if 'Computers' in request.POST:
-            result = Product.objects.filter(category="Computers")
-
-        if 'searchBar' in request.POST:
-            query = request.POST['searchBar']
-            result = Product.objects.filter(name__icontains=query)
-
-        if 'brandsCategories' in request.POST or 'categories' in request.POST or 'stockCheck' in request.POST or 'promotionCheck' in request.POST \
-                or 'usedCheck' in request.POST or 'newCheck' in request.POST or 'sellers' in request.POST:
-            brandsLstCat = request.POST.getlist('brandsCategories', [])
-            categories = request.POST.getlist('categories', [])
-            stockCheck = request.POST.getlist('stockCheck', [])
-            promotionCheck = request.POST.getlist('promotionCheck', [])
-            usedCheck = request.POST.getlist('usedCheck', [])
-            newCheck = request.POST.getlist('newCheck', [])
-            sellers_ = request.POST.getlist('sellers', [])
-
-            allProducts = Product.objects.all()
-
-            if len(brandsLstCat) != 0:
-                allProducts = allProducts.filter(brand__in = brandsLstCat)
-
-            if len(categories)!=0:
-                allProducts = allProducts.filter(category__in=categories)
-
-            if len(stockCheck)!=0:
-                allProducts = allProducts.filter(stock=True)
-            if len(promotionCheck)!=0:
-                allProducts = allProducts.exclude(promotion=None)
-            if len(usedCheck)!=0:
-                allProducts = allProducts.filter(condition='Used')
-            if len(newCheck)!=0:
-                allProducts = allProducts.filter(condition='New')
-            if len(sellers_)!=0:
-                print(sellers_)
-                allProducts = allProducts.filter(seller__in=sellers_)
-            result = allProducts
-
-
-
-
-
-        if 'minPrice' in request.POST or 'maxPrice' in request.POST:
-            print("maxPrice_")
-            minPrice = request.POST.get('minPrice', 0)
-            if minPrice == '':
-                minPrice = 0
-            maxPrice_ = request.POST.get('maxPrice', 10000000000000000000000000000000)
-            if maxPrice_ == '':
-                maxPrice_ = 10000000000000000000000
-
-
-
-
-            allProds = result.exclude(promotion = None)
-            resultSearch = [p for p in result.filter(promotion = None, price__range = [minPrice,maxPrice_])]
-            for prod in allProds:
-                actualPrice = prod.price - prod.price * prod.promotion.discount
-                if actualPrice > float(minPrice) and actualPrice < float(maxPrice_):
-                    resultSearch.append(prod)
-            result = resultSearch
-
-
-        if len(result) == 0:
-            noResults = True
-
-    paginator = Paginator(result, 9)
-
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-
-    tparams = {'productsFilter': productsFilter,
-               'totalBrands': Product.objects.values('brand').distinct().count(),
-               'totalCategories': Product.objects.values('category').distinct().count(),
-               'brands': brands,
-               'productsList': page_obj,
-               'noResults': noResults,
-               'sellers': sellers
-
-               }
-
-    return render(request, 'shop.html', tparams)
-
-
-def home(request):
-    assert isinstance(request, HttpRequest)
-    recommendedProducts = Product.objects.all()[0:3]
-    comments = Comment.objects.order_by('userEmail').distinct()
-
-
-    if request.method == "POST":
-        form = CommentForm(request.POST)
-        if form.is_valid():
-            comment = Comment(userName=form.cleaned_data["userName"],
-                              userEmail=form.cleaned_data["userEmail"],
-                              description=form.cleaned_data["description"],
-                              rating=form.cleaned_data["rating"],
-                              commentDate=datetime.now(),
-                              )
-            comment.save()
-            return redirect("home")
-    else:
-        form = CommentForm()
-    return render(request, 'index.html',
-                  {"form": form, "recommendedProducts": recommendedProducts, "comments": comments})
 
 
 def account(request):
@@ -948,18 +534,5 @@ def cart(request):
     return redirect('login')
 
 
-def soldManagement(request):
-    tparams = {}
-    if request.user.is_authenticated:
-        if request.user.is_superuser:
-            userProducts = Product.objects.filter(seller='TechOn')
-        else:
-            username = request.user.get_username()
-            userProducts = Product.objects.filter(seller=username)
-        sold = []
-        for pr in userProducts:
-            sold += Sold.objects.filter(product=pr)
-        tparams['sold'] = sold
-        return render(request, 'soldManagement.html', tparams)
-    return redirect('login')
+
 """
