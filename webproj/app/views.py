@@ -97,7 +97,7 @@ def get_product(request, id):
         product = Product.objects.get(id=id)
     except Product.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
-    serializer = ProductSerializer(product)
+    serializer = ProductSerializer(product,context={"request": request})
     return Response(serializer.data)
 
 
