@@ -43,7 +43,6 @@ def get_users(request):
     serializer = UserSerializer(users, many=True)
     return Response(serializer.data)
 
-
 @api_view(['DELETE'])
 def del_user(request, id):
     try:
@@ -52,7 +51,6 @@ def del_user(request, id):
         return Response(status=status.HTTP_404_NOT_FOUND)
     user.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 @api_view(['PUT'])
 def update_user(request, id):
@@ -65,7 +63,6 @@ def update_user(request, id):
         serializer.save()
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 @api_view(['POST'])
 def sign_up(request):
@@ -99,6 +96,7 @@ def log_in(request):
 ######################Products####################################
 @api_view(['GET'])
 def get_product(request, id):
+
     try:
         product = Product.objects.get(id=id)
     except Product.DoesNotExist:
@@ -106,15 +104,14 @@ def get_product(request, id):
     serializer = ProductSerializer(product,context={"request": request})
     return Response(serializer.data)
 
-
 @api_view(['GET'])
 def get_products(request):
     products = Product.objects.all()
     serializer = ProductSerializer(products, many=True, context={"request": request})
     return Response(serializer.data)
 
-
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def create_product(request):
     serializer = ProductSerializer(data=request.data)
     if serializer.is_valid():
@@ -122,9 +119,10 @@ def create_product(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 @api_view(['PUT'])
+@permission_classes((IsAuthenticated,))
 def update_product(request, id):
+
     try:
         product = Product.objects.get(id=id)
     except Product.DoesNotExist:
@@ -135,16 +133,16 @@ def update_product(request, id):
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 @api_view(['DELETE'])
 def del_product(request, id):
     try:
         product = Product.objects.get(id=id)
     except Product.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
-    product.delete()
-    return Response(status=status.HTTP_204_NO_CONTENT)
-
+    if product.seller == request.user or request.user.is_superuser:
+        product.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
 
 ######################Promotions####################################
 @api_view(['GET'])
@@ -153,7 +151,6 @@ def get_promotions(request):
     serializer = PromotionSerializer(promotions, many=True)
     return Response(serializer.data)
 
-
 @api_view(['POST'])
 def create_promotion(request):
     serializer = PromotionSerializer(data=request.data)
@@ -161,7 +158,6 @@ def create_promotion(request):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 @api_view(['PUT'])
 def update_promotion(request, id):
@@ -175,7 +171,6 @@ def update_promotion(request, id):
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 @api_view(['DELETE'])
 def del_promotion(request, id):
     try:
@@ -184,7 +179,6 @@ def del_promotion(request, id):
         return Response(status=status.HTTP_404_NOT_FOUND)
     promotion.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 ######################Search####################################
 @api_view(['POST'])
@@ -230,24 +224,39 @@ def search_products(request):
     if len(inStock)!=0:
         allProducts = allProducts.filter(stock = inStock)
 
-
-
-
     serializer = ProductSerializer(allProducts, many=True,context={"request": request})
     return Response(serializer.data)
 
-
-
-
 ######################Comemnts####################################
+
+@api_view(['GET'])
+def get_comments(request):
+    coms = Comment.objects.all()
+    serializer = CommentSerializer(coms, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def get_commentById(request, id):
+    coms = Comment.objects.filter(id=id)
+    if not coms:
+        return Response(status.HTTP_404_NOT_FOUND)
+    serializer = CommentSerializer(coms)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def get_commentByProductId(request, productId):
+    coms = Comment.objects.filter(product=productId)
+    serializer = CommentSerializer(coms, many=True)
+    return Response(serializer.data)
+
 @api_view(['POST'])
 def create_comment(request):
+    request.data['commentDate'] = datetime.now().date()
     serializer = CommentSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 @api_view(['DELETE'])
 def del_comment(request, id):

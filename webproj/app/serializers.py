@@ -48,7 +48,6 @@ class SoldSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    product = ProductSerializer()
 
     class Meta:
         model = Comment

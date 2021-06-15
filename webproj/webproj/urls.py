@@ -40,17 +40,20 @@ urlpatterns = [
     path('productcre', views.create_product),
     path('productup/<int:id>', views.update_product),
     path('productdel/<int:id>', views.del_product),
+    #Search
+    path('search', views.search_products),
     # Promotions
     path('promotions', views.get_promotions),
     path('promotioncre', views.create_promotion),
     path('promotionup/<int:id>', views.update_promotion),
     path('promotiondel/<int:id>', views.del_promotion),
-    #Search
-    path('search', views.search_products),
+
     #Comments
+    path('comments', views.get_comments),
+    path('comments/<int:id>', views.get_commentById),
+    path('product/<int:productId>/comment/', views.get_commentByProductId),
     path('commentcre', views.create_comment),
     path('commentdel/<int:id>', views.del_comment),
-    #Current user
 
 
 
