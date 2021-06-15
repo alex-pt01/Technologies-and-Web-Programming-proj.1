@@ -17,7 +17,7 @@ from django.core.paginator import Paginator
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authentication import TokenAuthentication
 
 from rest_framework.authentication import TokenAuthentication
@@ -38,33 +38,41 @@ from django.contrib.auth import authenticate
 
 ######################Users####################################
 @api_view(['GET'])
+@permission_classes((IsAuthenticated,))
 def get_users(request):
-    users = User.objects.all()
-    serializer = UserSerializer(users, many=True)
-    return Response(serializer.data)
+    if request.user.is_superuser:
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)
+    return Response(status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['DELETE'])
+@permission_classes((IsAuthenticated,))
 def del_user(request, id):
-    try:
-        user = User.objects.get(id=id)
-    except User.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    user.delete()
+    if request.user.id == id or request.user.is_superuser:
+        try:
+            user = User.objects.get(id=id)
+        except User.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        user.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['PUT'])
+@permission_classes((IsAuthenticated,))
 def update_user(request, id):
-    try:
-        user = User.objects.get(id=id)
-    except User.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    serializer = UserSerializer(user, data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)
+    if request.user.id == id or request.user.is_superuser:
+        try:
+            user = User.objects.get(id=id)
+        except User.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer = UserSerializer(user, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
+@permission_classes((AllowAny,))
 def sign_up(request):
     username = request.data['username']
     email = request.data['email']
@@ -74,6 +82,7 @@ def sign_up(request):
     return Response(status=status.HTTP_201_CREATED)
 
 @api_view(['POST'])
+@permission_classes((AllowAny,))
 def log_in(request):
     username = request.data['username']
     password = request.data['password']
@@ -95,6 +104,7 @@ def log_in(request):
 
 ######################Products####################################
 @api_view(['GET'])
+@permission_classes((AllowAny,))
 def get_product(request, id):
 
     try:
@@ -105,6 +115,7 @@ def get_product(request, id):
     return Response(serializer.data)
 
 @api_view(['GET'])
+@permission_classes((AllowAny,))
 def get_products(request):
     products = Product.objects.all()
     serializer = ProductSerializer(products, many=True, context={"request": request})
@@ -127,11 +138,13 @@ def update_product(request, id):
         product = Product.objects.get(id=id)
     except Product.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
-    serializer = ProductSerializer(product, data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    if request.user.username == product.seller or request.user.is_superuser:
+        serializer = ProductSerializer(product, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status = status.HTTP_401_UNAUTHORIZED)
+    return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['DELETE'])
 def del_product(request, id):
@@ -139,13 +152,14 @@ def del_product(request, id):
         product = Product.objects.get(id=id)
     except Product.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
-    if product.seller == request.user or request.user.is_superuser:
+    if product.seller == request.user.username or request.user.is_superuser:
         product.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    return Response(status=status.HTTP_400_BAD_REQUEST)
+    return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 ######################Promotions####################################
 @api_view(['GET'])
+@permission_classes((AllowAny,))
 def get_promotions(request):
     promotions = Promotion.objects.all()
     serializer = PromotionSerializer(promotions, many=True)
@@ -182,6 +196,7 @@ def del_promotion(request, id):
 
 ######################Search####################################
 @api_view(['POST'])
+@permission_classes((AllowAny,))
 def search_products(request):
     customQuery = request.data['query'] #"TV SAMSUNG"
     brands = request.data['brands'] #[brand1, brand2]
@@ -230,6 +245,7 @@ def search_products(request):
 ######################Comemnts####################################
 
 @api_view(['GET'])
+@permission_classes((AllowAny,))
 def get_comments(request):
     coms = Comment.objects.all()
     serializer = CommentSerializer(coms, many=True)
@@ -244,6 +260,7 @@ def get_commentById(request, id):
     return Response(serializer.data)
 
 @api_view(['GET'])
+@permission_classes((AllowAny,))
 def get_commentByProductId(request, productId):
     coms = Comment.objects.filter(product=productId)
     serializer = CommentSerializer(coms, many=True)
