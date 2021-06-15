@@ -28,9 +28,11 @@ from django.urls import path
 
 urlpatterns = [
     # username, password
-    path('login', views.CustomAuthToken.as_view()),
-    #username, password
+    path('login', views.log_in),
     path('signup', views.sign_up),
+    path('users', views.get_users),
+    path('userdel/<int:id>', views.del_user),
+    path('userup/<int:id>', views.update_user),
 
     # Products
     path('product/<int:id>', views.get_product),
@@ -44,16 +46,13 @@ urlpatterns = [
     path('promotionup/<int:id>', views.update_promotion),
     path('promotiondel/<int:id>', views.del_promotion),
     #Search
-    path('search/<str:cat>', views.search_products),
-    path('search/price/<int:initprice>/<int:endprice>', views.search_products_price),
+    path('search', views.search_products),
     #Comments
     path('commentcre', views.create_comment),
     path('commentdel/<int:id>', views.del_comment),
     #Current user
 
-    path('users', views.get_users),
-    path('userdel/<int:id>', views.del_user),
-    path('userup/<int:id>', views.update_user),
+
 
 
 

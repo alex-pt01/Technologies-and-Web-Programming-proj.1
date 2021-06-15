@@ -28,6 +28,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.contrib.auth import authenticate
 
 """
 @authentication_classes((TokenAuthentication, ))
@@ -68,26 +69,31 @@ def update_user(request, id):
 
 @api_view(['POST'])
 def sign_up(request):
-    print('signUP')
     username = request.data['username']
+    email = request.data['email']
     password = request.data['password']
-    user = User.objects.create(username=username, password=password)
-    user.set_password(user.password)
+    user = User.objects.create(username=username, password=password, email=email)
     user.save()
     return Response(status=status.HTTP_201_CREATED)
 
+@api_view(['POST'])
+def log_in(request):
+    username = request.data['username']
+    password = request.data['password']
+    try:
+        user = User.objects.get(username=username)
+    except UserModel.DoesNotExist:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    else:
+        if user.password == (password):
+            token, created = Token.objects.get_or_create(user=user)
+            serializer = UserSerializer(user, context={'authToken': token})
+            return Response({
+                "user": serializer.data,
+                "token": token.key
+            })
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
-class CustomAuthToken(ObtainAuthToken):
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data,
-                                           context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({
-            'username': user.username,
-            'token': token.key
-        })
 
 
 ######################Products####################################
@@ -163,7 +169,7 @@ def update_promotion(request, id):
         promotion = Promotion.objects.get(id=id)
     except Promotion.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
-    serializer = PromotionSerializer(product, data=request.data)
+    serializer = PromotionSerializer(promotion, data=request.data)
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data)
@@ -181,81 +187,56 @@ def del_promotion(request, id):
 
 
 ######################Search####################################
-@api_view(['GET'])
-def search_products(request, cat=None):
-    productsBrands = Product.objects.order_by('brand').values_list('brand', flat=True).distinct()
-    brands = {}
-    for pB in productsBrands:
-        brands[pB] = Product.objects.filter(brand=pB).count()
+@api_view(['POST'])
+def search_products(request):
+    customQuery = request.data['query'] #"TV SAMSUNG"
+    brands = request.data['brands'] #[brand1, brand2]
+    price = request.data['price']  #[0,150]
+    category = request.data['categories'] #[Cat1, Cat2]
+    sellers = request.data['sellers'] #[Seller1, Seller2]
+    condition = request.data['condition'] #New Or Used
+    inStock = request.data['inStock'] #True or False
+    inPromotion = request.data['inPromotion'] #True or False
 
-    listCategoriesAndBrands = Product.objects.order_by('category').values_list('category', 'brand').distinct()
+    allProducts = Product.objects.filter(price__range = (price[0], price[1]))
+    if len(inPromotion)!=0:
+        if inPromotion == "True":
+            allProducts = Product.objects.filter(promotion__isnull=False)
+            productsIds = []
+            for product in allProducts:
+                pr_price = product.price - product.price*product.promotion.discount
+                if price[0] <= pr_price <= price[1]:
+                    productsIds.append(product.id)
+            allProducts = allProducts.filter(id__in=productsIds)
 
-    noResults = False
-    productsFilter = {}
-    for c in listCategoriesAndBrands:
-        if c[0] not in productsFilter.keys():
-            productsFilter[c[0]] = [c[1]]
         else:
-            productsFilter[c[0]].append(c[1])
-    sellers = list(set(Product.objects.values_list('seller', flat=True)))
-    result = Product.objects.all()
+            allProducts = allProducts.filter(promotion__isnull=True)
 
-    if 'Smartphones' in cat:
-        print("SMRTP")
-        result = Product.objects.filter(category="Smartphones")
-    if 'Televisions' in cat:
-        result = Product.objects.filter(category="Televisions")
-    if 'Drones' in cat:
-        result = Product.objects.filter(category="Drones")
-    if 'Computers' in cat:
-        result = Product.objects.filter(category="Computers")
+    if len(customQuery) != 0:
+        allProducts = allProducts.filter(name__icontains = customQuery)
 
-    if 'searchBar' in cat:
-        query = request.GET['searchBar']
-        result = Product.objects.filter(name__icontains=query)
+    if len(brands)!=0:
+        allProducts = allProducts.filter(brand__iregex=r'(' + '|'.join(brands) + ')')
 
-    if 'brandsCategories' in cat or 'categories' in cat or 'stockCheck' in cat or 'promotionCheck' in cat \
-            or 'usedCheck' in cat or 'newCheck' in cat or 'sellers' in cat:
-        brandsLstCat = request.GET.getlist('brandsCategories', [])
-        categories = request.GET.getlist('categories', [])
-        stockCheck = request.GET.getlist('stockCheck', [])
-        promotionCheck = request.GET.getlist('promotionCheck', [])
-        usedCheck = request.GET.getlist('usedCheck', [])
-        newCheck = request.GET.getlist('newCheck', [])
-        sellers_ = request.GET.getlist('sellers', [])
+    if len(category)!=0:
+        allProducts = allProducts.filter(category__iregex=r'(' + '|'.join(category) + ')')
 
-        allProducts = Product.objects.all()
+    if len(sellers)!=0:
+        allProducts = allProducts.filter(seller__iregex=r'(' + '|'.join(sellers) + ')')
 
-        if len(brandsLstCat) != 0:
-            allProducts = allProducts.filter(brand__in=brandsLstCat)
+    if len(condition)!= 0:
+        allProducts = allProducts.filter(condition=condition)
 
-        if len(categories) != 0:
-            allProducts = allProducts.filter(category__in=categories)
+    if len(inStock)!=0:
+        allProducts = allProducts.filter(stock = inStock)
 
-        if len(stockCheck) != 0:
-            allProducts = allProducts.filter(stock=True)
-        if len(promotionCheck) != 0:
-            allProducts = allProducts.exclude(promotion=None)
-        if len(usedCheck) != 0:
-            allProducts = allProducts.filter(condition='Used')
-        if len(newCheck) != 0:
-            allProducts = allProducts.filter(condition='New')
-        if len(sellers_) != 0:
-            print(sellers_)
-            allProducts = allProducts.filter(seller__in=sellers_)
-        result = allProducts
-    serializer = ProductSerializer(result, many=True)
+
+
+
+    serializer = ProductSerializer(allProducts, many=True,context={"request": request})
     return Response(serializer.data)
 
 
-@api_view(['GET'])
-def search_products_price(request, initprice=None, endprice=None):
-    try:
-        resultS = [p for p in Product.objects.filter(promotion=None, price__range=[initprice, endprice])]
-        serializer = ProductSerializer(resultS, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    except Product.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 ######################Comemnts####################################

@@ -6,9 +6,12 @@ from django.contrib.auth.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
+
+
+
     class Meta:
         model = User
-        fields = ('id', 'username', 'email')
+        fields = ('id', 'username', 'email', 'is_superuser','date_joined', 'first_name','last_name')
         
 
 
@@ -17,28 +20,6 @@ class PromotionSerializer(serializers.ModelSerializer):
         model = Promotion
         fields = ('id', 'name', 'discount', 'description', 'deadline')
 
-class Base64ImageField(serializers.ImageField):
-
-    def to_internal_value(self, data):
-        if isinstance(data, six.string_types):
-            if 'data:' in data and ';base64,' in data:
-                header, data = data.split(';base64,')
-            else:
-                raise serializers.ValidationError()
-
-            try:
-                decoded_file = base64.b64decode(data)
-            except TypeError:
-                raise serializers.ValidationError()
-
-            file_name = str(uuid.uuid4())[:12]  # 12 characters are more than enough.
-            file_extension = imghdr.what(file_name, decoded_file)
-            file_extension = "jpg" if file_extension == "jpeg" else file_extension
-            complete_file_name = "%s.%s" % (file_name, file_extension,)
-
-            data = ContentFile(decoded_file, name=complete_file_name)
-
-        return super(Base64ImageField, self).to_internal_value(data)
 
 
 class ProductSerializer(serializers.ModelSerializer):
