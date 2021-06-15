@@ -38,6 +38,19 @@ from django.contrib.auth import authenticate
 
 ######################Users####################################
 @api_view(['GET'])
+@permission_classes((AllowAny,))
+def get_account_byUsername(request, username):
+    user = User.objects.filter(username = username)
+    if user:
+        serializer = UserSerializer(user, many=True, context={"request": request})
+        return Response(serializer.data)
+
+    else:
+        return Response(status.HTTP_404_NOT_FOUND)
+
+
+
+@api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def get_users(request):
     if request.user.is_superuser:
@@ -286,15 +299,29 @@ def del_comment(request, id):
 
 
 @api_view(['GET'])
-def sold_products(request):
-    sold_products = Sold.objects.all()
-    serializer = SoldSerializer(sold_products, many=True)
+@permission_classes((AllowAny,))
+def get_soldProducts_byUsername(request, username):
+    solds = Sold.objects.filter(buyer=username)
+    if solds:
+        serializer = SoldSerializer(solds, many=True, context={"request": request})
+    else:
+        return Response(status.HTTP_404_NOT_FOUND)
+
     return Response(serializer.data)
 
 
+@api_view(['GET'])
+@permission_classes((AllowAny,))
+def get_boughtProducts_byUsername(request, username):
+    products = Product.objects.filter(seller = username)
 
+    if products:
+        serializer = ProductSerializer(products, many=True, context={"request": request})
 
+        return Response(serializer.data)
 
+    else:
+        return Response(status.HTTP_404_NOT_FOUND)
 
 
 
@@ -304,6 +331,26 @@ def sold_products(request):
 
 
 """
+def addToCart(request, id):
+    if request.user.is_authenticated:
+        if request.user.id in carts:
+            products = [p for p in carts[request.user.id] if str(p[0]) != id]
+            curProduct = [p for p in carts[request.user.id] if p not in products]
+            if curProduct:
+                prod = curProduct[0]
+                prod = [id, prod[1] + 1]
+                products.append(prod)
+                carts[request.user.id] = products
+            else:
+                carts[request.user.id].append([id, 1])
+        else:
+            carts[request.user.id] = [[id, 1]]
+
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return redirect('login')
+    
+    
+    
 @api_view(['GET'])
 @authentication_classes((TokenAuthentication, ))
 @permission_classes((IsAuthenticated, ))
@@ -483,23 +530,7 @@ def getShoppingCart(request):
     return tparams
 
 
-def addToCart(request, id):
-    if request.user.is_authenticated:
-        if request.user.id in carts:
-            products = [p for p in carts[request.user.id] if str(p[0]) != id]
-            curProduct = [p for p in carts[request.user.id] if p not in products]
-            if curProduct:
-                prod = curProduct[0]
-                prod = [id, prod[1] + 1]
-                products.append(prod)
-                carts[request.user.id] = products
-            else:
-                carts[request.user.id].append([id, 1])
-        else:
-            carts[request.user.id] = [[id, 1]]
 
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-    return redirect('login')
 
 
 def removeFromCart(request, id):

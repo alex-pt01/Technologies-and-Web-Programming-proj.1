@@ -31,6 +31,7 @@ urlpatterns = [
     path('login', views.log_in),
     path('signup', views.sign_up),
     path('users', views.get_users),
+    path('account/<str:username>', views.get_account_byUsername),
     path('userdel/<int:id>', views.del_user),
     path('userup/<int:id>', views.update_user),
 
@@ -40,8 +41,10 @@ urlpatterns = [
     path('productcre', views.create_product),
     path('productup/<int:id>', views.update_product),
     path('productdel/<int:id>', views.del_product),
+    
     #Search
     path('search', views.search_products),
+    
     # Promotions
     path('promotions', views.get_promotions),
     path('promotioncre', views.create_promotion),
@@ -54,12 +57,14 @@ urlpatterns = [
     path('product/<int:productId>/comment/', views.get_commentByProductId),
     path('commentcre', views.create_comment),
     path('commentdel/<int:id>', views.del_comment),
+    #Sold
+    path('products/seller/<str:username>', views.get_soldProducts_byUsername),
+    path('products/buyer/<str:username>', views.get_boughtProducts_byUsername),
 
 
 
 
-
-    path('products/sold', views.sold_products),
+    #path('products/sold', views.sold_products),
     path('admin/', admin.site.urls),
 
 ]
@@ -68,13 +73,12 @@ if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL,
                           document_root=settings.MEDIA_ROOT)
     """
-    path('account/', views.account, name='account'),
-    #########
-    
     path('addToCart/<str:id>', views.addToCart, name='addToCart'),
     path('removeFromCart/<str:id>', views.removeFromCart, name='removeFromCart'),
     path('increaseQuantity/<str:id>', views.increaseQuantity, name='increaseQuantity'),
     path('decreaseQuantity/<str:id>', views.decreaseQuantity, name='decreaseQuantity'),
+    
+    
     path('checkout/', views.checkout, name='checkout'),
     path('cart/', views.cart, name='cart')
     """
