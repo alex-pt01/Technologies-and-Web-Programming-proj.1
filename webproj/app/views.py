@@ -211,7 +211,7 @@ def del_promotion(request, id):
 @api_view(['POST'])
 @permission_classes((AllowAny,))
 def search_products(request):
-    customQuery = request.data['query'].lstrip() #"TV SAMSUNG"
+    customQuery = request.data['query'].replace("All","") #"TV SAMSUNG"
     brand = request.data['brand'].replace("All","") #"brand1"
     price = request.data['price']  #[0,150]
     category = request.data['category'].replace("All","") #"Cat1"
