@@ -212,13 +212,13 @@ def del_promotion(request, id):
 @permission_classes((AllowAny,))
 def search_products(request):
     customQuery = request.data['query'].lstrip() #"TV SAMSUNG"
-    brand = request.data['brand'].lstrip() #"brand1"
+    brand = request.data['brand'].replace("All","") #"brand1"
     price = request.data['price']  #[0,150]
-    category = request.data['category'].lstrip() #"Cat1"
-    seller = request.data['seller'].lstrip() #"Seller1"
-    condition = request.data['condition'].lstrip() #New Or Used
-    inStock = request.data['inStock'].lstrip() #True or False
-    inPromotion = request.data['inPromotion'].lstrip() #True or False
+    category = request.data['category'].replace("All","") #"Cat1"
+    seller = request.data['seller'].replace("All","") #"Seller1"
+    condition = request.data['condition'].replace("All","") #New Or Used
+    inStock = request.data['inStock'].replace("All","") #True or False
+    inPromotion = request.data['inPromotion'].replace("All","") #True or False
 
     allProducts = Product.objects.filter(price__range = (price[0], price[1]))
     if len(inPromotion)!=0:
