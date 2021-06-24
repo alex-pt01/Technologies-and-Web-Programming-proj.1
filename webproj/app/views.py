@@ -211,14 +211,14 @@ def del_promotion(request, id):
 @api_view(['POST'])
 @permission_classes((AllowAny,))
 def search_products(request):
-    customQuery = request.data['query'] #"TV SAMSUNG"
-    brands = request.data['brands'] #[brand1, brand2]
+    customQuery = request.data['query'].lstrip() #"TV SAMSUNG"
+    brand = request.data['brand'].lstrip() #"brand1"
     price = request.data['price']  #[0,150]
-    category = request.data['categories'] #[Cat1, Cat2]
-    sellers = request.data['sellers'] #[Seller1, Seller2]
-    condition = request.data['condition'] #New Or Used
-    inStock = request.data['inStock'] #True or False
-    inPromotion = request.data['inPromotion'] #True or False
+    category = request.data['category'].lstrip() #"Cat1"
+    seller = request.data['seller'].lstrip() #"Seller1"
+    condition = request.data['condition'].lstrip() #New Or Used
+    inStock = request.data['inStock'].lstrip() #True or False
+    inPromotion = request.data['inPromotion'].lstrip() #True or False
 
     allProducts = Product.objects.filter(price__range = (price[0], price[1]))
     if len(inPromotion)!=0:
@@ -237,14 +237,14 @@ def search_products(request):
     if len(customQuery) != 0:
         allProducts = allProducts.filter(name__icontains = customQuery)
 
-    if len(brands)!=0:
-        allProducts = allProducts.filter(brand__iregex=r'(' + '|'.join(brands) + ')')
+    if len(brand)!=0:
+        allProducts = allProducts.filter(brand__icontains=brand)
 
     if len(category)!=0:
-        allProducts = allProducts.filter(category__iregex=r'(' + '|'.join(category) + ')')
+        allProducts = allProducts.filter(category__icontains=category)
 
-    if len(sellers)!=0:
-        allProducts = allProducts.filter(seller__iregex=r'(' + '|'.join(sellers) + ')')
+    if len(seller)!=0:
+        allProducts = allProducts.filter(seller__icontains=seller)
 
     if len(condition)!= 0:
         allProducts = allProducts.filter(condition=condition)
