@@ -1,5 +1,6 @@
 from datetime import datetime
 from pyclbr import Class
+from django.contrib import auth
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -100,18 +101,16 @@ def log_in(request):
     username = request.data['username']
     password = request.data['password']
     try:
-        user = User.objects.filter(username=username)
+        user = auth.authenticate(username=username, password=password)
+        token, created = Token.objects.get_or_create(user=user)
+        serializer = UserSerializer(user, context={'authToken': token})
+        return Response({
+            "user": serializer.data,
+            "token": token.key
+        })
     except UserModel.DoesNotExist:
         return Response(status=status.HTTP_400_BAD_REQUEST)
-    else:
-        if user.password == (password):
-            token, created = Token.objects.get_or_create(user=user)
-            serializer = UserSerializer(user, context={'authToken': token})
-            return Response({
-                "user": serializer.data,
-                "token": token.key
-            })
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+
 
 
 
