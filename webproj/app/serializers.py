@@ -6,12 +6,13 @@ from django.contrib.auth.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
-
-
+    token = serializers.SerializerMethodField('get_token')
+    def get_token(self, obj):
+        return self.context.get("token")
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'is_superuser','date_joined', 'first_name','last_name')
+        fields = ('id', 'username', 'email', 'is_superuser','date_joined', 'first_name','last_name', 'token')
         
 
 
