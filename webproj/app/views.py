@@ -103,11 +103,9 @@ def log_in(request):
     try:
         user = auth.authenticate(username=username, password=password)
         token, created = Token.objects.get_or_create(user=user)
-        serializer = UserSerializer(user)
-        return Response({
-            "user": serializer.data,
-            "token": token.key,
-        })
+
+        serializer = UserSerializer(user, context={'token':str(token)})
+        return Response(serializer.data)
     except UserModel.DoesNotExist:
         return Response(status=status.HTTP_400_BAD_REQUEST)
 

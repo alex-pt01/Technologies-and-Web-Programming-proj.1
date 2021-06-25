@@ -43,7 +43,6 @@ class Product(models.Model):
     date = models.DateTimeField(default=datetime.now)
     conditions = (('New', 'New'), ('Used', 'Used'))
     condition = models.CharField(choices=conditions, default='New', null=True, max_length=15)
-
     seller = models.CharField(default='TechOn',  max_length=150)
     def __str__(self):
         return self.name
