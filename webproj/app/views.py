@@ -100,7 +100,7 @@ def log_in(request):
     username = request.data['username']
     password = request.data['password']
     try:
-        user = User.objects.get(username=username)
+        user = User.objects.filter(username=username)
     except UserModel.DoesNotExist:
         return Response(status=status.HTTP_400_BAD_REQUEST)
     else:
