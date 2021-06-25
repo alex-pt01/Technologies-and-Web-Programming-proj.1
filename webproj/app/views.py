@@ -51,13 +51,13 @@ def get_account_byUsername(request, username):
 
 
 @api_view(['GET'])
-@permission_classes((IsAuthenticated,))
+@permission_classes(())
 def get_users(request):
-    if request.user.is_superuser:
-        users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
-        return Response(serializer.data)
-    return Response(status.HTTP_401_UNAUTHORIZED)
+    #if request.user.is_superuser:
+    users = User.objects.all()
+    serializer = UserSerializer(users, many=True)
+    return Response(serializer.data)
+    #return Response(status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['DELETE'])
 @permission_classes((IsAuthenticated,))
