@@ -100,7 +100,7 @@ class Payment(models.Model):
 
 class ShoppingCartItem(models.Model):
     quantity = models.IntegerField(default=1)
-    cart_id = models.CharField(null=False, max_length=150)
+    cart_id = models.CharField(null=True, max_length=150)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)

@@ -34,6 +34,7 @@ urlpatterns = [
     path('account/<str:username>', views.get_account_byUsername),
     path('userdel/<int:id>', views.del_user),
     path('userup/<int:id>', views.update_user),
+    path('user/credits', views.getCredits),
 
     # Products
     path('product/<int:id>', views.get_product),
@@ -58,9 +59,14 @@ urlpatterns = [
     path('commentcre', views.create_comment),
     path('commentdel/<int:id>', views.del_comment),
     #Sold
-    path('products/seller/<str:username>', views.get_soldProducts_byUsername),
-    path('products/buyer/<str:username>', views.get_boughtProducts_byUsername),
+    path('sold/seller/<str:username>', views.getSoldProductsBySeller),
+    path('sold/buyer/<str:username>', views.getSoldProductsByBuyer),
 
+    #Cart
+    path('cart', views.getCart),
+    path('cart/total', views.getCartTotal),
+    path('addToCart', views.setInCart),
+    path('pay', views.checkout),
 
 
 

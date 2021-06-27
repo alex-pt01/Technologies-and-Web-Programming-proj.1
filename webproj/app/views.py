@@ -1,9 +1,12 @@
 from datetime import datetime
 from pyclbr import Class
 from django.contrib import auth
+from django.contrib.auth.views import UserModel
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.utils import json
+
 from app.serializers import *
 from django.contrib import messages
 from django.contrib.auth import authenticate, login as loginUser, logout as logoutUser
@@ -35,6 +38,8 @@ from django.contrib.auth import authenticate
 @authentication_classes((TokenAuthentication, ))
 @permission_classes((IsAuthenticated, ))
 """
+
+CART_INVENTORY = {}
 
 
 ######################Users####################################
@@ -104,12 +109,35 @@ def log_in(request):
         user = auth.authenticate(username=username, password=password)
         token, created = Token.objects.get_or_create(user=user)
 
-        serializer = UserSerializer(user, context={'token':str(token)})
+        serializer = UserSerializer(user, context={'token': str(token)})
         return Response(serializer.data)
     except UserModel.DoesNotExist:
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def getCredits(request):
+    if request.user.is_superuser:
+        userProducts = Product.objects.filter(seller='TechOn')
+        buyer = 'TechOn'
+    else:
+        username = request.user.get_username()
+        userProducts = Product.objects.filter(seller=username)
+        buyer = username
 
+    credits = 0
+    for pr in userProducts:
+        sold = Sold.objects.filter(product=pr)
+        for s in sold:
+            credits += s.total
+
+    payments = Payment.objects.filter(username=buyer)
+
+    creditDiscount = 0
+    for p in payments:
+        creditDiscount += p.usedCredits
+
+    return Response(round(credits - creditDiscount, 2))
 
 
 ######################Products####################################
@@ -157,6 +185,7 @@ def update_product(request, id):
     return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['DELETE'])
+@permission_classes((IsAuthenticated,))
 def del_product(request, id):
     try:
         product = Product.objects.get(id=id)
@@ -176,33 +205,38 @@ def get_promotions(request):
     return Response(serializer.data)
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def create_promotion(request):
     serializer = PromotionSerializer(data=request.data)
-    if serializer.is_valid():
+    if serializer.is_valid() and request.user.is_superuser:
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['PUT'])
+@permission_classes((IsAuthenticated,))
 def update_promotion(request, id):
     try:
         promotion = Promotion.objects.get(id=id)
     except Promotion.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     serializer = PromotionSerializer(promotion, data=request.data)
-    if serializer.is_valid():
+    if serializer.is_valid() and request.user.is_superuser:
         serializer.save()
         return Response(serializer.data)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['DELETE'])
+@permission_classes((IsAuthenticated,))
 def del_promotion(request, id):
     try:
         promotion = Promotion.objects.get(id=id)
     except Promotion.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
-    promotion.delete()
-    return Response(status=status.HTTP_204_NO_CONTENT)
+    if request.user.is_superuser:
+        promotion.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    return Response(status = status.HTTP_401_UNAUTHORIZED)
 
 ######################Search####################################
 @api_view(['POST'])
@@ -277,6 +311,7 @@ def get_commentByProductId(request, productId):
     return Response(serializer.data)
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def create_comment(request):
     request.data['commentDate'] = datetime.now().date()
     serializer = CommentSerializer(data=request.data)
@@ -286,43 +321,89 @@ def create_comment(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['DELETE'])
+@permission_classes((IsAuthenticated,))
 def del_comment(request, id):
     try:
         comment = Comment.objects.get(id=id)
     except Product.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
-    comment.delete()
-    return Response(status=status.HTTP_204_NO_CONTENT)
+    if request.user.is_superuser or request.user.username == comment.userName:
+        comment.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    return Response(status=status.HTTP_401_UNAUTHORIZED)
+
 
 
 @api_view(['GET'])
 @permission_classes((AllowAny,))
-def get_soldProducts_byUsername(request, username):
-    solds = Sold.objects.filter(buyer=username)
-    if solds:
-        serializer = SoldSerializer(solds, many=True, context={"request": request})
+def getSoldProductsByBuyer(request, username):
+    sold = Sold.objects.filter(buyer=username)
+    if sold:
+        serializer = SoldSerializer(sold, many=True, context={"request": request})
     else:
         return Response(status.HTTP_404_NOT_FOUND)
 
     return Response(serializer.data)
 
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def getSoldProductsBySeller(request, username):
+    if request.user.username == username or request.user.is_superuser:
+        sold = Sold.objects.filter(seller = username)
+        if sold:
+            serializer = SoldSerializer(sold, many=True, context={"request": request})
+            return Response(serializer.data)
+        return Response(status.HTTP_204_NO_CONTENT)
+    return Response(status.HTTP_401_UNAUTHORIZED)
+
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+def setInCart(request):
+    product = request.data['product']
+    quantity = request.data['quantity']
+    if request.user.id in CART_INVENTORY:
+        if product in CART_INVENTORY[request.user.id] and quantity == 0:
+            CART_INVENTORY.pop(product)
+        else:
+            CART_INVENTORY[request.user.id][product] = quantity
+    else:
+        CART_INVENTORY[request.user.id] = {product: quantity}
+    return Response(status.HTTP_200_OK)
 
 @api_view(['GET'])
-@permission_classes((AllowAny,))
-def get_boughtProducts_byUsername(request, username):
-    products = Product.objects.filter(seller = username)
+@permission_classes((IsAuthenticated,))
+def getCart(request):
+    if request.user.id in CART_INVENTORY:
+        return Response(json.dumps(CART_INVENTORY[request.user.id]))
+    return Response(status.HTTP_404_NOT_FOUND)
 
-    if products:
-        serializer = ProductSerializer(products, many=True, context={"request": request})
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+def checkout(request):
+    if request.user.id in CART_INVENTORY:
+        address = request.data['address']
+        total = request.data['total']
+        usedCredits = request.data['credits']
+        cardNo= request.data['cardNo']
+        typeOfCard= request.data['typeOfCard']
 
-        return Response(serializer.data)
-
-    else:
-        return Response(status.HTTP_404_NOT_FOUND)
-
-
-
-
+        currentCart = ShoppingCart(user_id=request.user.id)
+        currentCart.save()
+        for pId, qtt in CART_INVENTORY[request.user.id]:
+            p = Product.objects.get(id= pId)
+            item = ShoppingCartItem(product=p, quantity=qtt, cart_id=currentCart.id)
+            item.save()
+        try:
+            pm = PaymentMethod.objects.get(card_no= cardNo)
+        except PaymentMethod.DoesNotExist:
+            pm = PaymentMethod(card_no=cardNo, type=typeOfCard)
+            pm.save()
+        payment = Payment(address=address, total=total, usedCredits=usedCredits, method= pm, shopping_cart=currentCart, username=request.user.username )
+        payment.save()
+        CART_INVENTORY[request.user.id] = {}
+        return Response(status.HTTP_200_OK)
+    return Response(status.HTTP_404_NOT_FOUND)
 
 
 
