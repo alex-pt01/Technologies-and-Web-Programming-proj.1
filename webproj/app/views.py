@@ -57,6 +57,17 @@ def get_account_byUsername(request, username):
 
 
 @api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def getMyDetails(request):
+    user = User.objects.get(id = request.user.id)
+    if user:
+        serializer = UserSerializer(user, context={"request": request})
+        return Response(serializer.data)
+    else:
+        return Response(status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET'])
 @permission_classes(())
 def get_users(request):
     #if request.user.is_superuser:

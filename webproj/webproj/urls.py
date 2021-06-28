@@ -30,6 +30,7 @@ urlpatterns = [
     # username, password
     path('login', views.log_in),
     path('signup', views.sign_up),
+    path('profile', views.getMyDetails),
     path('users', views.get_users),
     path('account/<str:username>', views.get_account_byUsername),
     path('userdel/<int:id>', views.del_user),
