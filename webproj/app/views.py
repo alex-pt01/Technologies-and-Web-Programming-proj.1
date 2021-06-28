@@ -363,19 +363,38 @@ def setInCart(request):
     product = request.data['product']
     quantity = request.data['quantity']
     if request.user.id in CART_INVENTORY:
-        if product in CART_INVENTORY[request.user.id] and quantity == 0:
-            CART_INVENTORY.pop(product)
+        if quantity == "0":
+            CART_INVENTORY[request.user.id].pop(product)
         else:
             CART_INVENTORY[request.user.id][product] = quantity
     else:
         CART_INVENTORY[request.user.id] = {product: quantity}
-    return Response(status.HTTP_200_OK)
+    return Response(request.data, status.HTTP_200_OK)
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def getCart(request):
     if request.user.id in CART_INVENTORY:
-        return Response(json.dumps(CART_INVENTORY[request.user.id]))
+        return Response((CART_INVENTORY[request.user.id]), status.HTTP_200_OK)
+    return Response((CART_INVENTORY),status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def getCartTotal(request):
+    if request.user.id in CART_INVENTORY:
+        total = 0
+        for item in CART_INVENTORY[request.user.id]:
+
+            try:
+                product = Product.objects.get(id=int(item))
+            except Product.DoesNotExist:
+                return Response(int(item),status.HTTP_404_NOT_FOUND)
+            quantity = int(CART_INVENTORY[request.user.id][item])
+            if product.promotion:
+                total+=product.promotionPrice()*quantity
+            else:
+                total+=product.price*quantity
+        return Response(total)
     return Response(status.HTTP_404_NOT_FOUND)
 
 @api_view(['POST'])
@@ -426,9 +445,9 @@ def addToCart(request, id):
 
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     return redirect('login')
-    
-    
-    
+
+
+
 @api_view(['GET'])
 @authentication_classes((TokenAuthentication, ))
 @permission_classes((IsAuthenticated, ))
