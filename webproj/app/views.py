@@ -367,6 +367,14 @@ def getSoldProductsBySeller(request, username):
         return Response(status.HTTP_204_NO_CONTENT)
     return Response(status.HTTP_401_UNAUTHORIZED)
 
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def getShoppingCartItemsByCart(request, id):
+    sci = ShoppingCartItem.objects.filter(cart_id = int(id))
+    if sci:
+        serializer = ShoppingCartItemSerializer(sci, many=True, context={"request": request})
+        return Response(serializer.data)
+    return Response(status.HTTP_204_NO_CONTENT)
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
@@ -421,9 +429,23 @@ def checkout(request):
         currentCart.save()
         for pId in CART_INVENTORY[request.user.id]:
             p = Product.objects.get(id= int(pId))
-            qtt = CART_INVENTORY[request.user.id][pId]
+            qtt = int(CART_INVENTORY[request.user.id][pId])
             item = ShoppingCartItem(product=p, quantity=qtt, cart_id=currentCart.id)
             item.save()
+            s = Sold()
+            s.product = p
+            s.total = round(s.product.price * qtt, 2)
+            if p.promotion:
+                s.total -= round(p.total * p.promotion.discount, 2)
+            s.promotion = p.promotion
+            s.quantity = qtt
+            s.buyer = request.user.username
+            s.save()
+
+            if p.quantity == 0:
+                p.stock = False
+            p.save()
+
         try:
             pm = PaymentMethod.objects.get(card_no= cardNo)
         except PaymentMethod.DoesNotExist:
@@ -435,7 +457,16 @@ def checkout(request):
         return Response(status.HTTP_200_OK)
     return Response(status.HTTP_404_NOT_FOUND)
 
-
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def getBoughShoppingCarts(request, username):
+    if request.user.username == username or request.user.is_superuser:
+        shopping_carts = Payment.objects.filter(username = username)
+        if shopping_carts:
+            serializer = PaymentSerializer(shopping_carts, many=True, context={"request": request})
+            return Response(serializer.data)
+        return Response(status.HTTP_204_NO_CONTENT)
+    return Response(status.HTTP_401_UNAUTHORIZED)
 
 
 """

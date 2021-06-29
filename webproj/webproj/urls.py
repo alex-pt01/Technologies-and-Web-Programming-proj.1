@@ -62,6 +62,8 @@ urlpatterns = [
     #Sold
     path('sold/seller/<str:username>', views.getSoldProductsBySeller),
     path('sold/buyer/<str:username>', views.getSoldProductsByBuyer),
+    path('shoppingcarts/<str:username>', views.getBoughShoppingCarts),
+    path('shoppingcarts/<str:id>/items/', views.getShoppingCartItemsByCart),
 
     #Cart
     path('cart', views.getCart),
