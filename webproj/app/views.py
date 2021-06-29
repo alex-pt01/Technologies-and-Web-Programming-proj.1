@@ -405,8 +405,7 @@ def getCartTotal(request):
                 total+=product.promotionPrice()*quantity
             else:
                 total+=product.price*quantity
-        return Response(total)
-    return Response(status.HTTP_404_NOT_FOUND)
+    return Response(total)
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
@@ -420,8 +419,9 @@ def checkout(request):
 
         currentCart = ShoppingCart(user_id=request.user.id)
         currentCart.save()
-        for pId, qtt in CART_INVENTORY[request.user.id]:
-            p = Product.objects.get(id= pId)
+        for pId in CART_INVENTORY[request.user.id]:
+            p = Product.objects.get(id= int(pId))
+            qtt = CART_INVENTORY[request.user.id][pId]
             item = ShoppingCartItem(product=p, quantity=qtt, cart_id=currentCart.id)
             item.save()
         try:
