@@ -95,7 +95,12 @@ def update_user(request, id):
             user = User.objects.get(id=id)
         except User.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        serializer = UserSerializer(user, data=request.data)
+        user.set_password(request.data['password'])
+        user.save()
+        t = Token.objects.filter(user=user)
+        new_key = t[0].generate_key()
+
+        serializer = UserSerializer(user, data=request.data, context={'token': str(t[0])})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -120,7 +125,9 @@ def log_in(request):
         user = auth.authenticate(username=username, password=password)
         token, created = Token.objects.get_or_create(user=user)
 
+
         serializer = UserSerializer(user, context={'token': str(token)})
+
         return Response(serializer.data)
     except UserModel.DoesNotExist:
         return Response(status=status.HTTP_400_BAD_REQUEST)
