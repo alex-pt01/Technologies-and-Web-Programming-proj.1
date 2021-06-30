@@ -33,7 +33,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
-
+from django.core.files.base import ContentFile
+import random
 """
 @authentication_classes((TokenAuthentication, ))
 @permission_classes((IsAuthenticated, ))
@@ -180,26 +181,76 @@ def get_products(request):
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def create_product(request):
-    serializer = ProductSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    seller = request.data['seller']
+    name = request.data['name']
+    description = request.data['description']
+    price = request.data['price']
+    quantity = request.data['quantity']
+    stock = (request.data['stock'])
+    brand = request.data['brand']
+    category = request.data['category']
+    condition = request.data['condition']
+
+
+    product = Product(seller=seller, name=name, description=description, price=price
+                      , quantity=quantity, stock=stock, brand=brand, category=category, condition=condition)
+
+    promotion = Promotion.objects.get(id=request.data['promotion'])
+    product.promotion=promotion
+
+    image_data = request.data['image']
+    format, imgstr = image_data.split(';base64,')
+
+    ext = format.split('/')[-1]
+
+    data = ContentFile(base64.b64decode(imgstr))
+    file_name = request.data["name"] + ext
+
+    product.image.save(file_name, data, save=True)
+    product.save()
+    return Response(ProductSerializer(product,context={"request": request}).data, status=status.HTTP_201_CREATED)
+
 
 @api_view(['PUT'])
 @permission_classes((IsAuthenticated,))
 def update_product(request, id):
-
     try:
-        product = Product.objects.get(id=id)
+        product = Product.objects.get(id=int(id))
     except Product.DoesNotExist:
+
         return Response(status=status.HTTP_404_NOT_FOUND)
+
     if request.user.username == product.seller or request.user.is_superuser:
-        serializer = ProductSerializer(product, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status = status.HTTP_401_UNAUTHORIZED)
+        product.seller = request.data['seller']
+        product.name = request.data['name']
+        product.description = request.data['description']
+        product.price = request.data['price']
+
+        product.quantity = request.data['quantity']
+        product.stock = (request.data['stock'])
+        product.brand = request.data['brand']
+        product.category = request.data['category']
+        product.condition = request.data['condition']
+
+        image_data = request.data['image']
+        format, imgstr = image_data.split(';base64,')
+        try:
+            promotion = Promotion.objects.get(id=request.data['promotion'])
+            product.promotion = promotion
+        except:
+            pass
+        ext = format.split('/')[-1]
+
+        data = ContentFile(base64.b64decode(imgstr))
+        file_name = request.data["name"]+str(random.randint(0,90000000)) + ext
+
+        product.image.save(file_name, data, save=True)
+
+
+
+        product.save()
+
+        return Response(ProductSerializer(product).data, status=status.HTTP_201_CREATED)
     return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['DELETE'])

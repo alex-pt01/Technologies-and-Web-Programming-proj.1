@@ -1,6 +1,6 @@
 from app.models import *
 from rest_framework import serializers
-
+import base64
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 
@@ -13,7 +13,8 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'is_superuser','date_joined', 'token')
-        
+
+
 
 
 class PromotionSerializer(serializers.ModelSerializer):
@@ -25,17 +26,22 @@ class PromotionSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     promotion = PromotionSerializer()
-    image = serializers.SerializerMethodField('get_image_url')
-    conditions = ['New', 'Used']
 
     def get_image_url(self, obj):
         request = self.context.get("request")
         return request.build_absolute_uri(obj.image.url)
 
+    def get(self):
+        image = serializers.SerializerMethodField('get_image_url')
+        conditions = ['New', 'Used']
+
     class Meta:
         model = Product
         fields = ('id', 'name', 'price','seller', 'description', 'quantity', 'stock', 'brand', 'category', 'promotion', 'date',
                   'conditions', 'condition', 'image')
+
+
+
 
 
 
