@@ -276,11 +276,14 @@ def get_promotions(request):
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def create_promotion(request):
-    serializer = PromotionSerializer(data=request.data)
-    if serializer.is_valid() and request.user.is_superuser:
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    name = request.data['name']
+    discount = request.data['discount']
+    deadline = request.data['deadline']
+    description = request.data['description']
+    promotion = Promotion(name=name, name=name, discount=discount, description=description,deadline=deadline )
+    promotion.save()
+    return Response(PromotionSerializer(promotion,context={"request": request}).data, status=status.HTTP_201_CREATED)
+
 
 @api_view(['PUT'])
 @permission_classes((IsAuthenticated,))
@@ -382,6 +385,20 @@ def get_commentByProductId(request, productId):
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def create_comment(request):
+    userName = request.data['userName']
+    userEmail = request.data['userEmail']
+    description = request.data['description']
+    rating = request.data['rating']
+    commentDate = request.data['commentDate']
+    product = request.data['product']
+
+    comment = Comment(userName=userName, userEmail=userEmail, description=description, rating=rating, commentDate=commentDate,product=product )
+ 
+    comment.save()
+    return Response(CommentSerializer(comment,context={"request": request}).data, status=status.HTTP_201_CREATED)
+
+
+    
     request.data['commentDate'] = datetime.now().date()
     serializer = CommentSerializer(data=request.data)
     if serializer.is_valid():
