@@ -123,11 +123,12 @@ def log_in(request):
     username = request.data['username']
     password = request.data['password']
     try:
-        user = auth.authenticate(username=username, password=password)
-        token, created = Token.objects.get_or_create(user=user)
+        auth.authenticate(username=username, password=password)
+        user = User.objects.get(username=username)
+        t = Token.objects.filter(user=user)
 
 
-        serializer = UserSerializer(user, context={'token': str(token)})
+        serializer = UserSerializer(user, context={'token': str(t[0])})
 
         return Response(serializer.data)
     except UserModel.DoesNotExist:
@@ -379,15 +380,23 @@ def get_commentByProductId(request, productId):
     serializer = CommentSerializer(coms, many=True)
     return Response(serializer.data)
 
+
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def create_comment(request):
-    request.data['commentDate'] = datetime.now().date()
-    serializer = CommentSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    userName = request.data['userName']
+    userEmail = request.data['userEmail']
+    description = request.data['description']
+
+    commentDate = request.data['commentDate']
+    rating = request.data['rating']
+    comment = Comment(userName=userName, userEmail=userEmail, description=description, rating=rating, commentDate=commentDate)
+    if request.data['product']:
+        product = Product.objects.get(id=request.data['product'])
+    comment.product=product
+    comment.save()
+    return Response(CommentSerializer(comment,context={"request": request}).data, status=status.HTTP_201_CREATED)
+
 
 @api_view(['DELETE'])
 @permission_classes((IsAuthenticated,))
@@ -418,7 +427,9 @@ def getSoldProductsByBuyer(request, username):
 @permission_classes((IsAuthenticated,))
 def getSoldProductsBySeller(request, username):
     if request.user.username == username or request.user.is_superuser:
-        sold = Sold.objects.filter(seller = username)
+        if request.user.is_superuser:
+            username='TechOn'
+        sold = Sold.objects.filter(product__seller = username)
         if sold:
             serializer = SoldSerializer(sold, many=True, context={"request": request})
             return Response(serializer.data)
