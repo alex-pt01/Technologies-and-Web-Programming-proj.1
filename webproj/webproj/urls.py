@@ -41,12 +41,12 @@ urlpatterns = [
     path('product/<int:id>', views.get_product),
     path('products', views.get_products),
     path('productcre', views.create_product),
-    path('productup/<int:id>', views.update_product),
+    path('productup/<str:id>', views.update_product),
     path('productdel/<int:id>', views.del_product),
-    
+
     #Search
     path('search', views.search_products),
-    
+
     # Promotions
     path('promotions', views.get_promotions),
     path('promotioncre', views.create_promotion),
@@ -62,14 +62,14 @@ urlpatterns = [
     #Sold
     path('sold/seller/<str:username>', views.getSoldProductsBySeller),
     path('sold/buyer/<str:username>', views.getSoldProductsByBuyer),
-    path('shoppingcarts/<str:username>', views.getBoughShoppingCarts),
-    path('shoppingcarts/<str:id>/items/', views.getShoppingCartItemsByCart),
 
     #Cart
     path('cart', views.getCart),
     path('cart/total', views.getCartTotal),
     path('addToCart', views.setInCart),
     path('pay', views.checkout),
+    path('shoppingcarts/<str:username>', views.getBoughShoppingCarts),
+    path('shoppingcarts/<int:id>/items/', views.getShoppingCartItemsByCart),
 
 
 
@@ -86,8 +86,8 @@ if settings.DEBUG:
     path('removeFromCart/<str:id>', views.removeFromCart, name='removeFromCart'),
     path('increaseQuantity/<str:id>', views.increaseQuantity, name='increaseQuantity'),
     path('decreaseQuantity/<str:id>', views.decreaseQuantity, name='decreaseQuantity'),
-    
-    
+
+
     path('checkout/', views.checkout, name='checkout'),
     path('cart/', views.cart, name='cart')
     """

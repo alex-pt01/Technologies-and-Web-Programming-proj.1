@@ -55,7 +55,7 @@ class SoldSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-
+    product = ProductSerializer()
     class Meta:
         model = Comment
         fields = ('id', 'userName', 'userEmail', 'description', 'rating', 'commentDate', 'product')

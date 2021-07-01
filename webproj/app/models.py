@@ -64,7 +64,6 @@ class Sold(models.Model):
     promotion = models.ForeignKey(Promotion, default=None,null=True, on_delete=models.CASCADE)
     total = models.FloatField(default=0.0)
 
-
 class Comment(models.Model):
     userName = models.CharField(max_length=80)
     userEmail = models.EmailField()
