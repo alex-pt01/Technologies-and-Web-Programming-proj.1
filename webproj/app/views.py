@@ -380,7 +380,6 @@ def get_commentByProductId(request, productId):
     serializer = CommentSerializer(coms, many=True)
     return Response(serializer.data)
 
-
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def create_comment(request):
@@ -396,7 +395,6 @@ def create_comment(request):
     comment.product=product
     comment.save()
     return Response(CommentSerializer(comment,context={"request": request}).data, status=status.HTTP_201_CREATED)
-
 
 @api_view(['DELETE'])
 @permission_classes((IsAuthenticated,))
