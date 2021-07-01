@@ -71,11 +71,11 @@ def getMyDetails(request):
 @api_view(['GET'])
 @permission_classes(())
 def get_users(request):
-    #if request.user.is_superuser:
-    users = User.objects.all()
-    serializer = UserSerializer(users, many=True)
-    return Response(serializer.data)
-    #return Response(status.HTTP_401_UNAUTHORIZED)
+    if request.user.is_superuser:
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)
+    return Response(status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['DELETE'])
 @permission_classes((IsAuthenticated,))
@@ -123,14 +123,15 @@ def log_in(request):
     username = request.data['username']
     password = request.data['password']
     try:
-        auth.authenticate(username=username, password=password)
-        user = User.objects.get(username=username)
-        t = Token.objects.filter(user=user)
+        if(auth.authenticate(username=username, password=password)):
+            user = User.objects.get(username=username)
+            t = Token.objects.filter(user=user)
 
 
-        serializer = UserSerializer(user, context={'token': str(t[0])})
+            serializer = UserSerializer(user, context={'token': str(t[0])})
 
-        return Response(serializer.data)
+            return Response(serializer.data)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
     except UserModel.DoesNotExist:
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
