@@ -113,7 +113,8 @@ def sign_up(request):
     username = request.data['username']
     email = request.data['email']
     password = request.data['password']
-    user = User.objects.create(username=username, password=password, email=email)
+    user = User.objects.create(username=username,email=email)
+    user.set_password(password)
     user.save()
     return Response(status=status.HTTP_201_CREATED)
 
